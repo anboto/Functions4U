@@ -10,7 +10,7 @@
 #include "GatherTpp.h"
 #endif
 
-#include <Functions4U/SvgColors.h>
+#include <Functions4U/Functions4U/SvgColors.h>
 #include "StaticPlugin.h"
 #include "LocalProcess2.h"
 #include <random>

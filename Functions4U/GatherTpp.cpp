@@ -5,9 +5,9 @@
 #include <PdfDraw/PdfDraw.h>
 //#include <ide/Browser/Browser.h>
 
-#include <Functions4U/Functions4U.h>
+#include <Functions4U/Functions4U/Functions4U.h>
 #include "GatherTpp.h"
-#include <Functions4U/Html/htmld.h>
+#include <Functions4U/Functions4U/Html/htmld.h>
 
 
 namespace Upp {
