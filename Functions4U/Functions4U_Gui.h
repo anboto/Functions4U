@@ -3,7 +3,7 @@
 #ifndef _Functions4U_Functions4U_Gui_h_
 #define _Functions4U_Functions4U_Gui_h_
 
-#include <Functions4U/Functions4U/Functions4U.h>
+#include "Functions4U.h"
 
 namespace Upp {
 

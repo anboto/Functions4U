@@ -8,7 +8,7 @@
 #include <plugin/bmp/bmp.h>
 
 #include <CtrlLib/CtrlLib.h>
-#include <Functions4U/Functions4U/Functions4U_Gui.h>
+#include "Functions4U_Gui.h"
 
 namespace Upp {
  
