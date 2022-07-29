@@ -1104,7 +1104,7 @@ public:
 			return String();
 		for (int i = 0; i < num-1; ++i)
 			GetLine();
-		return GetLine();;
+		return GetLine();
 	}
 	int GetLineNumber()	const 	{return line;}
 	String Str() const 			{return Format(t_("[File: '%s', line: %d]: "), fileName, line);}
@@ -1259,7 +1259,10 @@ public:
 	bool IsDouble(int i) const {
 		return !IsNull(GetDouble_nothrow(i));
 	}
-		
+	bool IsInLine(String str) {
+		return line.Find(str) >= 0;
+	}
+	
 	int size() const 		{return fields.GetCount();}
 	int GetCount() const 	{return size();}
 	bool IsEmpty() const 	{return size() == 0;}

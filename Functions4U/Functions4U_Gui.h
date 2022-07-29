@@ -144,6 +144,7 @@ public:
 	Function<void(Point, int, dword)> OnMouseWheel;
 	Function<void()> OnMouseLeave;
 	Function<void()> OnFocus;
+	Function<void()> OnLostFocus;
 	
 private:
 	virtual void MouseEnter(Point p, dword keyflags)	{OnMouseEnter(p, keyflags);}
@@ -157,6 +158,7 @@ private:
 	virtual void MouseWheel(Point p, int zdelta, dword keyflags){OnMouseWheel(p, zdelta, keyflags);}
 	virtual void MouseLeave()							{OnMouseLeave();}
 	virtual void GotFocus() 						  	{OnFocus();}
+	virtual void LostFocus() 						  	{OnLostFocus();}
 };
 
 }
