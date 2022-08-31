@@ -579,6 +579,8 @@ private:
 #if defined(PLATFORM_WIN32) 
 Value GetVARIANT(VARIANT &result);
 String WideToString(LPCWSTR wcs, int len = -1);
+bool BSTRSet(const String str, BSTR &bstr);
+String BSTRGet(BSTR &bstr);
 #endif
  
 
