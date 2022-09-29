@@ -309,6 +309,29 @@ inline T fround(T x, int numdec) {
   	return round(x*pow10)/pow10;
 }
 
+template <typename T>
+inline bool IsNum(const std::complex<T> &n) {return IsFin(n.real()) && IsFin(n.imag());}
+inline bool IsNum(double n) {return IsFin(n) && !IsNull(n);}
+inline bool IsNum(float n) 	{return IsFin(n);}
+inline bool IsNum(int n) 	{return !IsNull(n);}
+
+template <typename T>
+bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
+
+#define NaNComplex		std::numeric_limits<std::complex<double>>::quiet_NaN()
+#define NaNDouble		std::numeric_limits<double>::quiet_NaN()
+
+template<class T>
+T AvgSafe(const T &a, const T &b) {
+	if (IsNum(a)) {
+		if (IsNum(b)) 
+			return Avg(a, b);
+		else
+			return a;
+	} else 
+		return b;
+}
+
 template<class T>
 inline T Nvl(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
 

@@ -211,7 +211,7 @@ ConsoleOutput::~ConsoleOutput() {
 	}
 #endif
 }
-
+	
 void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit) {
 	int num = array.GetCount();
 	if (num == 0)
@@ -249,10 +249,12 @@ void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit) {
 }
 
 void ArrayCtrlRowCopy(const ArrayCtrl &array, bool header) {
+	WaitCursor wait;
 	array.SetClipboard(true, header);
 }
 
 void ArrayCtrlRowPaste(ArrayCtrl &array) {
+	WaitCursor wait;
 	String str = ReadClipboardText();
 	int numcol = array.GetColumnCount();
 	Vector<String> split = Split(str, "\r\n");
