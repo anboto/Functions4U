@@ -778,6 +778,34 @@ int FindAdd(Range& r, const typename Range::value_type& value, int from = 0) {
 	return r.size()-1;
 }
 
+template<class Range, typename T>
+int FindClosest(const Range& r, const std::complex<T>& value, int from = 0) {
+	int minId = -1;
+	T minDiff = std::numeric_limits<T>::max();
+	for (int i = from; i < r.size(); i++) {
+		T diff = abs(value - r[i]);
+		if (diff < minDiff) {
+			minDiff = diff;	
+			minId = i;		
+		}
+	}
+	return minId;
+}
+
+template<class Range>
+int FindClosest(const Range& r, const typename Range::value_type& value, int from = 0) {
+	int minId = -1;
+	typename Range::value_type minDiff = std::numeric_limits<typename Range::value_type>::max();
+	for (int i = from; i < r.size(); i++) {
+		typename Range::value_type diff = abs(value - r[i]);
+		if (diff < minDiff) {
+			minDiff = diff;	
+			minId = i;		
+		}
+	}
+	return minId;
+}
+
 template <class Range>
 int FindRatio(const Range& r, const typename Range::value_type& value, const typename Range::value_type& ratio, int from = 0) {
 	int id = FindClosest(r, value, from);
@@ -835,34 +863,6 @@ int FindRoundDecimals(const Range& r, const typename Range::value_type& value, i
 			return id;
 	}
 	return -1;
-}
-
-template<class Range, typename T>
-int FindClosest(const Range& r, const std::complex<T>& value, int from = 0) {
-	int minId = -1;
-	T minDiff = std::numeric_limits<T>::max();
-	for (int i = from; i < r.size(); i++) {
-		T diff = abs(value - r[i]);
-		if (diff < minDiff) {
-			minDiff = diff;	
-			minId = i;		
-		}
-	}
-	return minId;
-}
-
-template<class Range>
-int FindClosest(const Range& r, const typename Range::value_type& value, int from = 0) {
-	int minId = -1;
-	typename Range::value_type minDiff = std::numeric_limits<typename Range::value_type>::max();
-	for (int i = from; i < r.size(); i++) {
-		typename Range::value_type diff = abs(value - r[i]);
-		if (diff < minDiff) {
-			minDiff = diff;	
-			minId = i;		
-		}
-	}
-	return minId;
 }
     
 template <class Range>
