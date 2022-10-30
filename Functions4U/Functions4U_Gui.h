@@ -119,13 +119,21 @@ Vector<Vector<Value>> ArrayCtrlGet(const ArrayCtrl &arr);
 void ArrayCtrlSet(ArrayCtrl &array, const Vector<Vector<Value>> &vals, int fromRow = 0, int fromCol = 0);
 
 template <class T>
-T &GetDefinedParent(Ctrl *ths) {
+T *GetDefinedParentP(Ctrl *ths) {
 	while (ths->GetParent() != nullptr) {
 		ths = ths->GetParent();
 		T *main;
 		if ((main = dynamic_cast<T*>(ths)) != nullptr)
-			return *main;
+			return main;
 	}
+	return nullptr;
+}
+
+template <class T>
+T &GetDefinedParent(Ctrl *ths) {
+	T *p = GetDefinedParentP<T>(ths);
+	if (p)
+		return *p;
 	NEVER_(t_("Parent does not found in GetDefinedParent()"));
 	throw Exc(t_("Parent does not found in GetDefinedParent()"));
 }
