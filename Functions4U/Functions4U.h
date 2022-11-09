@@ -912,7 +912,7 @@ void SetSortOrder(Range1& a, const Range2& order) {
 	ASSERT(a.size() == order.size());
 	Range1 temp = clone(a);
 	for (int i = 0; i < order.size(); ++i)
-		a[i] = temp[order[i]];	
+		a[i] = pick(temp[order[i]]);	
 }
 
 
