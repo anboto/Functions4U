@@ -991,7 +991,7 @@ String HMSToString(int hour, int min, double seconds, int dec, bool units, bool 
 	}
 	
 	if (forcesec || (hour == 0 && (seconds > 1 || (seconds > 0 && dec > 0)))) {
-		ret << (ret.IsEmpty() || tp ? "" : " ") << formatSeconds(seconds, dec, tp);
+		ret << (ret.IsEmpty() || tp ? "" : " ") << formatSeconds(seconds, dec, tp && min > 0);
 		if (space)
 			ret << " ";
 		if (units)
