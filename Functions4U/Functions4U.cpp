@@ -2995,10 +2995,10 @@ static String ToArgs(const Vector<String> &args) {
 
 String GetPythonDeclaration(const String &name, const String &include) {
 	static String str;
-	const Vector<String> ctypes = {"double **", 									  "int *", 						 "int",    "double",   "const char *", "bool",   "const double *"}; 
-	const Vector<String> ptypes = {"ctypes.POINTER(ctypes.POINTER(ctypes.c_double))", "ctypes.POINTER(ctypes.c_int)", "c_int", "c_double", "c_char_p", 	   "c_bool", "np.ctypeslib.ndpointer(dtype=np.float64)"}; 
-	const Vector<bool> isPy_C   = {false, 											  false, 						 false,    false, 	   false,          false, 	 true};
-	const Vector<bool> isC_Py   = {true, 											  false, 						 false,    false, 	   false,          false, 	 false};
+	const Vector<String> ctypes = {"double **", 									  "int *", 						 "int",    		  "double",   		 "const char *", 	"bool",   		 "const double *"}; 
+	const Vector<String> ptypes = {"ctypes.POINTER(ctypes.POINTER(ctypes.c_double))", "ctypes.POINTER(ctypes.c_int)", "ctypes.c_int", "ctypes.c_double", "ctypes.c_char_p", "ctypes.c_bool", "np.ctypeslib.ndpointer(dtype=np.float64)"}; 
+	const Vector<bool> isPy_C   = {false, 											  false, 						 false,    		  false, 	   		 false,          	false, 	 		 true};
+	const Vector<bool> isC_Py   = {true, 											  false, 						 false,    		  false, 	   		 false,          	false, 	 		 false};
 	
 	str << "# " << name << " python functions list\n\n"
 		   "class " << name << ":\n"
@@ -3020,7 +3020,7 @@ String GetPythonDeclaration(const String &name, const String &include) {
 			const auto &type = ctypes[i];
 			if (line.StartsWith(type)) {
 				function = Trim(line.Mid(type.GetCount(), pospar - type.GetCount()));
-				strOut << "        self.libc." << function << ".restype = ctypes." << ptypes[i] << "\n";
+				strOut << "        self.libc." << function << ".restype = " << ptypes[i] << "\n";
 				break;
 			} 
 		}
@@ -3041,18 +3041,19 @@ String GetPythonDeclaration(const String &name, const String &include) {
 			continue;
 		
 		Vector<String> pargs, cargs, pargTypes;
-		String pre, post;
+		String pre, post, returns;
 		int idata = 0;
 		for (int i = 0; i < argTypeId.size(); ++i) {
 			pargTypes << ptypes[argTypeId[i]];
 			if (isC_Py[argTypeId[i]]) {
 				cargs << Format("ctypes.byref(_data%d)", idata);
-				pargs << argVars[i];
+				//pargs << argVars[i];
 				pre  << Format("        _data%d = ctypes.POINTER(ctypes.c_double)()\n", idata)
         			 << Format("        _size%d = ctypes.c_int()\n", idata);
         		post << Format("        _arraySize%d = ctypes.c_double * _size%d.value\n", idata, idata)
         			 << Format("        _data%d_pointer = ctypes.cast(_data%d, ctypes.POINTER(_arraySize%d))\n", idata, idata, idata)
         			 << Format("		%s = np.frombuffer(_data%d_pointer.contents)\n", argVars[i], idata);
+        		returns << ", " << argVars[i];
 			} else if (isPy_C[argTypeId[i]]) {
 				cargs << argVars[i];
 				pargs << argVars[i];
@@ -3089,7 +3090,7 @@ String GetPythonDeclaration(const String &name, const String &include) {
 		if (!post.IsEmpty()) 
 			strFun << "        # Vector processing\n" 
 				   << post 
-				   << "        return ret\n";
+				   << "        return ret" << returns << "\n";
 		
 		strFun << "\n";
 	}
