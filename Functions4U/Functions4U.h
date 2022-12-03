@@ -733,6 +733,30 @@ void Shuffle(C &data, int randomSeed = Null) {
 }
 
 template <class T>
+bool EqualRatio(const std::complex<T>& a, const std::complex<T>& b, const T& ratio, const T& zero = 0) {
+	T absa = abs(a);
+	T absb = abs(b);	
+	if (absa <= zero) {
+		if (absb <= zero)
+			return true;
+		else {
+			if(abs((zero - absb)/absb) <= ratio) 
+				return true;
+			else
+				return false;
+		}
+	} else if (absb <= zero) {
+		if(abs((absa - zero)/absa) <= ratio) 
+			return true;
+		else
+			return false;
+	}
+	if(abs((a - b)/b) <= ratio) 
+		return true;
+	return false;
+}
+
+template <class T>
 bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 	if (abs(a) <= zero) {
 		if (abs(b) <= zero)
@@ -843,6 +867,15 @@ int FindDelta(const Range& r, const typename Range::value_type& value, const typ
 			return id;
 	}
 	return -1;
+}
+
+template <class Range, typename T>
+int FindAddDelta(Range& r, const std::complex<T>& value, const T& delta, int from = 0) {
+	int id = FindDelta(r, value, delta, from);
+	if (id >= 0)
+		return id; 
+	r.Add(value);
+	return r.size()-1;
 }
 
 template <class Range>
