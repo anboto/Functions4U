@@ -1080,7 +1080,7 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {
 	return data;
 }*/
 
-inline bool IsNum_(double n) {return IsFin(n) && !IsNull(n);}
+inline bool IsNum_(double n) {return Upp::IsFin(n) && !IsNull(n);}
 
 String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {
 	String data;

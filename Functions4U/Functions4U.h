@@ -59,7 +59,7 @@ String GetLine(const String &str, int &pos);
 	
 /////////
 bool DirectoryExistsX(const char *path, EXT_FILE_FLAGS flags = NO_FLAG); 
-void DirectoryCopyX(const char *dir, const char *newPlace, bool replaceOnlyNew, String filesToExclude, String &erroList);
+void DirectoryCopyX(const char *dir, const char *newPlace, bool replaceOnlyNew, String filesToExclude, String &errorList);
 bool DirectoryMove(const char *dir, const char *newPlace);
 bool DeleteDeepWildcardsX(const char *path, bool filefolder, EXT_FILE_FLAGS flags = NO_FLAG, bool deep = true);
 bool DeleteDeepWildcardsX(const char *pathwc, const char *namewc, bool filefolder, EXT_FILE_FLAGS flags = NO_FLAG, bool deep = true);
@@ -333,7 +333,7 @@ T AvgSafe(const T &a, const T &b) {
 }
 
 template<class T>
-inline T Nvl(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
+inline T Nvl2(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
 
 template<class T>
 inline T Nvl2(T cond, T a, T b) {return IsFin(cond) && !IsNull(cond) ? a : b;}
@@ -347,6 +347,7 @@ T fact(T val) {
 		ret *= val--;
 	return ret; 
 }
+
 template <class T> 
 inline bool Between(const T& val, const T& min, const T& max) { 
 	ASSERT(max > min);
