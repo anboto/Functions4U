@@ -2623,6 +2623,20 @@ String WideToString(LPCWSTR wcs, int len) {
 	return ~w;	
 }
 
+bool StringToWide(String str, LPCWSTR &wcs) {
+	wchar_t *buffer;
+	DWORD size = MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
+	if (!(buffer = (wchar_t *)GlobalAlloc(GMEM_FIXED, sizeof(wchar_t) * size)))
+		return false;
+
+	MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+	wcs = SysAllocString(buffer);
+	GlobalFree(buffer);
+	if (!wcs)
+		return false;
+	return true;
+}
+
 bool BSTRSet(const String str, BSTR &bstr) {
 	wchar_t *buffer;
 	DWORD size = MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);

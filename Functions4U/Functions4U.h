@@ -248,7 +248,7 @@ String RemovePunctuation(String str);
 template<typename T>	
 inline T ToRad(T angle)	{
 	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
-	return angle*M_PI/180.;
+	return angle*M_PI/180.;		// If not, this division will be zero
 }
 template <class Range>
 Range ToRadArray(const Range& r) {
@@ -261,7 +261,7 @@ Range ToRadArray(const Range& r) {
 template<typename T>
 inline T ToDeg(T angle)	{
 	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
-	return angle*180./M_PI;
+	return angle*180./M_PI;		// If not, this division will be zero
 }
 template <class Range>
 Range ToDegArray(const Range& r) {
@@ -273,7 +273,7 @@ Range ToDegArray(const Range& r) {
 
 template<typename T>
 inline T atan2_360(T y, T x) {
-	static_assert(std::is_floating_point<T>::value, "Type T has to be floating point");
+	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
 	T ret = ToDeg(atan2(y, x));
 	return ret > 90 ? 450 - ret : 90 - ret; 
 }
@@ -603,6 +603,7 @@ private:
 #if defined(PLATFORM_WIN32) 
 Value GetVARIANT(VARIANT &result);
 String WideToString(LPCWSTR wcs, int len = -1);
+bool StringToWide(String str, LPCWSTR &wcs);
 bool BSTRSet(const String str, BSTR &bstr);
 String BSTRGet(BSTR &bstr);
 #endif
@@ -619,6 +620,11 @@ public:
 	virtual ~Dl();
 	bool Load(const String &fileDll);
 	void *GetFunction(const String &functionName);
+#if defined(PLATFORM_WIN32)
+	HINSTANCE GetHandle() {return hinstLib;}
+#else
+	void *GetHandle()	  {return hinstLib;}
+#endif
 	
 private:
 #if defined(PLATFORM_WIN32) 
@@ -1280,6 +1286,15 @@ public:
 	String& GetLine(int num = 1) {
 		ASSERT(in);
 		Load(in->GetLine(num));
+		return line;
+	}
+	String& GetLine_discard_empty() {
+		ASSERT(in);
+		while (!in->IsEof()) {
+			Load(in->GetLine());
+			if (size() > 0)
+				return line;
+		}
 		return line;
 	}
 	bool IsEof() {
