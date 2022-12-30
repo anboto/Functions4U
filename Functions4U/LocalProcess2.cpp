@@ -6,7 +6,7 @@
 namespace Upp {
 
 #ifdef PLATFORM_WIN32
-#include <TlHelp32.h>
+#include <tlhelp32.h>
 #endif
 #ifdef PLATFORM_POSIX
 #include <signal.h>
@@ -700,7 +700,7 @@ int LocalProcess2::Finish(String& out)
 }
 
 #ifdef PLATFORM_WIN32
-#include <TlHelp32.h>
+#include <tlhelp32.h>
 
 
 void PauseChildThreads(DWORD dwProcessId, bool paused) {
