@@ -613,13 +613,15 @@ String GetExtExecutable(const String ext);
 
 Vector<String> GetDriveList();
 
-#define DLLFunction(dll, type, function, args) auto function = (type(*)args)dll.GetFunction(#function); if (!function) throw Exc(Format("%s not found", #function))
+#define DLLFunction(dll, ret, function, args) auto function = (ret(*)args)dll.GetFunction_throw(#function)
+#define DLLGetFunction(dll, ret, function, args) 			  (ret(*)args)dll.GetFunction_throw(#function)
 
 class Dl {
 public:
 	virtual ~Dl();
 	bool Load(const String &fileDll);
 	void *GetFunction(const String &functionName);
+	void *GetFunction_throw(const String &functionName);
 #if defined(PLATFORM_WIN32)
 	HINSTANCE GetHandle() {return hinstLib;}
 #else

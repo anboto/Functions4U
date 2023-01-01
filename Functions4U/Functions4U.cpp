@@ -2699,6 +2699,14 @@ void *Dl::GetFunction(const String &functionName) {
 	return reinterpret_cast<void *>(GetProcAddress(hinstLib, functionName));
 }
 
+void *Dl::GetFunction_throw(const String &functionName) {
+	void *ret;
+	if (!(ret = GetFunction(functionName)))
+	 	throw Exc(Format("Dl::GetFunction: %s not found", functionName));
+	return ret;
+}
+	
+
 #else
 
 #include <dlfcn.h>
