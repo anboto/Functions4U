@@ -410,12 +410,12 @@ inline const Point_<T> Middle(const Point_<T>& p1, const Point_<T>& p2)  {
 	return Point_<T>(Avg(p1.x, p2.x), Avg(p1.y, p2.y));
 }
 
-Vector<Vector <Value> > ReadCSV(const String strFile, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
-Vector<Vector <Value> > ReadCSVFile(const String fileName, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
-bool ReadCSVFileByLine(const String fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator = ',', char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
+Vector<Vector <Value> > ReadCSV(const String &strFile, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
+Vector<Vector <Value> > ReadCSVFile(const String &fileName, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
+bool ReadCSVFileByLine(const String &fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator = ',', char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
 String WriteCSV(Vector<Vector <Value> > &data, char separator = ',', bool bycols = true, char decimalSign = '.');
-bool WriteCSVFile(const String fileName, Vector<Vector <Value> > &data, char separator = ',', bool bycols = true, char decimalSign = '.');
-
+bool WriteCSVFile(const String &fileName, Vector<Vector <Value> > &data, char separator = ',', bool bycols = true, char decimalSign = '.');
+bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow);
 	
 // A String based class to parse into
 class StringParse : public String {
@@ -798,6 +798,14 @@ template <class Range>
 int Find(const Range& r, const typename Range::value_type& value, int from = 0) {
 	for (int i = from; i < r.size(); i++)
 		if(r[i] == value) 
+			return i;
+	return -1;
+}
+
+template <class Range>
+int FindFunction(const Range& r, Function<bool(const typename Range::value_type &)> IsEqual, int from = 0) {
+	for (int i = from; i < r.size(); i++)
+		if(IsEqual(r[i])) 
 			return i;
 	return -1;
 }

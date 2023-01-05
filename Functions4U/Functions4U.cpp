@@ -1342,7 +1342,7 @@ Value GetField(const String &str, int &pos, char separator, char decimalSign, bo
 	}
 }
 
-Vector<Vector <Value> > ReadCSV(const String strFile, char separator, bool bycols, bool removeRepeated, char decimalSign, bool onlyStrings, int fromRow) {
+Vector<Vector <Value> > ReadCSV(const String &strFile, char separator, bool bycols, bool removeRepeated, char decimalSign, bool onlyStrings, int fromRow) {
 	Vector<Vector<Value> > result;
 
 	if (strFile.IsEmpty())
@@ -1415,11 +1415,11 @@ Vector<Vector <Value> > ReadCSV(const String strFile, char separator, bool bycol
 	return result;
 }
 
-Vector<Vector <Value> > ReadCSVFile(const String fileName, char separator, bool bycols, bool removeRepeated, char decimalSign, bool onlyStrings, int fromRow) {
+Vector<Vector <Value> > ReadCSVFile(const String &fileName, char separator, bool bycols, bool removeRepeated, char decimalSign, bool onlyStrings, int fromRow) {
 	return ReadCSV(LoadFile(fileName), separator, bycols, removeRepeated,  decimalSign, onlyStrings, fromRow);
 }
 
-bool ReadCSVFileByLine(const String fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator, char decimalSign, bool onlyStrings, int fromRow) {
+bool ReadCSVFileByLine(const String &fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator, char decimalSign, bool onlyStrings, int fromRow) {
 	Vector<Value> result;
 
 	FindFile ff(fileName);
@@ -1458,6 +1458,136 @@ String ToStringDecimalSign(Value &val, const String &decimalSign) {
 	if (val.Is<double>() && decimalSign != ".") 
 		ret.Replace(".", decimalSign);
 	return ret;
+}
+
+bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
+	const Array<char> separators = {',', ';', '\t', '|', '%'};
+	
+	int numLinesToDiscard = 10, numLinesToCheck = 5;	
+	
+	FileIn in(fileName);
+	if (!in)
+		return false;
+	
+	// Get all lines and its positions
+	Vector<String> lines;
+	Vector<int64> linesPos;
+	linesPos << 0;
+	for (int i = 0; i < numLinesToDiscard+numLinesToCheck && !in.IsEof(); ++i) {
+		lines << in.GetLine();
+		linesPos << (in.GetPos()+1);
+	}
+	// Re adjust check window if the file is small
+	if (lines.size() < numLinesToDiscard + numLinesToCheck) {
+		numLinesToCheck = (numLinesToCheck*lines.size())/(numLinesToDiscard + numLinesToCheck);
+		numLinesToDiscard = lines.size() - numLinesToCheck;
+	}
+
+	auto NumNum = [](const Vector<String> &a, char decimal)->int {	// Number of real numbers un a vector of strings
+		const char *endptr;
+		int num = 0;
+		for (int i = 0; i < a.size(); ++i) {
+			if (a[i].Find(decimal == '.' ? ',' : '.') < 0) {		// If ',' is the decimal, '.' is not allowed in a number, and the opposite
+				if (!IsNull(ScanDouble(a[i], &endptr, decimal == ',')))
+					num++;
+			}
+		}
+		return num;
+	};
+		
+	auto CompareVector = [](const Vector<int> &a)->int {			// Checks if all the values are the same, and returns it
+		int n = a[0];
+		
+		for (int i = 1; i < a.size(); ++i) {
+			if (n != a[i]) 
+				return -1;
+		}
+		return n;
+	};
+	
+	auto CompareVectors = [](const Vector<int> &a, const Vector<int> &b)->int {	// Checks if all the values in 2 vectors are the same, and returns it
+		if (a.size() != b.size())
+			return -1;
+		int n = a[0];
+		if (n != b[0])
+			return -1;
+		
+		for (int i = 1; i < a.size(); ++i) {
+			if (n != a[i] || n != b[i]) 
+				return -1;
+		}
+		return n;
+	};
+	
+	// Gets the separator and decimal
+	Vector<char> decimals = {'.', ','};
+	Vector<bool> sepRepetition = {false, true};
+	int numBest = -1;
+	for (int irep = 0; irep < sepRepetition.size(); ++irep) {
+		for (int idec = 0; idec < decimals.size(); ++idec) {
+			for (int ih = 0; ih < separators.size(); ++ih) {
+				Vector<int> numF, numNum;
+				for (int row = 0; row < numLinesToCheck; ++row) {
+					Vector<String> data = Split(lines[row+numLinesToDiscard], separators[ih], sepRepetition[irep]);
+					numF << data.size();
+					if (onlyNumbers)
+						numNum << NumNum(data, decimals[idec]);
+				}
+				int num;
+				if (onlyNumbers)
+					num = CompareVectors(numF, numNum);
+				else
+					num = CompareVector(numF);
+				
+				if (num > numBest) {
+					separator = separators[ih];
+					decimalSign = decimals[idec];
+					repetition = sepRepetition[irep];
+					numBest = num;
+				}
+			}
+		}
+	}
+	if (numBest < 0)
+		return false;
+
+	// Analyses the header
+	int beginHeader = -1, endHeader = -1;
+	for (int r = numLinesToDiscard-1; r >= 0; --r) {
+		Vector<String> data = Split(lines[r], separator, repetition);
+		if (data.size() != numBest) 
+			break;
+
+		beginHeader = r;
+		
+		if (onlyNumbers) {
+			if (NumNum(data, decimalSign) == numBest)
+				endHeader = r;
+		} else
+			endHeader = r;
+	}
+	
+	beginData = linesPos[endHeader];
+	beginDataRow = endHeader;
+	
+	header = "";
+	for (int r = 0; r < beginHeader; ++r) {
+		if (r > 0)
+			header << "\n";	
+		header << lines[r];
+	}
+	
+	parameters.SetCount(numBest);
+	for (int r = beginHeader; r < endHeader; ++r) {
+		Vector<String> data = Split(lines[r], separator);
+		for (int i = 0; i < numBest; ++i) {	
+			if (r - beginHeader > 0)
+				parameters[i] << "\n";
+			parameters[i] << Trim(data[i]);
+		}
+	}
+	
+	return true;	
 }
 
 String WriteCSV(Vector<Vector <Value> > &data, char separator, bool bycols, char decimalSign) {
