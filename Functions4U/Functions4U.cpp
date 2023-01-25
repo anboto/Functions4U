@@ -770,7 +770,7 @@ String GetCommonAppDataFolder() {
 	return Null;
 }
 #endif
-
+/*
 bool SetEnv(const char *id, const char *val) 
 {
 //	EnvMap().Put(WString(id), WString(val));
@@ -781,7 +781,7 @@ bool SetEnv(const char *id, const char *val)
 	return _wputenv((const wchar_t *)str.Begin()) == 0;
 #endif
 }
-
+*/
 
 #endif
 #ifdef PLATFORM_POSIX
