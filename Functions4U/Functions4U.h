@@ -1167,8 +1167,9 @@ int LevenshteinDistance(const char *s, const char *t);
 int DamerauLevenshteinDistance(const char *s, const char *t, int alphabetLength = 256);
 int SentenceSimilitude(const char *s, const char *t);
 
-#define S(y)	Upp::String(y)
-
+//#define S(y)	Upp::String(y)
+String S(const char *s);
+String S(const Value &v);
 	
 template<class T>
 void Jsonize(JsonIO& io, std::complex<T>& var) {

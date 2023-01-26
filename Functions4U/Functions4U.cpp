@@ -3271,12 +3271,13 @@ String CleanCFromDeclaration(const String &include, bool removeSemicolon) {
 	return str;
 }
 
+String S(const char *s) 	{return s;}
+String S(const Value &v) 	{return v.ToString();}
 
 bool CoutStreamX::noprint = false;
 
 Stream& CoutX() {
 	return Single<CoutStreamX>();
 }
-
 
 }
