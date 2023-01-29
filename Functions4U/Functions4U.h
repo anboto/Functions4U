@@ -1294,6 +1294,13 @@ public:
 		fields << line.Mid(from);
 		return *this;
 	}
+	FieldSplit& LoadFields(String _line, const Vector<int> &pos) {
+		line = _line;
+		fields.Clear();
+		for (int i = 0; i < pos.size()-1 && pos[i] < line.GetCount(); ++i)
+			fields << Trim(line.Mid(pos[i], pos[i+1]-pos[i]));
+		return *this;
+	}
 	String& GetLine(int num = 1) {
 		ASSERT(in);
 		Load(in->GetLine(num));
@@ -1306,6 +1313,11 @@ public:
 			if (size() > 0)
 				return line;
 		}
+		return line;
+	}
+	String& GetLineFields(const Vector<int> &pos) {
+		ASSERT(in);
+		LoadFields(in->GetLine(), pos);
 		return line;
 	}
 	bool IsEof() {
