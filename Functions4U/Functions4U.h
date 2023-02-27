@@ -620,13 +620,14 @@ class Dl {
 public:
 	virtual ~Dl();
 	bool Load(const String &fileDll);
-	void *GetFunction(const String &functionName);
-	void *GetFunction_throw(const String &functionName);
+	void *GetFunction(const String &functionName) const;
+	void *GetFunction_throw(const String &functionName) const;
 #if defined(PLATFORM_WIN32)
 	HINSTANCE GetHandle() {return hinstLib;}
 #else
 	void *GetHandle()	  {return hinstLib;}
 #endif
+	operator bool() const {return hinstLib;}
 	
 private:
 #if defined(PLATFORM_WIN32) 

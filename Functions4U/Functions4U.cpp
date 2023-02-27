@@ -2823,13 +2823,13 @@ bool Dl::Load(const String &fileDll) {
 	return true;
 }
 
-void *Dl::GetFunction(const String &functionName) {
+void *Dl::GetFunction(const String &functionName) const {
 	if (!hinstLib) 
 		return nullptr;
 	return reinterpret_cast<void *>(GetProcAddress(hinstLib, functionName));
 }
 
-void *Dl::GetFunction_throw(const String &functionName) {
+void *Dl::GetFunction_throw(const String &functionName) const {
 	void *ret;
 	if (!(ret = GetFunction(functionName)))
 	 	throw Exc(Format("Dl::GetFunction: %s not found", functionName));
