@@ -2858,11 +2858,23 @@ bool Dl::Load(const String &fileDll) {
 	return true;
 }
 
-void *Dl::GetFunction(const String &functionName) {
+void *Dl::GetFunction(const String &functionName) const {
 	if (!hinstLib) 
 		return nullptr;
-	return dlsym(hinstLib, functionName);
+	dlerror();				// Clear the errors
+	void *ret = dlsym(hinstLib, functionName);
+	if(!dlerror())			// If no error message, dlsym() went well
+		return ret;
+	else
+		return nullptr;
 }	
+
+void *Dl::GetFunction_throw(const String &functionName) const {
+	void *ret;
+	if (!(ret = GetFunction(functionName)))
+	 	throw Exc(Format("Dl::GetFunction: %s not found", functionName));
+	return ret;
+}
 
 #endif
 
