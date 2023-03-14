@@ -121,6 +121,20 @@ void DistanceDemo() {
 	UppLog() << Format("Distance between 'hello' and 'yellow' is %d", DamerauLevenshteinDistance("hello", "yellow"));
 }
 
+void InstalledDemo() {
+	Array<SoftwareDetails> softs = GetInstalledSoftware();
+	
+	for (auto &soft : softs) {
+		UppLog() << soft.name << "\n";
+		UppLog() << Format("\tPublisher:   %s\n", soft.publisher);
+		UppLog() << Format("\tVersion:     %s\n", soft.version);
+		UppLog() << Format("\tArchitect:   %s\n", soft.architecture);
+		UppLog() << Format("\tPath:        %s\n", soft.path);
+		UppLog() << Format("\tDescription: %s\n", soft.description);
+	}
+	UppLog() << "\n";
+}	
+	
 void MiscellaneousDemos() {
 	UppLog() << "Float formatting\n";
 	
@@ -192,6 +206,9 @@ CONSOLE_APP_MAIN
 {	
 	StdLogSetup(LOG_COUT|LOG_FILE);
 
+	UppLog() << "Installed software demo";
+	InstalledDemo();
+	
 	UppLog() << "Miscellaneous demos";
 	MiscellaneousDemos();
 	

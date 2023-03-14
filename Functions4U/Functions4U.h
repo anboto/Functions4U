@@ -242,8 +242,9 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces = false);
 
 String RemoveAccents(String str);
 String RemoveAccent(wchar c);
-bool IsPunctuation(wchar c);
 String RemovePunctuation(String str);
+bool IsPunctuation(wchar c);
+
 
 template<typename T>	
 inline T ToRad(T angle)	{
@@ -261,7 +262,7 @@ Range ToRadArray(const Range& r) {
 template<typename T>
 inline T ToDeg(T angle)	{
 	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
-	return angle*180./M_PI;		// If not, this division will be zero
+	return angle*T(180./M_PI);		// If not, this division will be zero
 }
 template <class Range>
 Range ToDegArray(const Range& r) {
@@ -611,6 +612,32 @@ String BSTRGet(BSTR &bstr);
 
 String GetExtExecutable(const String ext);
 
+struct SoftwareDetails : DeepCopyOption<SoftwareDetails> {
+	String name;
+	String publisher;
+	String version;
+	String path;
+	String description;
+	String architecture;
+	
+	Vector<int> GetVersion() {
+		Vector<String> ver = Split(version, '.');
+		Vector<int> ret(ver.size());
+		for (int i = 0; i < ver.size(); ++i)
+			ret[i] = ScanInt(ver[i]);
+		return ret;
+	}
+	static int IsHigherVersion(Vector<int> &a, Vector<int> &b) {
+		return CompareRanges(a, b);
+	}
+};
+
+Array<SoftwareDetails> GetInstalledSoftware();
+Array<SoftwareDetails> GetSoftwareDetails(String software);
+#ifdef PLATFORM_POSIX
+void GetSoftwarePath(SoftwareDetails &r);
+#endif
+	
 Vector<String> GetDriveList();
 
 #define DLLFunction(dll, ret, function, args) auto function = (ret(*)args)dll.GetFunction_throw(#function)
@@ -1269,19 +1296,54 @@ public:
 	}
 };
 
-class FieldSplit {
+class YmlParser {
+public:
+	explicit YmlParser(FileInLine &_in) {in = &_in;}	
+	
+	bool GetLine();
+	bool FirstIs(const String &val);
+	bool FirstMatch(const String &pattern);	
+	int Index() const 					{return index[idvar];}
+	const Vector<int> &GetIndex() const	{return index;}
+	
+	const String &GetVal() const					{return val;}
+	
+	Vector<double> GetVectorDouble() const;	
+	Vector<Vector<double>> GetMatrixDouble() const;
+	
+	const Vector<String> &GetVector() const			{return matrix[0];}	
+	const Vector<Vector<String>> &GetMatrix() const	{return matrix;}
+	
+	String StrVal() const;
+	String StrVar() const;
+	
+	bool IsEof() const	{return in->IsEof();}
+		
+private:
+	FileInLine *in = nullptr;
+	Vector<int> indentation;
+	int idvar;
+	
+	Vector<String> var;
+	Vector<int> index;
+	Vector<Vector<String>> matrix;
+	String val;
+};
+
+class LineParser {
 public:
 	const int FIRST = 0;
 	const int LAST = Null;
 	
-	explicit FieldSplit(FileInLine &_in) {in = &_in;}
+	LineParser() {}
+	explicit LineParser(FileInLine &_in) {in = &_in;}
 	
-	FieldSplit& Load(String _line) {
+	LineParser& Load(String _line) {
 		line = _line;
 		fields = Split(line, IsSeparator, true);
 		return *this;
 	}
-	FieldSplit& Load(String _line, const Vector<int> &separators) {
+	LineParser& Load(String _line, const Vector<int> &separators) {
 		line = _line;
 		fields.Clear();
 		int from = 0, to;
@@ -1295,11 +1357,13 @@ public:
 		fields << line.Mid(from);
 		return *this;
 	}
-	FieldSplit& LoadFields(String _line, const Vector<int> &pos) {
+	LineParser& LoadFields(String _line, const Vector<int> &pos) {
 		line = _line;
 		fields.Clear();
 		for (int i = 0; i < pos.size()-1 && pos[i] < line.GetCount(); ++i)
 			fields << Trim(line.Mid(pos[i], pos[i+1]-pos[i]));
+		if (pos[pos.size()-1] < line.GetCount())
+			fields << Trim(line.Mid(pos[pos.size()-1]));
 		return *this;
 	}
 	String& GetLine(int num = 1) {
@@ -1338,7 +1402,7 @@ public:
 	}
 	int GetInt_nothrow(int i) const {
 		if (fields.IsEmpty())
-			throw Exc(in->Str() + t_("No data available"));
+			return Null;//throw Exc(in->Str() + t_("No data available"));
 		if (IsNull(i))
 			i = fields.GetCount()-1;
 		CheckId(i);
@@ -1359,7 +1423,7 @@ public:
 	}
 	double GetDouble_nothrow(int i) const {
 		if (fields.IsEmpty())
-			throw Exc(in->Str() + t_("No data available"));
+			return Null;//throw Exc(in->Str() + t_("No data available"));
 		if (IsNull(i))
 			i = fields.GetCount()-1;
 		if (!CheckId_nothrow(i))

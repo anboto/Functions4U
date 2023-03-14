@@ -200,7 +200,7 @@ String Replace(String str, char find, char replace) {
 		if (ret[i] == find)
 			ret[i] = replace;
 	}
-	return ret;
+	return String(ret);
 }
 
 // Rename file or folder
@@ -604,7 +604,7 @@ String LoadFile_Safe(const String fileName)
 	if (nsize > 1)
 		s.Cat(buf, nsize-1);
 	close(fid);
-	return s;
+	return String(s);
 }
 
 String LoadFile(const char *fileName, off_t from, size_t len)
@@ -633,8 +633,159 @@ String LoadFile(const char *fileName, off_t from, size_t len)
 	if (nsize > 1 && (len == 0 || loaded < len))
 		s.Cat(buf, int(nsize-1));
 	close(fid);
-	return s;
+	return String(s);
 }
+
+Array<SoftwareDetails> GetSoftwareDetails(String software) {
+	software = ToLower(software);
+	Array<SoftwareDetails> enumSoft = GetInstalledSoftware();
+	for (int i = enumSoft.size()-1; i >= 0; --i) {
+		if (!PatternMatch(software, ToLower(enumSoft[i].name)))
+			enumSoft.Remove(i);
+	}
+#ifdef POSIX
+	for (auto &s : enumSoft)
+		GetSoftwarePath(s);
+#endif
+	return enumSoft;
+}
+
+#if defined(PLATFORM_WIN32) 
+Array<SoftwareDetails> GetInstalledSoftware() {
+	Array<SoftwareDetails> ret;
+    char sAppKeyName[_MAX_PATH];
+    char str[_MAX_PATH];
+    dword dwType;
+    
+    Vector<String> paths = {"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+    						"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"};
+    
+    for (int ip = 0; ip < paths.size(); ++ip) {
+        String &path = paths[ip];
+		HKEY hUninstKey = NULL;
+	    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, path, 0, KEY_READ, &hUninstKey) == ERROR_SUCCESS) {
+			long lResult = ERROR_SUCCESS;
+		    for(dword dwIndex = 0; lResult == ERROR_SUCCESS; dwIndex++) {
+		        dword dwBufferSize = sizeof(sAppKeyName);
+		        if((lResult = RegEnumKeyEx(hUninstKey, dwIndex, sAppKeyName,
+		            &dwBufferSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
+		            
+		            String sSubKey = AppendFileName(path, sAppKeyName);
+		            HKEY hAppKey = NULL;
+		            if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, sSubKey, 0, KEY_READ, &hAppKey) == ERROR_SUCCESS) {
+		                SoftwareDetails &data = ret.Add();
+		                
+		                dwType = KEY_ALL_ACCESS;
+			            dwBufferSize = sizeof(str);
+			            if(RegQueryValueEx(hAppKey, "DisplayName", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+			                data.name = str;
+	
+						dwType = KEY_ALL_ACCESS;
+			            dwBufferSize = sizeof(str);
+			            if(RegQueryValueEx(hAppKey, "Publisher", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+			                data.publisher = str;
+
+						dwType = KEY_ALL_ACCESS;
+			            dwBufferSize = sizeof(str);
+			            if(RegQueryValueEx(hAppKey, "DisplayVersion", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+			                data.version = str;
+
+						dwType = KEY_ALL_ACCESS;
+			            dwBufferSize = sizeof(str);
+			            if(RegQueryValueEx(hAppKey, "InstallLocation", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+			                data.path = str;
+			            
+			            data.architecture = ip == 0 ? "32 bits" : "64 bits";
+		            }
+		            RegCloseKey(hAppKey);
+		        }
+		    }
+	    }
+	    RegCloseKey(hUninstKey);
+    }
+    return ret;
+}
+
+#endif
+
+#ifdef PLATFORM_POSIX
+
+static void GetInstalledSoftwareDpkg(Array<SoftwareDetails> &ret) {
+	String str = Sys("dpkg --list --no-pager");
+	StringStream stream(str);
+	
+	int idname = -1, idver, idarch, iddesc;
+	while (!stream.IsEof()) {
+		String line = stream.GetLine();
+		if ((iddesc = line.Find("Description")) >= 0) {
+			idname = line.Find("Name");
+			idver = line.Find("Version");
+			idarch = line.Find("Architecture");
+			break;
+		}
+	}
+	if (idname == -1)
+		return;
+	
+	stream.GetLine();
+	LineParser p;
+	while (!stream.IsEof()) {	
+		p.LoadFields(stream.GetLine(), {idname, idver, idarch, iddesc});
+
+		SoftwareDetails &r = ret.Add();
+		r.name = p.GetText(0);	
+		r.version = p.GetText(1);
+		r.architecture = p.GetText(2);
+		r.description = p.GetText(3);
+		
+		// GetSoftwarePath(r);
+	}
+}
+
+static void GetInstalledSoftwareSnap(Array<SoftwareDetails> &ret) {
+	String str = Sys("snap list");
+	StringStream stream(str);
+	
+	int idname = -1, idver, idrev, idtrack, idpub, idnotes;
+	while (!stream.IsEof()) {
+		String line = stream.GetLine();
+		if ((idpub = line.Find("Publisher")) >= 0) {
+			idname = line.Find("Name");
+			idver = line.Find("Version");
+			idrev = line.Find("Rev");
+			idtrack = line.Find("Tracking");
+			idpub = line.Find("Publisher");
+			idnotes = line.Find("Notes");
+			break;
+		}
+	}
+	if (idname == -1)
+		return;
+	
+	stream.GetLine();
+	LineParser p;
+	while (!stream.IsEof()) {	
+		p.LoadFields(stream.GetLine(), {idname, idver, idrev, idtrack, idpub, idnotes});
+		SoftwareDetails &r = ret.Add();
+		r.name = p.GetText(0);	
+		r.version = p.GetText(1) + "." + p.GetText(2);
+		r.publisher = p.GetText(4);
+		
+		//GetSoftwarePath(r);
+	}
+}
+
+Array<SoftwareDetails> GetInstalledSoftware() {
+	Array<SoftwareDetails> ret;
+	
+	GetInstalledSoftwareDpkg(ret);
+	GetInstalledSoftwareSnap(ret);
+	
+	return ret;
+}
+
+
+#endif
 
 String GetExtExecutable(const String _ext)
 {
