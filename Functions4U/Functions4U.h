@@ -1309,7 +1309,7 @@ public:
 	const String &GetVal() const					{return val;}
 	
 	Vector<double> GetVectorDouble() const;	
-	Vector<Vector<double>> GetMatrixDouble() const;
+	Vector<Vector<double>> GetMatrixDouble(bool isrect = true) const;
 	
 	const Vector<String> &GetVector() const			{return matrix[0];}	
 	const Vector<Vector<String>> &GetMatrix() const	{return matrix;}
@@ -1317,7 +1317,9 @@ public:
 	String StrVal() const;
 	String StrVar() const;
 	
-	bool IsEof() const	{return in->IsEof();}
+	const String &GetText()	{return lastLine;}
+	
+	bool IsEof() const		{return in->IsEof();}
 		
 private:
 	FileInLine *in = nullptr;
@@ -1328,6 +1330,7 @@ private:
 	Vector<int> index;
 	Vector<Vector<String>> matrix;
 	String val;
+	String lastLine;
 };
 
 class LineParser {
