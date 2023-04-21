@@ -245,6 +245,9 @@ String RemoveAccent(wchar c);
 String RemovePunctuation(String str);
 bool IsPunctuation(wchar c);
 
+String GreekToText(wchar c);
+bool IsGreek(wchar c);
+String RemoveGreek(String str);
 
 template<typename T>	
 inline T ToRad(T angle)	{
@@ -618,7 +621,7 @@ struct SoftwareDetails : DeepCopyOption<SoftwareDetails> {
 	String version;
 	String path;
 	String description;
-	String architecture;
+	int architecture;
 	
 	Vector<int> GetVersion() {
 		Vector<String> ver = Split(version, '.');
@@ -739,24 +742,24 @@ class ThreadSafe {
 };*/
 
 
-template <class C>
-static void ShuffleAscending(C &data, std::default_random_engine &generator) {
+template <class Range>
+static void ShuffleAscending(Range &data, std::default_random_engine &generator) {
 	for (int i = 0; i < data.size() - 2; i++) {
 	  	std::uniform_int_distribution<int> distribution(i, data.size() - 1);
         Swap(data[i], data[distribution(generator)]);
     }
 }
 
-template <class C>
-static void ShuffleDescending(C &data, std::default_random_engine &generator) {
+template <class Range>
+static void ShuffleDescending(Range &data, std::default_random_engine &generator) {
 	for (int i = data.size() - 1; i > 0; i--) {
 	  	std::uniform_int_distribution<int> distribution(0, i);
         Swap(data[i], data[distribution(generator)]);
     }
 }
 
-template <class C>
-void Shuffle(C &data, int randomSeed = Null) {
+template <class Range>
+void Shuffle(Range &data, int randomSeed = Null) {
 	if (IsNull(randomSeed))	{
 		std::random_device rd;
 		randomSeed = rd();
@@ -767,6 +770,12 @@ void Shuffle(C &data, int randomSeed = Null) {
   
 	ShuffleAscending(data, re);
 	ShuffleDescending(data, re);	
+}
+
+template <class Range>
+void Flip(Range &data) {
+	for (int i = 0; i < data.size()/2; ++i)
+		Swap(data[i], data[data.size()-i-1]);	
 }
 
 template <class T>
@@ -991,6 +1000,16 @@ void SetSortOrder(Range1& a, const Range2& order) {
 	Range1 temp = clone(a);
 	for (int i = 0; i < order.size(); ++i)
 		a[i] = pick(temp[order[i]]);	
+}
+
+// Trims a range of Strings. It only works if Range has size()function
+template <class Range>
+typename std::enable_if<std::is_member_function_pointer<decltype(&Range::size)>::value, Range>::type
+Trim(const Range& a) {
+	Range ret(a.size());
+	for (int i = 0; i < a.size(); i++) 
+		ret[i] = Trim(a[i]);
+	return ret;
 }
 
 

@@ -657,22 +657,33 @@ Array<SoftwareDetails> GetInstalledSoftware() {
     char str[_MAX_PATH];
     dword dwType;
     
-    Vector<String> paths = {"SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-    						"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"};
-    
+    struct Soft {
+    	HKEY key;
+    	int architecture;
+    	String path; 
+    };
+    Array<Soft> paths = {{HKEY_LOCAL_MACHINE, 32, "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
+    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
+    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"},
+    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\AppMgmt"},
+						 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
+						 {HKEY_LOCAL_MACHINE, 32, "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
+						 {HKEY_CLASSES_ROOT,  64, "Installer\\Products"}};
+
+  
     for (int ip = 0; ip < paths.size(); ++ip) {
-        String &path = paths[ip];
+        const Soft &path = paths[ip];
 		HKEY hUninstKey = NULL;
-	    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, path, 0, KEY_READ, &hUninstKey) == ERROR_SUCCESS) {
+	    if(RegOpenKeyEx(path.key, path.path, 0, KEY_READ, &hUninstKey) == ERROR_SUCCESS) {
 			long lResult = ERROR_SUCCESS;
 		    for(dword dwIndex = 0; lResult == ERROR_SUCCESS; dwIndex++) {
 		        dword dwBufferSize = sizeof(sAppKeyName);
 		        if((lResult = RegEnumKeyEx(hUninstKey, dwIndex, sAppKeyName,
 		            &dwBufferSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
 		            
-		            String sSubKey = AppendFileName(path, sAppKeyName);
+		            String sSubKey = AppendFileName(path.path, sAppKeyName);
 		            HKEY hAppKey = NULL;
-		            if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, sSubKey, 0, KEY_READ, &hAppKey) == ERROR_SUCCESS) {
+		            if(RegOpenKeyEx(path.key, sSubKey, 0, KEY_READ, &hAppKey) == ERROR_SUCCESS) {
 		                SoftwareDetails &data = ret.Add();
 		                
 		                dwType = KEY_ALL_ACCESS;
@@ -680,22 +691,26 @@ Array<SoftwareDetails> GetInstalledSoftware() {
 			            if(RegQueryValueEx(hAppKey, "DisplayName", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
 			                data.name = str;
 	
-						dwType = KEY_ALL_ACCESS;
-			            dwBufferSize = sizeof(str);
-			            if(RegQueryValueEx(hAppKey, "Publisher", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-			                data.publisher = str;
-
-						dwType = KEY_ALL_ACCESS;
-			            dwBufferSize = sizeof(str);
-			            if(RegQueryValueEx(hAppKey, "DisplayVersion", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-			                data.version = str;
-
-						dwType = KEY_ALL_ACCESS;
-			            dwBufferSize = sizeof(str);
-			            if(RegQueryValueEx(hAppKey, "InstallLocation", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-			                data.path = str;
-			            
-			            data.architecture = ip == 0 ? "32 bits" : "64 bits";
+						if (data.name == "") 
+							ret.Remove(ret.size()-1);
+						else {
+							dwType = KEY_ALL_ACCESS;
+				            dwBufferSize = sizeof(str);
+				            if(RegQueryValueEx(hAppKey, "Publisher", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+				                data.publisher = str;
+	
+							dwType = KEY_ALL_ACCESS;
+				            dwBufferSize = sizeof(str);
+				            if(RegQueryValueEx(hAppKey, "DisplayVersion", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+				                data.version = str;
+	
+							dwType = KEY_ALL_ACCESS;
+				            dwBufferSize = sizeof(str);
+				            if(RegQueryValueEx(hAppKey, "InstallLocation", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
+				                data.path = str;
+				            
+				            data.architecture = path.architecture;
+		            	}    
 		            }
 		            RegCloseKey(hAppKey);
 		        }
@@ -1289,9 +1304,39 @@ bool IsPunctuation(wchar c) {
 		if (punct[i] == c) 
 			return true;
 	}
-	return false;	 
+	return false;
 }
 
+const char *GreekSymbols(int i) {
+	const char *greekSymbols[] = {"alpha", "Αα", "nu", "Νν", "beta", "Ββ", "xi", "Ξξ", "gamma", "Γγ", 
+				"omicron", "Οο", "delta", "Δδ", "pi", "Ππ", "epsilon", "Εε", "rho", "Ρρ", "zeta", "Ζζ", 	 	
+				"sigma", "Σσ", "eta", "Ηη", "tau", "Ττ", "theta", "Θθ", "upsilon", "Υυ", "iota", "Ιι", 	 	
+				"phi", "Φφ", "kappa", "Κκ", "chi", "Χχ", "lambda", "Λλ", "psi", "Ψψ", "mu", "Μμ", "omega", "Ωω", ""};
+	return greekSymbols[i];
+}
+			
+String GreekToText(wchar c) {
+	for (int i = 0; GreekSymbols(i)[0]; i += 2) {
+		WString ws(GreekSymbols(i+1));
+		if (c == ws[0])
+			return InitCaps(GreekSymbols(i));		
+		if (c == ws[1])
+			return GreekSymbols(i);		
+	}
+	return Null;
+}
+
+bool IsGreek(wchar c) {
+	for (int i = 0; GreekSymbols(i)[0]; i += 2) {
+		WString ws(GreekSymbols(i+1));
+		if (c == ws[0])
+			return true;		
+		if (c == ws[1])
+			return true;		
+	}
+	return false;
+}
+		
 String RemoveAccents(String str) {
 	String ret;
 	WString wstr = str.ToWString();
@@ -1316,6 +1361,18 @@ String RemovePunctuation(String str) {
 		    ret += wstr[i];
 	}
 	return ret;
+}
+
+String RemoveGreek(String str) {
+	String ret;
+	WString wstr = str.ToWString();
+	for (int i = 0; i < wstr.GetCount(); ++i) {
+		if (!IsGreek(wstr[i]))
+		    ret += wstr[i];
+		else
+			ret += GreekToText(wstr[i]);
+	}
+	return ret;	
 }
 
 String FitFileName(const String fileName, int len) {

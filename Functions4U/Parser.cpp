@@ -13,7 +13,7 @@ bool YmlParser::GetLine() {
 		}
 	};
 	
-	auto GetVector = [](FileInLine &in, String &lastLine, String str = "")->Vector<String> {
+	auto GetVector = [](FileInLine &in, const String &lastLine, String str = "")->Vector<String> {
 		Vector<String> list;
 
 		while (true) {
@@ -36,11 +36,17 @@ bool YmlParser::GetLine() {
 				last = last.Left(last.GetCount()-1);
 				break;
 			}
+			if (in.IsEof())
+				throw Exc("End Of File found when reading a matrix");
 			String line = in.GetLine();
 			line << lastLine << "\n";
 			str << Trim(line);
 		}
 		
+		for (int i = list.size()-1; i >= 0; --i) {
+			if (list[i].IsEmpty())
+				list.Remove(i);
+		}
 		return list;
 	};
 	
@@ -54,7 +60,7 @@ bool YmlParser::GetLine() {
 		String line;
 		while (!in->IsEof()) {		
 			line = in->GetLine();
-			lastLine << line << "\n";
+			//lastLine << line << "\n";
 			int idc = line.Find("#");
 			if (idc >= 0)
 				line = line.Left(idc);		// Remove comments
@@ -116,13 +122,14 @@ bool YmlParser::GetLine() {
 		
 		DiscardSpaces(line, pos);			
 		
-		if (line[pos] == '[') 
-			matrix << GetVector(*in, lastLine, line.Mid(pos));
-		else if (pos >= line.GetCount()) {		// The val is not in the same line
+		if (line[pos] == '[') {
+			Vector<String> v = GetVector(*in, lastLine, line.Mid(pos));
+			if (!v.IsEmpty())
+				matrix << pick(v);
+		} else if (pos >= line.GetCount()) {		// The val is not in the same line
 			while (!in->IsEof()) {
 				FileInLine::Pos fpos = in->GetPos();
 				line = in->GetLine();
-				lastLine << line << "\n";
 				pos = 0;
 				DiscardSpaces(line, pos);
 				if (line[pos] != '-') {
@@ -135,7 +142,9 @@ bool YmlParser::GetLine() {
 					in->SeekPos(fpos);	// It is a var name
 					break;
 				}
-				matrix << GetVector(*in, lastLine, line.Mid(pos));
+				Vector<String> v = GetVector(*in, lastLine, line.Mid(pos));
+				if (!v.IsEmpty())
+					matrix << pick(v);
 			}
 		} else 
 			val = Trim(line.Mid(pos)); 	
@@ -143,11 +152,12 @@ bool YmlParser::GetLine() {
 		if (!matrix.IsEmpty() || !val.IsEmpty())	
 			break;
 	}
+
 	return true;
 }			
 
 bool YmlParser::FirstIs(const String &val) {
-	if (idvar >= var.size())
+	if (idvar >= var.size()-1)
 		return false;
 
 	if (var[idvar+1] == val) {
@@ -158,7 +168,7 @@ bool YmlParser::FirstIs(const String &val) {
 }
 
 bool YmlParser::FirstMatch(const String &pattern) {
-	if (idvar >= var.size())
+	if (idvar >= var.size()-1)
 		return false;
 
 	if (PatternMatch(pattern, var[idvar+1])) {
@@ -220,7 +230,7 @@ Vector<Vector<double>> YmlParser::GetMatrixDouble(bool isrect) const {
 		if (isrect && i > 0 && vector.size() != matrix[0].size())
 			throw Exc(t_("The matrix should have the same number of columns in each row"));
 		vectord.SetCount(vector.size());
-		for (int j = 0; j < ret.size(); ++j)
+		for (int j = 0; j < vector.size(); ++j)
 			vectord[j] = ScanDouble(vector[j]);
 	}
 	return ret;
