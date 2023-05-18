@@ -621,7 +621,7 @@ struct SoftwareDetails : DeepCopyOption<SoftwareDetails> {
 	String version;
 	String path;
 	String description;
-	int architecture;
+	String architecture;
 	
 	Vector<int> GetVersion() {
 		Vector<String> ver = Split(version, '.');
@@ -853,7 +853,7 @@ int FindAdd(Range& r, const typename Range::value_type& value, int from = 0) {
 	if (id >= 0)
 		return id; 
 	r.Add(value);
-	return r.size()-1;
+	return int(r.size()-1);
 }
 
 template<class Range, typename T>
@@ -900,7 +900,7 @@ int FindAddRatio(Range& r, const typename Range::value_type& value, const typena
 	if (id >= 0)
 		return id; 
 	r.Add(value);
-	return r.size()-1;
+	return int(r.size()-1);
 }
 
 template<class Range, typename T>
@@ -929,7 +929,7 @@ int FindAddDelta(Range& r, const std::complex<T>& value, const T& delta, int fro
 	if (id >= 0)
 		return id; 
 	r.Add(value);
-	return r.size()-1;
+	return int(r.size()-1);
 }
 
 template <class Range>
@@ -938,7 +938,7 @@ int FindAddDelta(Range& r, const typename Range::value_type& value, const typena
 	if (id >= 0)
 		return id; 
 	r.Add(value);
-	return r.size()-1;
+	return int(r.size()-1);
 }
 
 template <class Range>

@@ -659,16 +659,16 @@ Array<SoftwareDetails> GetInstalledSoftware() {
     
     struct Soft {
     	HKEY key;
-    	int architecture;
+    	String architecture;
     	String path; 
     };
-    Array<Soft> paths = {{HKEY_LOCAL_MACHINE, 32, "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"},
-    					 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\AppMgmt"},
-						 {HKEY_LOCAL_MACHINE, 64, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
-						 {HKEY_LOCAL_MACHINE, 32, "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
-						 {HKEY_CLASSES_ROOT,  64, "Installer\\Products"}};
+    Array<Soft> paths = {{HKEY_LOCAL_MACHINE, "32", "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
+    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
+    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"},
+    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\AppMgmt"},
+						 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
+						 {HKEY_LOCAL_MACHINE, "32", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
+						 {HKEY_CLASSES_ROOT,  "64", "Installer\\Products"}};
 
   
     for (int ip = 0; ip < paths.size(); ++ip) {
@@ -752,8 +752,6 @@ static void GetInstalledSoftwareDpkg(Array<SoftwareDetails> &ret) {
 		r.version = p.GetText(1);
 		r.architecture = p.GetText(2);
 		r.description = p.GetText(3);
-		
-		// GetSoftwarePath(r);
 	}
 }
 
