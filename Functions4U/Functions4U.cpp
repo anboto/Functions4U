@@ -2283,15 +2283,25 @@ Vector<String> SearchFile(String dir, String condFile, String text)
 	return files;
 }
 
+static String ReplaceSemicolon(String str) {
+	str.Replace(";", "|||");
+	return str;
+}
+
+static String SetSemicolon(String str) {
+	str.Replace("|||", ";");
+	return str;
+}
+
 bool fileDataSortAscending;
 char fileDataSortBy;
 
-FileDataArray::FileDataArray(bool use, int _fileFlags)
+FileDataArray::FileDataArray(bool _useId, int _fileFlags)
 {
 	Clear();
 	fileDataSortAscending = true;
 	fileDataSortBy = 'n';
-	useId = use;
+	useId = _useId;
 	fileFlags = _fileFlags;
 }
 
@@ -2350,7 +2360,7 @@ void FileDataArray::Clear()
 	basePath = "";
 }
 
-bool FileDataArray::Search(String dir, String condFile, bool recurse, String text)
+bool FileDataArray::Search(String dir, String condFile, bool recurse, String findText)
 {
 	Clear();
 	if (fileFlags & BROWSE_LINKS) {
@@ -2360,11 +2370,11 @@ bool FileDataArray::Search(String dir, String condFile, bool recurse, String tex
 			basePath = dir;
 	} else
 		basePath = dir;
-	Search_Each(dir, condFile, recurse, text);
+	Search_Each(dir, condFile, recurse, findText);
 	return errorList.IsEmpty();
 }
 
-void FileDataArray::Search_Each(String dir, String condFile, bool recurse, String text)
+void FileDataArray::Search_Each(String dir, String condFile, bool recurse, String findText)
 {
 	FindFile ff;
 	if (ff.Search(AppendFileNameX(dir, condFile))) {
@@ -2379,7 +2389,7 @@ void FileDataArray::Search_Each(String dir, String condFile, bool recurse, Strin
 					folderCount++;
 					if (recurse)
 						Search_Each(p, condFile, recurse, text);
-				} else */ if (text.IsEmpty()) {
+				} else */ if (findText.IsEmpty()) {
 					uint64 len = ff.GetLength();
 					fileList.Add(FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), 
 											(useId && len > 0) ? GetFileId(p) : 0));
@@ -2390,9 +2400,9 @@ void FileDataArray::Search_Each(String dir, String condFile, bool recurse, Strin
 					if (fp != NULL) {
 						int i = 0, c;
 						while ((c = fgetc(fp)) != EOF) {
-							if (c == text[i]) {
+							if (c == findText[i]) {
 								++i;
-								if (i == text.GetCount()) {
+								if (i == findText.GetCount()) {
 									uint64 len = ff.GetLength();
 									fileList.Add(FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), useId ? GetFileId(p) : 0));
 									fileCount++;
@@ -2420,7 +2430,7 @@ void FileDataArray::Search_Each(String dir, String condFile, bool recurse, Strin
 			fileList.Add(FileData(true, name, GetRelativePath(dir), 0, ff.GetLastWriteTime(), 0));
 			folderCount++;
 			if (recurse)
-				Search_Each(p, condFile, recurse, text);
+				Search_Each(p, condFile, recurse, findText);
 		}
 	} while (ff.Next()); 
 }
@@ -2548,42 +2558,61 @@ int FileDataArray::Find(FileDataArray &data, int id) {
 	return -1;
 }
 
-String FileDataArray::GetFileText() {
+String FileDataArray::ToString() {
 	String ret;
 	
+	ret << "Folder; File; IsFolder; Size; Time; Id; #char; #Total char (max. 400)";
 	for (int i = 0; i < fileList.GetCount(); ++i) {
-		ret << fileList[i].relFilename << "; ";
-		ret << fileList[i].fileName << "; ";
+		ret << "\n";
+		ret << ReplaceSemicolon(fileList[i].relFilename) << "; ";
+		ret << ReplaceSemicolon(fileList[i].fileName) << "; ";
 		ret << fileList[i].isFolder << "; ";
 		ret << fileList[i].length << "; ";
 		ret << fileList[i].t << "; ";
 		ret << fileList[i].id << "; ";
+		int len = fileList[i].relFilename.GetCount() + fileList[i].fileName.GetCount() + 1;
+		ret << len << "; ";
+		ret << (len + basePath.GetCount() + 1) << "; ";
+	}
+	return ret;	
+}
+
+String FileDataArray::GetErrorText() {
+	String ret;
+	
+	ret << "Error list";
+	for (int i = 0; i < fileList.GetCount(); ++i) {
 		ret << "\n";
+		ret << errorList[i];
 	}
 	return ret;	
 }
 
 bool FileDataArray::SaveFile(const char *fileName) {
-	return Upp::SaveFile(fileName, GetFileText());
+	return Upp::SaveFileBOMUtf8(fileName, ToString());
+}
+
+bool FileDataArray::SaveErrorFile(const char *fileName) {
+	return Upp::SaveFileBOMUtf8(fileName, GetErrorText());
 }
 
 bool FileDataArray::AppendFile(const char *fileName) {
-	return Upp::AppendFile(fileName, GetFileText());
+	return Upp::AppendFile(fileName, ToString());
 }
 
-bool FileDataArray::LoadFile(const char *fileName)
-{
+bool FileDataArray::LoadFile(const char *fileName) {
 	Clear();
 	StringParse in = Upp::LoadFile(fileName);
 	
 	if (in == "")
 		return false;
-
-	int numData = in.Count("\n");
+	
+	in.GetLine();
+	int numData = in.Count("\n")-1;
 	fileList.SetCount(numData);	
 	for (int row = 0; row < numData; ++row) {		
-		fileList[row].relFilename = in.GetText(";");	
-		fileList[row].fileName = in.GetText(";");	
+		fileList[row].relFilename = SetSemicolon(in.GetText(";"));	
+		fileList[row].fileName = SetSemicolon(in.GetText(";"));	
 		fileList[row].isFolder = in.GetText(";") == "true" ? true : false;	
 		if (fileList[row].isFolder)
 			folderCount++;
@@ -2594,6 +2623,8 @@ bool FileDataArray::LoadFile(const char *fileName)
 		StrToTime(t, in.GetText(";"));	
 		fileList[row].t = t;
 		fileList[row].id = in.GetUInt64(";");	
+		in.GetText(";");		// Unused data
+		in.GetText(";");
 	}
 	return true;
 }
@@ -2621,44 +2652,50 @@ FileDiffArray::FileDiffArray() {
 	Clear();
 }
 
-void FileDiffArray::Clear()
-{
+void FileDiffArray::Clear() {
 	diffList.Clear();
 }
 
 // True if equal
 bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, const String folderFrom,
-						 Vector<String> &excepFolders, Vector<String> &excepFiles, int sensSecs) {
-	if (master.GetCount() == 0) {
-		if (secondary.GetCount() == 0)
+				 Vector<String> &excepFolders, Vector<String> &excepFiles, int sensSecs, 
+				 Function<void(int)> progress) {
+	int prog = 0, oldprog = -1;
+	if (master.size() == 0) {
+		if (secondary.size() == 0)
 			return true;
 		else
 			return false;
-	} else if (secondary.GetCount() == 0)
+	} else if (secondary.size() == 0)
 		return false;
 	
 	bool equal = true;
 	diffList.Clear();
 	Vector<bool> secReviewed;
-	secReviewed.SetCount(secondary.GetCount(), false);
+	secReviewed.SetCount(secondary.size(), false);
 	
-	for (int i = 0; i < master.GetCount(); ++i) {
+	for (int i = 0; i < master.size(); ++i) {
+		prog = (50*i)/master.size();
+		if (prog != oldprog) {
+			progress(prog);
+			oldprog = prog;
+		}
 		bool cont = true;
 		if (master[i].isFolder) {
 			String fullfolder = AppendFileNameX(folderFrom, master[i].relFilename, master[i].fileName);
-			for (int iex = 0; iex < excepFolders.GetCount(); ++iex)
+			for (int iex = 0; iex < excepFolders.size(); ++iex)
 				if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {// Subfolders included
 					cont = false;
 					break;
 				}
 		} else {
 			String fullfolder = AppendFileNameX(folderFrom, master[i].relFilename);
-			for (int iex = 0; iex < excepFolders.GetCount(); ++iex)
+			for (int iex = 0; iex < excepFolders.size(); ++iex)
 				if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 					cont = false;
 					break;
 				}
-			for (int iex = 0; iex < excepFiles.GetCount(); ++iex)
+			for (int iex = 0; iex < excepFiles.size(); ++iex)
 				if (PatternMatch(excepFiles[iex], master[i].fileName)) {
 					cont = false;
 					break;
@@ -2669,18 +2706,20 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 			if (idSec >= 0) {
 				bool useId = master.UseId() && secondary.UseId();
 				secReviewed[idSec] = true;
+		
 				if (master[i].isFolder) 
 					;
-				else if ((useId && (master[i].id == secondary[idSec].id)) ||
-						 (!useId && (master[i].length == secondary[idSec].length) && 
-						 			 (abs(master[i].t - secondary[idSec].t) <= sensSecs)))
+				else if (useId && (master[i].id == secondary[idSec].id))
+					;
+				else if (!useId && (master[i].length == secondary[idSec].length) && 
+						 			(abs(master[i].t - secondary[idSec].t) <= sensSecs))
 					;
 				else {
 					equal = false;
 					FileDiffData &f = diffList.Add();
-					//bool isf = f.isFolder = master[i].isFolder;
+					f.isFolder = master[i].isFolder;
 					f.relPath = master[i].relFilename;
-					String name = f.fileName = master[i].fileName;
+					f.fileName = master[i].fileName;
 					f.idMaster = master[i].id;
 					f.idSecondary = secondary[idSec].id;
 					f.tMaster = master[i].t;
@@ -2692,7 +2731,7 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 					else
 						f.action = 'p';
 				}
-			} else {
+			} else {					// Not found, is new
 				equal = false;
 				FileDiffData &f = diffList.Add();
 				f.isFolder = master[i].isFolder;
@@ -2708,24 +2747,29 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 			}	
 		}
 	}
-	for (int i = 0; i < secReviewed.GetCount(); ++i) {
+	for (int i = 0; i < secReviewed.size(); ++i) {
+		prog = 50 + (50*i)/secReviewed.size();
+		if (prog != oldprog) {
+			progress(prog);
+			oldprog = prog;
+		}
 		if (!secReviewed[i]) {
 			bool cont = true;
 			if (secondary[i].isFolder) {
 				String fullfolder = AppendFileNameX(folderFrom, secondary[i].relFilename, secondary[i].fileName);
-				for (int iex = 0; iex < excepFolders.GetCount(); ++iex)
+				for (int iex = 0; iex < excepFolders.size(); ++iex)
 					if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 						cont = false;
 						break;
 					}
 			} else {
 				String fullfolder = AppendFileNameX(folderFrom, secondary[i].relFilename);
-				for (int iex = 0; iex < excepFolders.GetCount(); ++iex)
+				for (int iex = 0; iex < excepFolders.size(); ++iex)
 					if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 						cont = false;
 						break;
 					}
-				for (int iex = 0; iex < excepFiles.GetCount(); ++iex)
+				for (int iex = 0; iex < excepFiles.size(); ++iex)
 					if (PatternMatch(excepFiles[iex], secondary[i].fileName)) {
 						cont = false;
 						break;
@@ -2842,27 +2886,26 @@ bool FileDiffArray::Apply(String toFolder, String fromFolder, EXT_FILE_FLAGS fla
 	return true;
 }
 
-bool FileDiffArray::SaveFile(const char *fileName)
-{
-	return Upp::SaveFile(fileName, ToString());
+bool FileDiffArray::SaveFile(const char *fileName) {
+	return Upp::SaveFileBOMUtf8(fileName, ToString());
 }
 
-String FileDiffArray::ToString()
-{
+String FileDiffArray::ToString() {
 	String ret;
 	
+	ret << "Action; IsFolder; Folder; File; IdMaster; IdSecondary; Time master; Time Secondary; Size master; Size secondary";
 	for (int i = 0; i < diffList.GetCount(); ++i) {
+		ret << "\n";
 		ret << diffList[i].action << "; ";
 		ret << diffList[i].isFolder << "; ";
-		ret << diffList[i].relPath << "; ";
-		ret << diffList[i].fileName << "; ";
+		ret << ReplaceSemicolon(diffList[i].relPath) << "; ";
+		ret << ReplaceSemicolon(diffList[i].fileName) << "; ";
 		ret << diffList[i].idMaster << "; ";
 		ret << diffList[i].idSecondary << "; ";
 		ret << diffList[i].tMaster << "; ";
 		ret << diffList[i].tSecondary << "; ";
 		ret << diffList[i].lengthMaster << "; ";
 		ret << diffList[i].lengthSecondary << "; ";
-		ret << "\n";
 	}
 	return  ret;
 }
@@ -2875,13 +2918,14 @@ bool FileDiffArray::LoadFile(const char *fileName)
 	if (in == "")
 		return false;
 
-	int numData = in.Count("\n");
+	in.GetLine();
+	int numData = in.Count("\n") - 1;
 	diffList.SetCount(numData);	
 	for (int row = 0; row < numData; ++row) {		
 		diffList[row].action = TrimLeft(in.GetText(";"))[0];	
 		diffList[row].isFolder = in.GetText(";") == "true" ? true : false;	
-		diffList[row].relPath = in.GetText(";");	
-		diffList[row].fileName = in.GetText(";");	
+		diffList[row].relPath = SetSemicolon(in.GetText(";"));	
+		diffList[row].fileName = SetSemicolon(in.GetText(";"));	
 		diffList[row].idMaster = in.GetUInt64(";");
 		diffList[row].idSecondary = in.GetUInt64(";");
 		struct Upp::Time t;

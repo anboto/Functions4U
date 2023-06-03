@@ -135,16 +135,6 @@ struct FileData : Moveable<FileData> {
 	FileData() {}
 };
 
-struct FileDiffData {
-	char action;	// 'n': New, 'u': Update, 'd': Delete, 'p': Problem
-	bool isFolder;
-	String relPath;
-	String fileName;
-	uint64 idMaster, idSecondary;
-	struct Upp::Time tMaster, tSecondary;
-	uint64 lengthMaster, lengthSecondary;
-};
-
 class ErrorHandling {
 public:
 	void SetLastError(String _lastError)	{lastError = _lastError;};
@@ -158,15 +148,16 @@ class FileDiffArray;
 
 class FileDataArray : public ErrorHandling {
 public:
-	FileDataArray(bool use = false, int fileFlags = 0);
+	FileDataArray(bool useId = false, int fileFlags = 0);
 	bool Init(String folder, FileDataArray &orig, FileDiffArray &diff);
 	void Clear();
-	bool Search(String dir, String condFile, bool recurse = false, String text = "");
+	bool Search(String dir, String condFile, bool recurse = false, String findText = "");
 	FileData& operator[](long i)	{return fileList[i];}
 	long GetFileCount()				{return fileCount;};
 	long GetFolderCount()			{return folderCount;};
 	long GetCount() 				{return fileCount + folderCount;};
-	int64 GetSize()					{return fileSize;};
+	long size() 					{return fileCount + folderCount;};
+	uint64 GetSize()				{return fileSize;};
 	inline bool UseId() 			{return useId;};
 	void SortByName(bool ascending = true);
 	void SortByDate(bool ascending = true);
@@ -178,20 +169,32 @@ public:
 	bool SaveFile(const char *fileName);
 	bool AppendFile(const char *fileName);
 	bool LoadFile(const char *fileName);
+	bool SaveErrorFile(const char *fileName);
 
 private:
-	void Search_Each(String dir, String condFile, bool recurse, String text);
+	void Search_Each(String dir, String condFile, bool recurse, String findText);
 	int64 GetFileId(String fileName);
 	String GetRelativePath(const String &fullPath);
-	String GetFileText();
+	String ToString();
+	String GetErrorText();
 	
 	Array<FileData> fileList;
 	Vector<String> errorList;
 	String basePath;
 	long fileCount, folderCount;
-	int64 fileSize;
+	uint64 fileSize;
 	bool useId;
 	int fileFlags;
+};
+
+struct FileDiffData {
+	char action;	// 'n': New, 'u': Update, 'd': Delete, 'p': Problem
+	bool isFolder;
+	String relPath;
+	String fileName;
+	uint64 idMaster, idSecondary;
+	struct Upp::Time tMaster, tSecondary;
+	uint64 lengthMaster, lengthSecondary;
 };
 
 class FileDiffArray : public ErrorHandling {
@@ -200,9 +203,16 @@ public:
 	void Clear();
 	FileDiffData& operator[](long i)	{return diffList[i];}
 	bool Compare(FileDataArray &master, FileDataArray &secondary, const String folderFrom, 
-		Vector<String> &excepFolders, Vector<String> &excepFiles, int sensSecs = 0);
+		Vector<String> &excepFolders, Vector<String> &excepFiles, int sensSecs = 0, 
+		Function<void(int)> progress = Null);
+	bool Compare(FileDataArray &master, FileDataArray &secondary, const String folderFrom, int sensSecs = 0, 
+		Function<void(int)> progress = Null) {
+		Vector<String> excepFolders, excepFiles;
+		return Compare(master, secondary, folderFrom, excepFolders, excepFiles, sensSecs, progress);
+	}
 	bool Apply(String toFolder, String fromFolder, EXT_FILE_FLAGS flags = NO_FLAG);
 	long GetCount()				{return diffList.size();};
+	long size()					{return diffList.size();};
 	bool SaveFile(const char *fileName);
 	bool LoadFile(const char *fileName);
 	String ToString();
