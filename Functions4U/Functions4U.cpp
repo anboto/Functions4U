@@ -1689,7 +1689,7 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 		numLinesToDiscard = lines.size() - numLinesToCheck;
 	}
 
-	auto NumNum = [](const Vector<String> &a, char decimal)->int {	// Number of real numbers un a vector of strings
+	auto NumNum = [](const Vector<String> &a, char decimal)->int {	// Number of real numbers in a vector of strings
 		const char *endptr;
 		int num = 0;
 		for (int i = 0; i < a.size(); ++i) {
@@ -1777,7 +1777,7 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 	beginDataRow = endHeader;
 	
 	header = "";
-	for (int r = 0; r < beginHeader; ++r) {
+	for (int r = 0; r <= beginHeader; ++r) {
 		if (r > 0)
 			header << "\n";	
 		header << lines[r];
