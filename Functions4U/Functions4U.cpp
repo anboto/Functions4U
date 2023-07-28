@@ -1373,6 +1373,29 @@ String RemoveGreek(String str) {
 	return ret;	
 }
 
+String CharToSubSupScript(char c, bool subscript) {
+	const char *lower[] = {"aₐᵃ", "b_ᵇ", "c_ᶜ", "d_ᵈ", "e_ᵉ", "f_ᶠ", "g_ᵍ", "hₕʰ", "iᵢⁱ", "jⱼʲ", "kₖᵏ", "lₗˡ", "mₘᵐ", "nₙⁿ", "oₒᵒ", "pₚᵖ", "q__", "rᵣʳ", "sₛˢ", "tₜᵗ", "uᵤᵘ", "vᵥᵛ", "w_ʷ", "xₓˣ", "yᵧʸ", "z_ᶻ"}; 
+	const char *upper[] = {"Aᴀᴬ", "Bʙᴮ", "Cᴄ_", "Dᴅᴰ", "Eᴇᴱ", "Fғ_", "Gɢᴳ", "Hʜᴴ", "Iɪᴵ", "Jᴊᴶ", "Kᴋᴷ", "Lʟᴸ", "Mᴍᴹ", "Nɴᴺ", "O_ᴼ", "Pᴘᴾ", "Qǫ_", "Rʀᴿ", "Ss ", "Tᴛᵀ", "Uᴜᵁ", "Vᴠⱽ", "Wᴡᵂ", "Xx_", "Yʏ_", "Zᴢ_"};
+	const char *number[]= {"0₀⁰", "1₁¹", "2₂²", "3₃³", "4₄⁴", "5₅⁵", "6₆⁶", "7₇⁷", "8₈⁸", "9₉⁹"};
+	const char *symbol[]= {"+₊⁺", "-₋⁻", "=₌⁼", "(₍⁽", ")₎⁾", ""};
+ 
+ 	String ret;
+ 	if (c >= 'a' && c <= 'z') 
+ 		ret.Set(lower[c - 'a'], 3);
+ 	else if (c >= 'A' && c <= 'Z') 
+ 		ret.Set(upper[c - 'A'], 3);
+ 	else if (c >= '0' && c <= '9') 
+ 		ret.Set(number[c - '0'], 3);
+ 	else {
+ 		for (int i = 0; symbol[i][0] != '\0'; ++i)
+ 			if (symbol[i][0] == c)
+ 				ret = symbol[i];
+ 	}
+ 	if (ret.IsEmpty())
+ 		return "_";
+ 	return subscript ? ret.Mid(1, 1) : ret.Mid(1, 2);
+}
+
 String FitFileName(const String fileName, int len) {
 	if (fileName.GetCount() <= len)
 		return fileName;

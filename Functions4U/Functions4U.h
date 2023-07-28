@@ -259,6 +259,8 @@ String GreekToText(wchar c);
 bool IsGreek(wchar c);
 String RemoveGreek(String str);
 
+String CharToSubSupScript(char c, bool subscript);
+	
 template<typename T>	
 inline T ToRad(T angle)	{
 	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
@@ -1199,7 +1201,7 @@ public:
 	void Write(String str) 	{p.Write(str);}
 	int GetStatus()  		{return status;}
 	bool IsRunning() 		{return status > 0;}
-	Function<bool(double, String&, bool, bool&)> WhenTimer;
+	Function<bool(double, const String&, bool, bool&)> WhenTimer;
 	#ifdef PLATFORM_WIN32
 	DWORD GetPid()	{return p.GetPid();}
 	#endif
