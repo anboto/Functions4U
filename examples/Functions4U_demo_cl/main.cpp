@@ -183,8 +183,21 @@ void MiscellaneousDemos() {
 	UppLog() << "\nFormatDoubleSize(,13) = '" << (str = FDS(num,13, true)) << "'";
 	VERIFY(str == "2345678.90177");
 	
+
+	UppLog() << "Float formatting\n";
 	
+	
+	UppLog() << Format("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
+	UppLog() << Format("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
 	UppLog() << "\n";
+	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", -1.12345, 2.468, NumberWithLeastSignificantDigits(-1.12345, 2.468));
+	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 1.12345, 2.468, NumberWithLeastSignificantDigits(1.12345, 2.468));
+	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E33, 2.468E33, NumberWithLeastSignificantDigits(1.12345E33, 2.468E33));
+	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
+		
+	UppLog() << "\n";
+	
+	UppLog() << "Console colours\n";
 	
 	SetConsoleColor(CONSOLE_COLOR::LTRED);
 	UppLog() << "This message is in red\n";

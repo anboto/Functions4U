@@ -250,6 +250,9 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces = false);
 #define	FDAS	FormatDoubleAutosize
 #define	FDS		FormatDoubleSize
 
+int GetExponent10(double d);
+double NumberWithLeastSignificantDigits(double minVal, double maxVal);
+	
 String RemoveAccents(String str);
 String RemoveAccent(wchar c);
 String RemovePunctuation(String str);
@@ -260,6 +263,7 @@ bool IsGreek(wchar c);
 String RemoveGreek(String str);
 
 String CharToSubSupScript(char c, bool subscript);
+String NumToSubSupScript(int d, bool subscript);
 	
 template<typename T>	
 inline T ToRad(T angle)	{

@@ -455,6 +455,19 @@ using either fixed or exponential notation,  filling exactly
 string is filled with spaces at the left until [%-*@3 fieldWidth].&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:GetExponent10`(double`):%- [@(0.0.255) int] [* GetExponent10]([@(0.0.255) doubl
+e] [*@3 d])&]
+[s2; Gets the exponent in base 10 for the number [%-*@3 d].&]
+[s2; This value would be the exponent in scientific notation.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:NumberWithLeastSignificantDigits`(double`,double`):%- [@(0.0.255) double] 
+[* NumberWithLeastSignificantDigits]([@(0.0.255) double] [*@3 minVal], 
+[@(0.0.255) double] [*@3 maxVal])&]
+[s2; Returns the number between [%-*@3 minVal] and [%-*@3 maxVal] with 
+the minimum number of significant digits.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:RemoveAccents`(String`):%- [_^String^ String]_[* RemoveAccents]([_^String^ String]_[*@3 s
 tr])&]
 [s2; Returns [%-*@3 str ]with the accented characters substituted with 

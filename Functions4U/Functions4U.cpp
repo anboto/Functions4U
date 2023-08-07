@@ -1265,6 +1265,52 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {
 	return data;	
 }
 
+int GetExponent10(double d) {
+	d = abs(d);
+	if (d >= 1)
+    	return int(log10(d));
+	else
+		return -int(log10(1/d))-1;
+}
+
+double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
+	ASSERT(minVal < maxVal);
+	if (maxVal >= 0 && minVal <= 0)
+		return 0;
+	
+    double range = maxVal - minVal;
+    
+    if (abs(maxVal) < range/10 || abs(minVal) < range/10)
+        return 0;
+
+	int emin = GetExponent10(minVal);
+	double p10 = pow(10, emin);
+	minVal /= p10;
+	maxVal /= p10;
+	range  /= p10;
+	
+    int precision = 0;
+    double result = minVal;
+
+    while (true) {
+        double multiplier = pow(10, precision);
+        double roundedResult = round(result * multiplier) / multiplier;
+
+        if (roundedResult >= maxVal) 
+            return maxVal*p10;
+
+        if (roundedResult != result) {
+        	if (!Between(roundedResult, minVal, maxVal)) 
+        		roundedResult += multiplier;
+            return roundedResult*p10;
+        }
+        result += range / pow(10, precision);
+        precision++;
+    }
+    return Null;
+}
+
+
 String RemoveAccent(wchar c) {
 	WString wsret;
 
@@ -1374,26 +1420,29 @@ String RemoveGreek(String str) {
 }
 
 String CharToSubSupScript(char c, bool subscript) {
-	const char *lower[] = {"aₐᵃ", "b_ᵇ", "c_ᶜ", "d_ᵈ", "e_ᵉ", "f_ᶠ", "g_ᵍ", "hₕʰ", "iᵢⁱ", "jⱼʲ", "kₖᵏ", "lₗˡ", "mₘᵐ", "nₙⁿ", "oₒᵒ", "pₚᵖ", "q__", "rᵣʳ", "sₛˢ", "tₜᵗ", "uᵤᵘ", "vᵥᵛ", "w_ʷ", "xₓˣ", "yᵧʸ", "z_ᶻ"}; 
-	const char *upper[] = {"Aᴀᴬ", "Bʙᴮ", "Cᴄ_", "Dᴅᴰ", "Eᴇᴱ", "Fғ_", "Gɢᴳ", "Hʜᴴ", "Iɪᴵ", "Jᴊᴶ", "Kᴋᴷ", "Lʟᴸ", "Mᴍᴹ", "Nɴᴺ", "O_ᴼ", "Pᴘᴾ", "Qǫ_", "Rʀᴿ", "Ss ", "Tᴛᵀ", "Uᴜᵁ", "Vᴠⱽ", "Wᴡᵂ", "Xx_", "Yʏ_", "Zᴢ_"};
-	const char *number[]= {"0₀⁰", "1₁¹", "2₂²", "3₃³", "4₄⁴", "5₅⁵", "6₆⁶", "7₇⁷", "8₈⁸", "9₉⁹"};
-	const char *symbol[]= {"+₊⁺", "-₋⁻", "=₌⁼", "(₍⁽", ")₎⁾", ""};
+	const Vector<WString> lower = {"aₐᵃ", "b_ᵇ", "c_ᶜ", "d_ᵈ", "e_ᵉ", "f_ᶠ", "g_ᵍ", "hₕʰ", "iᵢⁱ", "jⱼʲ", "kₖᵏ", "lₗˡ", "mₘᵐ", "nₙⁿ", "oₒᵒ", "pₚᵖ", "q__", "rᵣʳ", "sₛˢ", "tₜᵗ", "uᵤᵘ", "vᵥᵛ", "w_ʷ", "xₓˣ", "yᵧʸ", "z_ᶻ"}; 
+	const Vector<WString> upper = {"Aᴀᴬ", "Bʙᴮ", "Cᴄ_", "Dᴅᴰ", "Eᴇᴱ", "Fғ_", "Gɢᴳ", "Hʜᴴ", "Iɪᴵ", "Jᴊᴶ", "Kᴋᴷ", "Lʟᴸ", "Mᴍᴹ", "Nɴᴺ", "O_ᴼ", "Pᴘᴾ", "Qǫ_", "Rʀᴿ", "Ss ", "Tᴛᵀ", "Uᴜᵁ", "Vᴠⱽ", "Wᴡᵂ", "Xx_", "Yʏ_", "Zᴢ_"};
+	const Vector<WString> number= {"0₀⁰", "1₁¹", "2₂²", "3₃³", "4₄⁴", "5₅⁵", "6₆⁶", "7₇⁷", "8₈⁸", "9₉⁹"};
+	const Vector<WString> symbol= {"+₊⁺", "-₋⁻", "=₌⁼", "(₍⁽", ")₎⁾", ""};
  
- 	String ret;
+ 	const char *v = nullptr;
  	if (c >= 'a' && c <= 'z') 
- 		ret.Set(lower[c - 'a'], 3);
+ 		return WString(subscript ? lower[c - 'a'][1]  : lower[c - 'a'][2], 1).ToString();
  	else if (c >= 'A' && c <= 'Z') 
- 		ret.Set(upper[c - 'A'], 3);
+ 		return WString(subscript ? upper[c - 'A'][1]  : upper[c - 'A'][2], 1).ToString();
  	else if (c >= '0' && c <= '9') 
- 		ret.Set(number[c - '0'], 3);
+ 		return WString(subscript ? number[c - '0'][1] : number[c - '0'][2], 1).ToString();
  	else {
  		for (int i = 0; symbol[i][0] != '\0'; ++i)
  			if (symbol[i][0] == c)
- 				ret = symbol[i];
+ 				return WString(subscript ? symbol[i][1] : lower[i][2], 1).ToString();
  	}
- 	if (ret.IsEmpty())
- 		return "_";
- 	return subscript ? ret.Mid(1, 1) : ret.Mid(1, 2);
+ 	return "_";
+}
+
+String NumToSubSupScript(int d, bool subscript) {
+	ASSERT(d >= 0 && d <= 9);
+	return CharToSubSupScript(char('0' + d), subscript);
 }
 
 String FitFileName(const String fileName, int len) {
