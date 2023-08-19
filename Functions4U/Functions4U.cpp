@@ -1310,6 +1310,28 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
     return Null;
 }
 
+double GetRangeMajorUnits(double minV, double maxV) {
+	ASSERT(minV < maxV);
+	double rgy = maxV - minV;
+	double dy = rgy/6;
+	dy = pow(10, GetExponent10(rgy));
+	if (int(rgy/dy) > 6) {
+		if (int(rgy/(2*dy)) < 6) 
+			dy *= 2;
+		else
+			dy *= 5;
+	} else if (int(rgy/dy) < 3) {
+		dy /= 10;
+		
+		if (int(rgy/dy) > 6) {
+			if (int(rgy/(2*dy)) < 6) 
+				dy *= 2;
+			else
+				dy *= 5;
+		} 
+	}
+	return dy;
+}
 
 String RemoveAccent(wchar c) {
 	WString wsret;

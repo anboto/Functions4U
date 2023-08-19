@@ -2,7 +2,7 @@
 // Copyright 2021 - 2022, the Anboto author and contributors
 #ifndef _Functions4U_Functions4U_h
 #define _Functions4U_Functions4U_h
-
+  
 #include <float.h>
 #include <Draw/Draw.h>
 #ifdef flagGUI
@@ -14,6 +14,7 @@
 #include "StaticPlugin.h"
 #include "LocalProcess2.h"
 #include <random>
+
 
 namespace Upp {
 
@@ -252,6 +253,7 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces = false);
 
 int GetExponent10(double d);
 double NumberWithLeastSignificantDigits(double minVal, double maxVal);
+double GetRangeMajorUnits(double minV, double maxV);
 	
 String RemoveAccents(String str);
 String RemoveAccent(wchar c);
@@ -329,11 +331,16 @@ inline T fround(T x, int numdec) {
   	return round(x*pow10)/pow10;
 }
 
-template <typename T>
-inline bool IsNum(const std::complex<T> &n) {return IsFin(n.real()) && IsFin(n.imag());}
-inline bool IsNum(double n) {return IsFin(n) && !IsNull(n);}
-inline bool IsNum(float n) 	{return IsFin(n);}
+#ifdef PLATFORM_WIN32
+inline bool IsNum(double n) {return !IsNull(n) && !std::isnan<double>(n) && !std::isinf<double>(n);}
+inline bool IsNum(float n) 	{return !std::isnan<float>(n) && !std::isinf<float>(n);}
+#else
+inline bool IsNum(double n) {return !IsNull(n) && !__builtin_isnan(n) && !__builtin_isinf(n);}
+inline bool IsNum(float n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
+#endif
 inline bool IsNum(int n) 	{return !IsNull(n);}
+template <typename T>
+inline bool IsNum(const std::complex<T> &n) {return !(!IsNum(n.real()) || !IsNum(n.imag()) || (n.real() == 0 && n.imag() == 0));}
 
 template <typename T>
 bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};

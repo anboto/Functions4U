@@ -115,10 +115,10 @@ void NonReentrantDemo() {
 }
 
 void DistanceDemo() {
-	UppLog() << Format("Distance between 'hello' and 'hello'  is %d", DamerauLevenshteinDistance("hello", "hello"));
-	UppLog() << Format("Distance between 'hello' and 'helo'   is %d", DamerauLevenshteinDistance("hello", "helo"));
-	UppLog() << Format("Distance between 'hello' and 'heloo'  is %d", DamerauLevenshteinDistance("hello", "helloo"));
-	UppLog() << Format("Distance between 'hello' and 'yellow' is %d", DamerauLevenshteinDistance("hello", "yellow"));
+	UppLog() << Format("\nDistance between 'hello' and 'hello'  is %d", DamerauLevenshteinDistance("hello", "hello"));
+	UppLog() << Format("\nDistance between 'hello' and 'helo'   is %d", DamerauLevenshteinDistance("hello", "helo"));
+	UppLog() << Format("\nDistance between 'hello' and 'heloo'  is %d", DamerauLevenshteinDistance("hello", "helloo"));
+	UppLog() << Format("\nDistance between 'hello' and 'yellow' is %d", DamerauLevenshteinDistance("hello", "yellow"));
 }
 
 void InstalledDemo() {
@@ -186,7 +186,6 @@ void MiscellaneousDemos() {
 
 	UppLog() << "Float formatting\n";
 	
-	
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
 	UppLog() << "\n";
@@ -194,6 +193,35 @@ void MiscellaneousDemos() {
 	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 1.12345, 2.468, NumberWithLeastSignificantDigits(1.12345, 2.468));
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E33, 2.468E33, NumberWithLeastSignificantDigits(1.12345E33, 2.468E33));
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
+	
+
+	UppLog() << "NaN testing\n";
+
+	int n = Null;
+	VERIFY(!IsNum(n));
+	n = 23;
+	VERIFY(IsNum(n));
+	
+	float f = std::numeric_limits<float>::quiet_NaN();
+	VERIFY(!IsNum(f));
+	f = 23;
+	VERIFY(IsNum(f));	
+	
+	double d = NaNDouble;
+	VERIFY(!IsNum(d));
+	d = Null;
+	VERIFY(!IsNum(d));
+	d = 23;
+	VERIFY(IsNum(d));	
+
+	std::complex<double> c = {NaNDouble, 23};
+	VERIFY(!IsNum(c));
+	c = {23, NaNDouble};
+	VERIFY(!IsNum(c));
+	c = NaNComplex;
+	VERIFY(!IsNum(c));
+	c = {23, 12};
+	VERIFY(IsNum(c));
 		
 	UppLog() << "\n";
 	
