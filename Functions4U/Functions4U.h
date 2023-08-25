@@ -1457,9 +1457,9 @@ public:
 		int res = GetInt_nothrow(i);
 		if (IsNull(res)) {
 			if (i < fields.size())
-				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line\n'%s'"), "integer", fields[i], i+1, line));
+				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "integer", fields[i], i+1, line));
 			else
-				throw Exc(in->Str() + Format(t_("Field #%d not found in line\n'%s'"), i+1, line));
+				throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 		}
 		return res; 
 	}
@@ -1481,9 +1481,9 @@ public:
 		double res = GetDouble_nothrow(i);
 		if (IsNull(res)) {
 			if (i < fields.size())
-				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line\n'%s'"), "double", fields[i], i+1, line));
+				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "double", fields[i], i+1, line));
 			else
-				throw Exc(in->Str() + Format(t_("Field #%d not found in line\n'%s'"), i+1, line));
+				throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 		}
 		return res; 
 	}
@@ -1510,7 +1510,7 @@ protected:
 	}
 	void CheckId(int i) const {
 		if (!CheckId_nothrow(i))
-			throw Exc(in->Str() + Format(t_("Field #%d not found in line\n'%s'"), i+1, line));
+			throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 	}
 	static int defaultIsSeparator(int c) {
 		if (c == '\t' || c == ' ' || c == ';' || c == ',')
