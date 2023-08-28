@@ -1211,7 +1211,7 @@ String BytesToString(uint64 _bytes, bool units)
 	return ret;
 }
 
-int NumAdvicedDigits(double d, double range) {
+int NumAdvicedDigits(double range) {
 	if 		(0.001 <= range && range < 0.01) 	return 7;
 	else if (0.01  <= range && range < 0.1) 	return 6;
 	else if (0.1   <= range && range < 10) 		return 5;
@@ -1226,7 +1226,7 @@ String FormatDoubleAutosize(double d) {
 }
 	
 String FormatDoubleAutosize(double d, double range) {
-	return FDS(d, NumAdvicedDigits(d, range));
+	return FDS(d, NumAdvicedDigits(range));
 }
 
 /*
@@ -1463,8 +1463,11 @@ String CharToSubSupScript(char c, bool subscript) {
 }
 
 String NumToSubSupScript(int d, bool subscript) {
-	ASSERT(d >= 0 && d <= 9);
-	return CharToSubSupScript(char('0' + d), subscript);
+	String str = FormatInt(d);
+	String ret;
+	for (int i = 0; i < str.GetCount(); ++i)
+		ret << CharToSubSupScript(char(str[i]), subscript);
+	return ret;
 }
 
 String FitFileName(const String fileName, int len) {

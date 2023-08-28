@@ -244,7 +244,7 @@ void StringToHMS(String durat, int &hour, int &min, double &seconds);
 String SeasonName(int iseason);
 int GetSeason(Date &date);
 
-int NumAdvicedDigits(double d, double range);
+int NumAdvicedDigits(double range);
 String FormatDoubleAutosize(double d);	
 String FormatDoubleAutosize(double d, double range);
 String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces = false);
