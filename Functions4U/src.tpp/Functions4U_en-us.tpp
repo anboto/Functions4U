@@ -554,6 +554,13 @@ round]([*@4 T]_[*@3 x], [@(0.0.255) int]_[*@3 numdec])&]
 [s2; Rounds floating point [%-*@3 x] to [%-*@3 numdec] number of decimals..&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:Mirror`(T`,T`):%- [@(0.0.255) template] <T> T [* Mirror](T 
+[*@3 x], T [*@3 val])&]
+[s2; Returns a value that is mirrored of [%-*@3 x] around val [%-*@3 val] 
+ &]
+[s2; For example, Mirror(3, 1) `= `-1, or Mirror(0.5, 1) `= 1.5&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Between`(const T`&`,const T`&`,const T`&`):%- [@(0.0.255) template]_<[@(0.0.255) cla
 ss]_[*@4 T]>_[@(0.0.255) bool]_[* Between]([@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_[*@3 val],
  [@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_[*@3 min], [@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_

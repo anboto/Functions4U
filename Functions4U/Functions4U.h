@@ -330,12 +330,15 @@ inline T fround(T x, int numdec) {
 	T pow10 = pow(10, numdec);
   	return round(x*pow10)/pow10;
 }
+template<class T>
+inline T Mirror(T x, T val) 		{return 2*val - x;}		// -(x - val) + val
+
 
 #ifdef PLATFORM_WIN32
-inline bool IsNum(double n) {return !IsNull(n) && !std::isnan<double>(n) && !std::isinf<double>(n);}
+inline bool IsNum(double n) {return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
 inline bool IsNum(float n) 	{return !std::isnan<float>(n) && !std::isinf<float>(n);}
 #else
-inline bool IsNum(double n) {return !IsNull(n) && !__builtin_isnan(n) && !__builtin_isinf(n);}
+inline bool IsNum(double n) {return !__builtin_isnan(n) && !__builtin_isinf(n) && !IsNull(n);}
 inline bool IsNum(float n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
 #endif
 inline bool IsNum(int n) 	{return !IsNull(n);}
