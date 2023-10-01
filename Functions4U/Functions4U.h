@@ -351,6 +351,10 @@ bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
 #define NaNComplex		std::numeric_limits<std::complex<double>>::quiet_NaN()
 #define NaNDouble		std::numeric_limits<double>::quiet_NaN()
 
+template <typename T>
+inline bool IsNum(const Point_<T> &n) {return IsNum(n.x) && IsNum(n.y);}
+	
+
 template<class T>
 T AvgSafe(const T &a, const T &b) {
 	if (IsNum(a)) {
