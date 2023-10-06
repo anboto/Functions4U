@@ -561,6 +561,15 @@ round]([*@4 T]_[*@3 x], [@(0.0.255) int]_[*@3 numdec])&]
 [s2; For example, Mirror(3, 1) `= `-1, or Mirror(0.5, 1) `= 1.5&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:RoundClosest`(T`,T`,T`):%- [@(0.0.255) template] <T> T 
+[* RoundClosest](T [*@3 val], T [*@3 grid], T [*@3 eps])&]
+[s2; Returns [%-*@3 val] rounded to a multiple of [%-*@3 grid] if the 
+distance to it is lower or equal to [%-*@3 eps].&]
+[s2; For example:&]
+[s2;i150;O0; RoundClosest(13.0003, 1, 0.00001) `= 13&]
+[s2;i150;O0; RoundClosest(13.2315, 0.01, 0.00001) `= 13.23&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Between`(const T`&`,const T`&`,const T`&`):%- [@(0.0.255) template]_<[@(0.0.255) cla
 ss]_[*@4 T]>_[@(0.0.255) bool]_[* Between]([@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_[*@3 val],
  [@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_[*@3 min], [@(0.0.255) const]_[*@4 T][@(0.0.255) `&]_

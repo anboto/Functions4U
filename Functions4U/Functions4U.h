@@ -332,7 +332,18 @@ inline T fround(T x, int numdec) {
 }
 template<class T>
 inline T Mirror(T x, T val) 		{return 2*val - x;}		// -(x - val) + val
-
+template<class T>
+T RoundClosest(T val, T grid, T eps) {
+	ASSERT(eps > 1E-15);
+	T rnd = round(val/grid);
+	if (abs(rnd - val/grid) > eps)
+		return val;
+	else {
+		if (rnd == 0)
+			return 0;
+		return rnd*grid;
+	}
+}
 
 #ifdef PLATFORM_WIN32
 inline bool IsNum(double n) {return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
