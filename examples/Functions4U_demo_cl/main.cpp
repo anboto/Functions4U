@@ -195,6 +195,16 @@ void MiscellaneousDemos() {
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
 	
 
+	UppLog() << "IsNull() testing\n";
+	{
+		float f = Null;
+		double d = f;
+		float f2 = d;
+		VERIFY(IsNull(f));
+		VERIFY(IsNull(d));
+		VERIFY(IsNull(f2));
+	}
+	
 	UppLog() << "NaN testing\n";
 
 	int n = Null;
@@ -214,7 +224,7 @@ void MiscellaneousDemos() {
 	d = 23;
 	VERIFY(IsNum(d));	
 
-	std::complex<double> c = {NaNDouble, 23};
+	std::complex<double> c = Null;
 	VERIFY(!IsNum(c));
 	c = {23, NaNDouble};
 	VERIFY(!IsNum(c));

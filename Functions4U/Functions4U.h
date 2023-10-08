@@ -6,7 +6,6 @@
 #include <float.h>
 #include <Draw/Draw.h>
 #ifdef flagGUI
-//#include <Web/Web.h>
 #include "GatherTpp.h"
 #endif
 
@@ -18,7 +17,46 @@
 
 namespace Upp {
 
+constexpr float FLOAT_NULL = -std::numeric_limits<float>::infinity();
 
+class Nuller2 : public Nuller {
+public:
+	operator float() const              { return FLOAT_NULL; }
+	
+	template <typename T>	
+	operator std::complex<T>() const    { return std::complex<T>(Null, Null); }
+	Nuller2() {}
+};
+
+//void SetNull(float& x) { x = FLOAT_NULL; }
+
+inline bool IsNull(const float& r)   { return !(std::abs(r) < std::numeric_limits<float>::infinity()); }
+
+extern const Nuller2 Null2;
+#define Null Null2
+
+#ifdef PLATFORM_WIN32
+inline bool IsNum(const double &n) 	{return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
+inline bool IsNum(const float &n)	{return !std::isnan<float>(n) && !std::isinf<float>(n);}
+#else
+inline bool IsNum(const double &n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n) && !IsNull(n);}
+inline bool IsNum(const float &n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
+#endif
+inline bool IsNum(const int &n) 	{return !IsNull(n);}
+template <typename T>
+inline bool IsNum(const std::complex<T> &n) {return !(!IsNum(n.real()) || !IsNum(n.imag()) || (n.real() == 0 && n.imag() == 0));}
+
+template <typename T>
+bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
+
+#define NaNComplex		std::numeric_limits<std::complex<double>>::quiet_NaN()
+#define NaNDouble		std::numeric_limits<double>::quiet_NaN()
+
+template <typename T>
+inline bool IsNum(const Point_<T> &n) {return IsNum(n.x) && IsNum(n.y);}
+	
+	
+	
 enum EXT_FILE_FLAGS {NO_FLAG = 0, 
 					 USE_TRASH_BIN = 1,
 					 BROWSE_LINKS = 2,
@@ -344,27 +382,6 @@ T RoundClosest(T val, T grid, T eps) {
 		return rnd*grid;
 	}
 }
-
-#ifdef PLATFORM_WIN32
-inline bool IsNum(double n) {return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
-inline bool IsNum(float n) 	{return !std::isnan<float>(n) && !std::isinf<float>(n);}
-#else
-inline bool IsNum(double n) {return !__builtin_isnan(n) && !__builtin_isinf(n) && !IsNull(n);}
-inline bool IsNum(float n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
-#endif
-inline bool IsNum(int n) 	{return !IsNull(n);}
-template <typename T>
-inline bool IsNum(const std::complex<T> &n) {return !(!IsNum(n.real()) || !IsNum(n.imag()) || (n.real() == 0 && n.imag() == 0));}
-
-template <typename T>
-bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
-
-#define NaNComplex		std::numeric_limits<std::complex<double>>::quiet_NaN()
-#define NaNDouble		std::numeric_limits<double>::quiet_NaN()
-
-template <typename T>
-inline bool IsNum(const Point_<T> &n) {return IsNum(n.x) && IsNum(n.y);}
-	
 
 template<class T>
 T AvgSafe(const T &a, const T &b) {
