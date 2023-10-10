@@ -136,7 +136,7 @@ void InstalledDemo() {
 }	
 	
 void MiscellaneousDemos() {
-	UppLog() << "Float formatting\n";
+	UppLog() << "\nFloat formatting\n";
 	
 	const double num = 2345678.9017654;
 	UppLog() << "\nFormatting 2345678.9017654";
@@ -184,7 +184,7 @@ void MiscellaneousDemos() {
 	VERIFY(str == "2345678.90177");
 	
 
-	UppLog() << "Float formatting\n";
+	UppLog() << "\nFloat formatting\n";
 	
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
@@ -195,7 +195,7 @@ void MiscellaneousDemos() {
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
 	
 
-	UppLog() << "IsNull() testing\n";
+	UppLog() << "\nIsNull() testing\n";
 	{
 		float f = Null;
 		double d = f;
@@ -205,7 +205,7 @@ void MiscellaneousDemos() {
 		VERIFY(IsNull(f2));
 	}
 	
-	UppLog() << "NaN testing\n";
+	UppLog() << "\nNaN testing\n";
 
 	int n = Null;
 	VERIFY(!IsNum(n));
@@ -233,9 +233,8 @@ void MiscellaneousDemos() {
 	c = {23, 12};
 	VERIFY(IsNum(c));
 		
-	UppLog() << "\n";
-	
-	UppLog() << "Console colours\n";
+		
+	UppLog() << "\nConsole colours\n";
 	
 	SetConsoleColor(CONSOLE_COLOR::LTRED);
 	UppLog() << "This message is in red\n";
