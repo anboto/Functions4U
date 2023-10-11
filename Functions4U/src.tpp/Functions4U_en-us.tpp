@@ -446,14 +446,17 @@ elements that require to show the minimum right quantity of digits
 from a double.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:FormatDoubleSize`(double`,int`,bool`):%- [_^Upp`:`:String^ String]_[* FormatD
-oubleSize]([@(0.0.255) double]_[*@3 d], [@(0.0.255) int]_[*@3 fieldWidth], 
-[@(0.0.255) bool]_[*@3 fillSpaces])&]
+[s5;:Upp`:`:FormatDoubleSize`(double`,int`,bool`,const Upp`:`:String`&`):%- String 
+[* FormatDoubleSize]([@(0.0.255) double] [*@3 d], [@(0.0.255) int] [*@3 fieldWidth], 
+[@(0.0.255) bool] [*@3 fillSpaces] [@(0.0.255) `=] [@(0.0.255) false], 
+[@(0.0.255) const] String[@(0.0.255) `&] [*@3 strNull] [@(0.0.255) `=] 
+`"[*@3 nan]`")&]
 [s2; Returns number [%-*@3 d] converted to a String with the best resolution, 
 using either fixed or exponential notation,  filling exactly 
 [%-*@3 fieldWidth] chars. If [%-*@3 fillSpaces] is set, returned 
-string is filled with spaces at the left until [%-*@3 fieldWidth].&]
-[s3; &]
+string is filled with spaces at the left until [%-*@3 fieldWidth].If 
+[%-*@3 d] is not a number, returns &]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:GetExponent10`(double`):%- [@(0.0.255) int] [* GetExponent10]([@(0.0.255) doubl
 e] [*@3 d])&]

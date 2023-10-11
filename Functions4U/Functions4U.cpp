@@ -61,7 +61,7 @@ Honza
 
 namespace Upp {
 
-const Nuller2 Null2;
+//const Nuller2 Null2;
 
 /////////////////////////////////////////////////////////////////////
 // LaunchFile
@@ -1248,12 +1248,12 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {
 
 inline bool IsNum_(double n) {return Upp::IsFin(n) && !IsNull(n);}
 
-String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {
+String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces, const String &strNull) {
 	String data;
 	if (!IsNum_(d)) {
 		if (fillSpaces)
-			data = String(' ', fieldWidth - 3);
-		data.Cat("nan");
+			data = String(' ', fieldWidth - strNull.GetCount());
+		data.Cat(strNull);
 	} else {
 		int actualWidth = fieldWidth;
 		data = FormatDouble(d, fieldWidth, FD_CAP_E|FD_SPECIAL|FD_MINIMAL_EXP);
