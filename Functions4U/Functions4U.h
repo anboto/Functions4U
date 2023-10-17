@@ -836,6 +836,39 @@ void Flip(Range &data) {
 		Swap(data[i], data[data.size()-i-1]);	
 }
 
+template <class Range>
+bool IsSorted(const Range &data) {
+	int64 num = data.size();
+	if (num == 0)
+		return false;
+	if (num == 1)
+		return true;
+	for (int i = 1; i < num; ++i) {
+		if (data[i] < data[i-1])
+			return false;
+	}
+	return true;
+}
+
+template <class Range, class Less>
+Vector<int> GetSortOrderX(const Range& r, const Less& less)
+{
+	auto begin = r.begin();
+	Vector<int> index;
+	index.SetCount(r.size());
+	for(int i = index.size(); --i >= 0; index[i] = i)
+		;
+	typedef SortOrderIterator__<decltype(begin), ValueTypeOf<Range>> It;
+	Sort__(It(index.begin(), begin), It(index.end(), begin), less);
+	return index;
+}
+
+template <class Range>
+Vector<int> GetSortOrderX(const Range& r)
+{
+	return GetSortOrderX(r, std::less<ValueTypeOf<Range>>());
+}
+
 template <class T>
 bool EqualRatio(const std::complex<T>& a, const std::complex<T>& b, const T& ratio, const T& zero = 0) {
 	T absa = abs(a);
