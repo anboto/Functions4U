@@ -1279,6 +1279,8 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
 	ASSERT(minVal < maxVal);
 	if (maxVal >= 0 && minVal <= 0)
 		return 0;
+	if (maxVal - minVal < 10*std::numeric_limits<double>::epsilon())
+		return 0;
 	
     double range = maxVal - minVal;
     
@@ -1459,7 +1461,7 @@ String CharToSubSupScript(char c, bool subscript) {
  	else {
  		for (int i = 0; symbol[i][0] != '\0'; ++i)
  			if (symbol[i][0] == c)
- 				return WString(subscript ? symbol[i][1] : lower[i][2], 1).ToString();
+ 				return WString(subscript ? symbol[i][1] : symbol[i][2], 1).ToString();
  	}
  	return "_";
 }
