@@ -1768,7 +1768,7 @@ String ToStringDecimalSign(Value &val, const String &decimalSign) {
 }
 
 bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
-	const Array<char> separators = {',', ';', '\t', '|', '%'};
+	const Array<char> separators = {',', ';', '\t', '|', '%', ' '};
 	
 	int numLinesToDiscard = 10, numLinesToCheck = 5;	
 	
