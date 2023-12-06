@@ -855,7 +855,7 @@ Vector<int> GetSortOrderX(const Range& r, const Less& less)
 {
 	auto begin = r.begin();
 	Vector<int> index;
-	index.SetCount(r.size());
+	index.SetCount(int(r.size()));
 	for(int i = index.size(); --i >= 0; index[i] = i)
 		;
 	typedef SortOrderIterator__<decltype(begin), ValueTypeOf<Range>> It;
