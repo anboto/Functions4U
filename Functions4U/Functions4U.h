@@ -1053,13 +1053,27 @@ bool Compare(const Range& a, const Range& b) {
 	}
 	return true;
 }
-	
+
+
+template <typename T>
+const T& At(const Vector<T> &v, int i) {return v[i];}
+
+template <typename T>
+T& At(Vector<T> &v, int i) {return v[i];}
+
+template <class Range>
+const typename Range::value_type& At(const Range &v, int i) {return v(i);}
+
+template <class Range>
+typename Range::value_type& At(Range &v, int i) {return v(i);}
+
+
 template <class Range1, class Range2>
-bool CompareRatio(const Range1& a, const Range2& b, const typename Range1::value_type& ratio) {
+bool CompareRatio(const Range1& a, const Range2& b, const typename Range1::value_type& ratio, const typename Range1::value_type& zero = 0) {
 	if (a.size() != b.size())
 		return false;
 	for(int i = 0; i < a.size(); i++) 
-		if (!EqualRatio(a[i], b[i], ratio)) 
+		if (!EqualRatio(At(a, i), At(b, i), ratio, zero)) 
 			return false;
 	return true;
 }

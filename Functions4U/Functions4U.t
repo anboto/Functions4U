@@ -162,13 +162,34 @@ esES("")
 euES("")
 frFR("")
 
-T_("Bad %s '%s' in field #%d, line\n'%s'")
+T_("Bad %s '%s' in field #%d, line:\n'%s'")
 caES("")
 esES("")
 euES("")
 frFR("")
 
-T_("Field #%d not found in line\n'%s'")
+T_("Field #%d not found in line:\n'%s'")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+
+// Parser.cpp
+
+T_("Two hyphen in series are not allowed")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Indentation doesn't match with previous")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("The matrix should have the same number of columns in each row")
 caES("")
 esES("")
 euES("")
@@ -419,6 +440,18 @@ frFR("")
 
 
 // Obsolete
+
+T_("Bad %s '%s' in field #%d, line\n'%s'")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Field #%d not found in line\n'%s'")
+caES("")
+esES("")
+euES("")
+frFR("")
 
 T_("[File: '%s', line: %d]:")
 caES("")
