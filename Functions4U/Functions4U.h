@@ -830,11 +830,12 @@ void Shuffle(Range &data, int randomSeed = Null) {
 	ShuffleDescending(data, re);	
 }
 
-template <class Range>
+// Replaced by ReverseX
+/*template <class Range>
 void Flip(Range &data) {
 	for (int i = 0; i < data.size()/2; ++i)
 		Swap(data[i], data[data.size()-i-1]);	
-}
+}*/
 
 template <class Range>
 bool IsSorted(const Range &data) {
@@ -850,9 +851,8 @@ bool IsSorted(const Range &data) {
 	return true;
 }
 
-template <class Range, class Less>
-Vector<int> GetSortOrderX(const Range& r, const Less& less)
-{
+template <class Range, class Less>	// Valid for containers without GetCount()
+Vector<int> GetSortOrderX(const Range& r, const Less& less) {
 	auto begin = r.begin();
 	Vector<int> index;
 	index.SetCount(int(r.size()));
@@ -864,8 +864,7 @@ Vector<int> GetSortOrderX(const Range& r, const Less& less)
 }
 
 template <class Range>
-Vector<int> GetSortOrderX(const Range& r)
-{
+Vector<int> GetSortOrderX(const Range& r) {
 	return GetSortOrderX(r, std::less<ValueTypeOf<Range>>());
 }
 
