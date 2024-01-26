@@ -26,7 +26,7 @@
 
 	
 /*
-Hi Koldo,
+Hi Koldo,º
 
 I checked the functions in Functions4U. Here are some notes about trashing:
 
@@ -3643,4 +3643,77 @@ Stream& CoutX() {
 	return Single<CoutStreamX>();
 }
 
+
+void Grid::HeaderCols(const Vector<String> &title, const Vector<int> &colWidths) {
+	numHeaderCols = title.size();
+	for (int c = 0; c < title.size(); ++c) 
+		Set(0, c, title[c]);
+	if (widths.IsEmpty())
+		widths = clone(colWidths);
+}
+
+void Grid::AddCol(const Vector<String> &title, int width) {
+	cols.Add();
+	widths << width;
+	actualCol = cols.GetCount()-1; 
+	actualRow = numHeaderRows;
+	for (int r = 0; r < title.size(); ++r)
+		Set(r, actualCol, title[r]);
+}
+
+void Grid::Add(const Vector<String> &title, String data) {
+	ASSERT(title.size() <= numHeaderCols);
+	if (actualCol == numHeaderCols) {
+		for (int c = 0; c < title.size(); ++c) 
+			Set(actualRow, c, title[c]);
+	}
+	Set(actualRow, actualCol, data);
+	actualRow++;
+}
+
+void Grid::Set(int row, int col, String data) {
+	if (col >= cols.size())
+		cols.SetCount(col+1);
+	if (row >= cols[col].size()) {
+		for (int c = 0; c < cols.size(); ++c)
+			if (cols[c].size() <= row)
+				cols[c].SetCount(row+1);
+	}
+	cols[col][row] = data;
+}
+
+String Grid::GetString(bool format, bool removeEmpty, char separator) {
+	String ret;
+	for (int r = 0; r < cols[0].size(); ++r) {
+		bool printRow = true;
+		if (removeEmpty) {
+			bool isEmpty = true;
+			for (int c = numHeaderCols; c < cols.size(); ++c) {
+				if (!IsEmpty(cols[c][r])) {
+					isEmpty = false;	
+					break;
+				}
+			}
+			if (isEmpty)
+				printRow = false;
+		}
+		if (printRow) {
+			for (int c = 0; c < cols.size(); ++c) {
+				if (format) {
+					if (widths[c] > cols[c][r].GetCount())
+						ret << String(' ', widths[c] - cols[c][r].GetCount());
+					ret << cols[c][r].Left(widths[c]);
+				} else
+					ret << cols[c][r];
+				if (c < cols.size()-1)
+					ret << separator;
+			}
+			if (r < cols[0].size()-1)
+				ret << "\n";
+		}
+	}
+	return ret;
+}
+
+	
 }

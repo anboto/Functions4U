@@ -397,8 +397,9 @@ T AvgSafe(const T &a, const T &b) {
 template<class T>
 inline T Nvl2(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
 
-template<class T>
-inline T Nvl2(T cond, T a, T b) {return IsFin(cond) && !IsNull(cond) ? a : b;}
+template<class T1, class T2>
+inline T2 Nvl2(T1 cond, T2 a, T2 b) {return IsFin(cond) && !IsNull(cond) ? a : b;}
+
 
 template<typename T>
 T fact(T val) {
@@ -444,7 +445,11 @@ T AngleAdd360(T ang, T val) {
 template <class T> 
 inline const T Norm(const T& dx, const T& dy)  { 
 	return static_cast<T>(sqrt(dx*dx + dy*dy)); }
-	
+
+template <class T> 
+inline const T Norm(const T& dx, const T& dy, const T& dz)  { 
+	return static_cast<T>(sqrt(dx*dx + dy*dy + dz*dz)); }
+		
 template <class T> 
 inline const T Distance(const T& x1, const T& y1, const T& x2, const T& y2)  { 
 	return Norm(x1-x2, y1-y2); }
@@ -1388,23 +1393,19 @@ public:
 	FileInBinary()                  		        	{}
 	explicit FileInBinary(const char *fn) : FileIn(fn)	{}
 	
-	void ReadB(void *data, size_t sz) {
+	void Read(void *data, size_t sz) {
 		int64 len = Get64(data, sz);
 		if (len != int64(sz))
 			throw Exc(Format(t_("Data not loaded in FileInBinary::Read(%ld)"), int64(sz)));
 	}
-	
 	template <class T>
-	T ReadB() {
+	T Read() {
 		T data;
-		ReadB(&data, sizeof(T));
+		Read(&data, sizeof(T));
 		return data;
 	}
-	template <class T, size_t len>
-	T ReadB() {
-		T data;
-		ReadB(&data, min(len, sizeof(T)));
-		return data;
+	void Jump(int n) {
+		
 	}
 };
 
@@ -1412,7 +1413,10 @@ class FileOutBinary : public FileOut {
 public:
 	explicit FileOutBinary(const char *fn) : FileOut(fn)	{}
 	FileOutBinary()                          				{}
-	
+
+	void Write(const void *data, size_t sz) {
+		Put64(data, sz);
+	}
 	template <class T>
 	void Write(T data) {
 		Put64(&data, sizeof(T));
@@ -1429,7 +1433,7 @@ public:
 	int Index() const 					{return index[idvar];}
 	const Vector<int> &GetIndex() const	{return index;}
 	
-	const String &GetVal() const					{return val;}
+	const String &GetVal() const		{return val;}
 	
 	Vector<double> GetVectorDouble() const;	
 	Vector<Vector<double>> GetMatrixDouble(bool isrect = true) const;
@@ -1696,7 +1700,34 @@ private:
 };
 
 Stream& CoutX();
+
+
+class Grid  {
+public:
+	void HeaderRows(int num)	{numHeaderRows = num;}
+	void HeaderCols(const Vector<String> &title, const Vector<int> &colWidths);
+	void SetCol(int col)		{actualCol = col;}
 	
+	void SetRow(int row)		{actualRow = row;}
+	
+	void AddCol(const Vector<String> &title, int colWidth = 10);
+	void Add(const Vector<String> &title, String data);
+	
+	void Set(int row, int col, String data);
+	
+	template<typename T>
+	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}
+
+	String GetString(bool format, bool removeEmpty, char separator = ' ');
+
+private:
+	Array<Array<String>> cols;
+	Vector<int> widths;		
+	
+	int numHeaderRows = 0, numHeaderCols = 0;
+	int actualCol = 0, actualRow = 0;
+};
+
 }
 
 #endif
