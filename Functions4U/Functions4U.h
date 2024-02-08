@@ -85,7 +85,9 @@ template<typename T, typename... Args>
 String AppendFileNameX(T t, Args... args) {
     return AppendFileName(t, AppendFileNameX(args...));
 }
-	
+
+#define AFX AppendFileNameX
+
 inline String Trim(const String& s)   {return TrimBoth(s);}
 
 String FitFileName(String fileName, int len);
