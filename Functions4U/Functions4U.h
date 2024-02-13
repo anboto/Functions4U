@@ -17,23 +17,6 @@
 
 namespace Upp {
 
-/*
-constexpr float FLOAT_NULL = -std::numeric_limits<float>::infinity();
-
-class Nuller2 : public Nuller {
-public:
-	//operator float() const              { return FLOAT_NULL; }
-	template <typename T>	
-	operator std::complex<T>() const    { return std::complex<T>(Null, Null); }
-	Nuller2() {}
-};
-
-inline void SetNull(float& x) { x = FLOAT_NULL; }
-inline bool IsNull(const float& r)   { return !(std::abs(r) < std::numeric_limits<float>::infinity()); }
-
-extern const Nuller2 Null2;
-#define Null Null2
-*/
 
 #ifdef PLATFORM_WIN32
 inline bool IsNum(const double &n) 	{return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
