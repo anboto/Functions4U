@@ -1348,8 +1348,13 @@ public:
 		return GetLine();
 	}
 	int GetLineNumber()	const 	{return line;}
-	String Str() const 			{return Format(t_("[File: '%s', line: %d]: "), fileName, line);}
-	
+	String Str() const {
+		if (line > 0)
+			return Format(t_("file: '%s', line: %d: "), fileName, line);
+		else
+			return Format(t_("file: '%s': "), fileName);
+	}
+		
 	struct Pos {
 		Pos() : byt(0), line(0) {}
 		int64 byt;
