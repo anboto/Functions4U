@@ -1288,7 +1288,7 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
         return 0;
 
 	int emin = GetExponent10(minVal);
-	double p10 = pow(10, emin);
+	double p10 = Pow10Int<double>(emin);
 	minVal /= p10;
 	maxVal /= p10;
 	range  /= p10;
@@ -1297,7 +1297,7 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
     double result = minVal;
 
     while (true) {
-        double multiplier = pow(10, precision);
+        double multiplier = Pow10Int<double>(precision);
         double roundedResult = round(result * multiplier) / multiplier;
 
         if (roundedResult >= maxVal) 
@@ -1308,7 +1308,7 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
         		roundedResult += multiplier;
             return roundedResult*p10;
         }
-        result += range / pow(10, precision);
+        result += range / Pow10Int<double>(precision);
         precision++;
     }
     return Null;
@@ -1318,7 +1318,7 @@ double GetRangeMajorUnits(double minV, double maxV) {
 	ASSERT(minV < maxV);
 	double rgy = maxV - minV;
 	double dy = rgy/6;
-	dy = pow(10, GetExponent10(rgy));
+	dy = Pow10Int<double>(GetExponent10(rgy));
 	if (int(rgy/dy) > 6) {
 		if (int(rgy/(2*dy)) < 6) 
 			dy *= 2;

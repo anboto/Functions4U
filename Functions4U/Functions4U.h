@@ -292,7 +292,7 @@ String NumToSubSupScript(int d, bool subscript);
 	
 template<typename T>	
 inline T ToRad(T angle)	{
-	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
+	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
 	return angle*M_PI/180.;		// If not, this division will be zero
 }
 template <class Range>
@@ -305,7 +305,7 @@ Range ToRadArray(const Range& r) {
 
 template<typename T>
 inline T ToDeg(T angle)	{
-	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
+	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
 	return angle*T(180./M_PI);		// If not, this division will be zero
 }
 template <class Range>
@@ -318,7 +318,7 @@ Range ToDegArray(const Range& r) {
 
 template<typename T>
 inline T atan2_360(T y, T x) {
-	static_assert(std::is_floating_point<T>::value, "Type has to be floating point");
+	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
 	T ret = ToDeg(atan2(y, x));
 	return ret > 90 ? 450 - ret : 90 - ret; 
 }
@@ -348,11 +348,48 @@ template<class T>
 inline T pow3(T a) {return a*a*a;}
 template<class T>
 inline T pow4(T a) {return pow2(pow2(a));}
-template<class T>
+template<typename T>
+inline T LogBase(T a, T base) {
+	ASSERT(base >= 2);
+	if (base == 10)
+		return log10(a);
+	else
+		return log(a)/log(base);
+}
+template<typename T>
+T PowInt(T x, int n) {
+	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
+	if (n == 0) 
+		return 1;
+	if (n < 0) {
+		x = 1/x;
+		n = -n;
+	}
+	T y = 1;
+	while (n > 1) {
+		if (n&1) {
+			y *= x;
+			n--;
+		}
+		x *= x;
+		n /= 2;
+	}
+	return x*y;
+}
+template<typename T>
+T Pow10Int(int n) {
+	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
+	static T pow10[10] = {1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9};
+	if (n >= 0 && n < 10) 
+		return pow10[n];
+	return PowInt((T)10, n);
+}
+template<typename T>
 inline T fround(T x, int numdec) {
-	T pow10 = pow(10, numdec);
+	T pow10 = Pow10Int<T>(numdec);
   	return round(x*pow10)/pow10;
 }
+
 template<class T>
 inline T Mirror(T x, T val) 		{return 2*val - x;}		// -(x - val) + val
 template<class T>
@@ -691,8 +728,8 @@ void GetSoftwarePath(SoftwareDetails &r);
 	
 Vector<String> GetDriveList();
 
-#define DLLFunction(dll, ret, function, args) auto function = (ret(*)args)dll.GetFunction_throw(#function)
-#define DLLGetFunction(dll, ret, function, args) 			  (ret(*)args)dll.GetFunction_throw(#function)
+#define DLLFunction(dll, ret, function, args)    auto function = (ret(*)args)dll.GetFunction_throw(#function)
+#define DLLGetFunction(dll, ret, function, args) 				 (ret(*)args)dll.GetFunction_throw(#function)
 
 class Dl {
 public:
