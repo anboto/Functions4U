@@ -1546,10 +1546,10 @@ public:
 		ASSERT(in);
 		return in->IsEof();
 	}
-	String GetText() const {
+	const String &GetText() const {
 		return line;
 	}
-	String GetText(int i) const {
+	const String &GetText(int i) const {
 		if (fields.IsEmpty())
 			throw Exc(in->Str() + t_("No data available"));
 		if (IsNull(i))

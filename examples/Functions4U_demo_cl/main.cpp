@@ -187,13 +187,20 @@ void MiscellaneousDemos() {
 	UppLog() << "\nFloat formatting\n";
 	
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
+	VERIFY(5 == GetExponent10(123456.789));
 	UppLog() << Format("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
+	VERIFY(57 == GetExponent10(1.234E57));
 	UppLog() << "\n";
+	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 0.69897, 5, NumberWithLeastSignificantDigits(0.69897, 5));
+	VERIFY(1 == NumberWithLeastSignificantDigits(0.69897, 5));
 	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", -1.12345, 2.468, NumberWithLeastSignificantDigits(-1.12345, 2.468));
+	VERIFY(0 == NumberWithLeastSignificantDigits(-1.12345, 2.468));
 	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 1.12345, 2.468, NumberWithLeastSignificantDigits(1.12345, 2.468));
+	VERIFY(2 == NumberWithLeastSignificantDigits(1.12345, 2.468));
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E33, 2.468E33, NumberWithLeastSignificantDigits(1.12345E33, 2.468E33));
+	VERIFY("2E33" == FDS(NumberWithLeastSignificantDigits(1.12345E33, 2.468E33), 15, false));
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
-	
+	VERIFY("1E33" == FDS(NumberWithLeastSignificantDigits(1.12345E32, 2.468E33), 15, false));
 
 /*	UppLog() << "\nIsNull() testing\n";
 	{

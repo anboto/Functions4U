@@ -1277,17 +1277,18 @@ int GetExponent10(double d) {
 
 double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
 	ASSERT(minVal < maxVal);
-	if (maxVal >= 0 && minVal <= 0)
-		return 0;
-	if (maxVal - minVal < 10*std::numeric_limits<double>::epsilon())
+	if (maxVal >= 0 && minVal <= 0)		// Crosses 0
+		return 0;	
+	if (maxVal - minVal < 10*std::numeric_limits<double>::epsilon())	// Almost 0
 		return 0;
 	
     double range = maxVal - minVal;
     
-    if (abs(maxVal) < range/10 || abs(minVal) < range/10)
-        return 0;
+    //if (abs(maxVal) < range/10 || abs(minVal) < range/10)
+    //    return 0;
 
-	int emin = GetExponent10(minVal);
+	double val = Avg(minVal, maxVal);
+	int emin = GetExponent10(val);
 	double p10 = Pow10Int<double>(emin);
 	minVal /= p10;
 	maxVal /= p10;
@@ -1297,14 +1298,14 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
     double result = minVal;
 
     while (true) {
-        double multiplier = Pow10Int<double>(precision);
-        double roundedResult = round(result * multiplier) / multiplier;
+        int multiplier = Pow10Int<double>(precision);
+        int roundedResult = floor(result * multiplier) / multiplier;
 
         if (roundedResult >= maxVal) 
             return maxVal*p10;
 
         if (roundedResult != result) {
-        	if (!Between(roundedResult, minVal, maxVal)) 
+        	if (!Between((double)roundedResult, minVal, maxVal)) 
         		roundedResult += multiplier;
             return roundedResult*p10;
         }
