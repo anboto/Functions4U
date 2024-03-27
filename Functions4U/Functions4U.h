@@ -121,6 +121,9 @@ String LoadFile(const char *fileName, off_t from, size_t len = 0);
 int64 GetLength(const char *fileDirName); 
 int64 GetDirectoryLength(const char *directoryName);
 
+
+String ForceExtSafer(const char* fn, const char* ext);
+	
 ///////////////////////////////
 Vector<String> SearchFile(String dir, const Vector<String> &condFiles, const Vector<String> &condFolders, 
 								 const Vector<String> &extFiles,  const Vector<String> &extFolders, 

@@ -2743,6 +2743,20 @@ int64 GetDirectoryLength(const char *directoryName) {
 	return files.GetSize();
 }
 
+String ForceExtSafer(const char* fn, const char* ext) {
+#ifdef PLATFORM_WIN32
+	return ForceExt(fn, ext);
+#else
+	String ret = ForceExt(fn, ToLower(ext));
+	if (FileExists(ret))
+		return ret;
+	ret = ForceExt(fn, ToUpper(ext));
+	if (FileExists(ret))
+		return ret;
+	return ForceExt(fn, ext);
+#endif	
+}
+
 int64 GetLength(const char *fileName) {
 	if (FileExists(fileName))
 		return GetFileLength(fileName);

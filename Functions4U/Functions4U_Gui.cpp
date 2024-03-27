@@ -225,7 +225,7 @@ void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit) {
 			menu.Add(t_("No row selected"), Null, Null).Enable(false).Bold(true);
 		else {
 			menu.Add(Format(t_("Selected %d rows"), count), Null, Null).Enable(false).Bold(true);
-			menu.Add(t_("Copy"), Null, [&] {ArrayCtrlRowCopy(array, header);})
+			menu.Add(t_("Copy"), Null, [&array, header] {ArrayCtrlRowCopy(array, header);})
 				.Key(K_CTRL_C).Help(t_("Copy selected rows to clipboard"));
 		}	
 	}
