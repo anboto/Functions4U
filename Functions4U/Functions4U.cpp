@@ -1475,6 +1475,22 @@ String NumToSubSupScript(int d, bool subscript) {
 	return ret;
 }
 
+
+const char *Ordinal(int num) {
+	num = abs(num);
+    if (num % 100 >= 11 && num % 100 <= 13) 
+        return "th";
+    else {
+        switch (num % 10) {
+            case 1:		return "st";
+            case 2:		return "nd";
+            case 3:		return "rd";
+            default:	return "th";
+        }
+    }
+}
+
+
 String FitFileName(const String fileName, int len) {
 	if (fileName.GetCount() <= len)
 		return fileName;
@@ -1768,14 +1784,10 @@ String ToStringDecimalSign(Value &val, const String &decimalSign) {
 	return ret;
 }
 
-bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
+bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
 	const Array<char> separators = {',', ';', '\t', '|', '%', ' '};
 	
 	int numLinesToDiscard = 10, numLinesToCheck = 5;	
-	
-	FileIn in(fileName);
-	if (!in)
-		return false;
 	
 	// Get all lines and its positions
 	Vector<String> lines;
@@ -1783,7 +1795,7 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 	linesPos << 0;
 	for (int i = 0; i < numLinesToDiscard+numLinesToCheck && !in.IsEof(); ++i) {
 		lines << in.GetLine();
-		linesPos << (in.GetPos()+1);
+		linesPos << in.GetPos();
 	}
 	// Re adjust check window if the file is small
 	if (lines.size() < numLinesToDiscard + numLinesToCheck) {
@@ -1815,6 +1827,8 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 	
 	auto CompareVectors = [](const Vector<int> &a, const Vector<int> &b)->int {	// Checks if all the values in 2 vectors are the same, and returns it
 		if (a.size() != b.size())
+			return -1;
+		if (a.IsEmpty() || b.IsEmpty())
 			return -1;
 		int n = a[0];
 		if (n != b[0])
@@ -1879,7 +1893,7 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 	beginDataRow = endHeader;
 	
 	header = "";
-	for (int r = 0; r <= beginHeader; ++r) {
+	for (int r = 0; r <= beginHeader && r < endHeader; ++r) {
 		if (r > 0)
 			header << "\n";	
 		header << lines[r];
@@ -1891,11 +1905,27 @@ bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<S
 		for (int i = 0; i < numBest; ++i) {	
 			if (r - beginHeader > 0)
 				parameters[i] << "\n";
-			parameters[i] << Trim(data[i]);
+			if (i < data.size())
+				parameters[i] << Trim(data[i]);
 		}
 	}
 	
 	return true;	
+}
+
+bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
+	FileIn in(fileName);
+	if (!in)
+		return false;
+	return GuessCSVStream(in, onlyNumbers, header, parameters, separator, repetition, decimalSign, beginData, beginDataRow);
+}
+
+bool GuessCSV(const String &fileName, bool onlyNumbers, CSVParameters &param) {
+	return GuessCSV(fileName, onlyNumbers, param.header, param.parameters, param.separator, param.repetition, param.decimalSign, param.beginData, param.beginDataRow);
+}
+
+bool GuessCSVStream(Stream &in, bool onlyNumbers, CSVParameters &param) {
+	return GuessCSVStream(in, onlyNumbers, param.header, param.parameters, param.separator, param.repetition, param.decimalSign, param.beginData, param.beginDataRow);
 }
 
 String WriteCSV(Vector<Vector <Value> > &data, char separator, bool bycols, char decimalSign) {
@@ -3659,71 +3689,87 @@ Stream& CoutX() {
 }
 
 
-void Grid::HeaderCols(const Vector<String> &title, const Vector<int> &colWidths) {
-	numHeaderCols = title.size();
-	for (int c = 0; c < title.size(); ++c) 
-		Set(0, c, title[c]);
-	if (widths.IsEmpty())
-		widths = clone(colWidths);
+void Grid::ColWidths(const Vector<int> &colWidths) {
+	widths = clone(colWidths);
 }
 
-void Grid::AddCol(const Vector<String> &title, int width) {
-	cols.Add();
-	widths << width;
-	actualCol = cols.GetCount()-1; 
-	actualRow = numHeaderRows;
-	for (int r = 0; r < title.size(); ++r)
-		Set(r, actualCol, title[r]);
+void Grid::AddCol(int colWidth) {
+	widths << colWidth;
+	actualCol = widths.size()-1;
 }
-
-void Grid::Add(const Vector<String> &title, String data) {
-	ASSERT(title.size() <= numHeaderCols);
-	if (actualCol == numHeaderCols) {
-		for (int c = 0; c < title.size(); ++c) 
-			Set(actualRow, c, title[c]);
+	
+Grid& Grid::Set(int row, int col, Value data) {
+	if (!IsNull(col))
+		actualCol = col;
+	if (!IsNull(row))
+		actualRow = row;
+	
+	if (actualCol >= columns.size())
+		columns.SetCount(actualCol+1);
+	if (actualRow >= columns[actualCol].size()) {
+		for (int c = 0; c < columns.size(); ++c)
+			if (columns[c].size() <= actualRow)
+				columns[c].SetCount(actualRow+1);
 	}
-	Set(actualRow, actualCol, data);
+	columns[actualCol][actualRow] = data;
+	
+	return *this;
+}
+
+Grid& Grid::AddRow(const Vector<String> &data) {
 	actualRow++;
+	actualCol = 0;
+	
+	for (int c = 0; c < data.size(); ++c)
+		Set(Null, Null, data[c]);
+	
+	return *this;
 }
 
-void Grid::Set(int row, int col, String data) {
-	if (col >= cols.size())
-		cols.SetCount(col+1);
-	if (row >= cols[col].size()) {
-		for (int c = 0; c < cols.size(); ++c)
-			if (cols[c].size() <= row)
-				cols[c].SetCount(row+1);
-	}
-	cols[col][row] = data;
+const Value &Grid::Get(int row, int col) const {
+	static const Value nil;
+	if (col >= columns.size() || row >= columns[col].size())
+		return nil;
+	return columns[col][row];
 }
 
-String Grid::GetString(bool format, bool removeEmpty, char separator) {
+int Grid::rows(int col) const {
+	if (columns.IsEmpty())
+		return 0;
+	return columns[col].size();
+}
+
+int Grid::cols() const {
+	return columns.size();
+}
+	
+String Grid::GetString(bool format, bool removeEmpty, const String &separator) {
 	String ret;
-	for (int r = 0; r < cols[0].size(); ++r) {
-		bool printRow = true;
-		if (removeEmpty) {
-			bool isEmpty = true;
-			for (int c = numHeaderCols; c < cols.size(); ++c) {
-				if (!IsEmpty(cols[c][r])) {
-					isEmpty = false;	
+	for (int r = 0; r < columns[0].size(); ++r) {
+		bool printRow;
+		if (removeEmpty) {			// Doesn't show empty rows
+			printRow = false;
+			for (int c = 0; c < columns.size(); ++c) {
+				if (!columns[c][r].IsNull()) {
+					printRow = true;	
 					break;
 				}
 			}
-			if (isEmpty)
-				printRow = false;
-		}
+		} else
+			printRow = true;
 		if (printRow) {
-			for (int c = 0; c < cols.size(); ++c) {
-				if (format) {
-					if (widths[c] > cols[c][r].GetCount())
-						ret << String(' ', widths[c] - cols[c][r].GetCount());
-					ret << cols[c][r].Left(widths[c]);
+			for (int c = 0; c < columns.size(); ++c) {
+				if (format) {		// Add spaces to maintain the position of each column
+					String str = columns[c][r].ToString();
+					if (widths[c] > str.GetCount())
+						ret << String(' ', widths[c] - str.GetCount());
+					ret << str.Left(widths[c]);
 				} else
-					ret << cols[c][r];
-				if (c < cols.size()-1)
+					ret << columns[c][r];
+				if (c < columns.size()-1)
 					ret << separator;
 			}
-			if (r < cols[0].size()-1)
+			if (r < columns[0].size()-1)
 				ret << "\n";
 		}
 	}

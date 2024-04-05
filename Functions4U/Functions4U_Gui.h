@@ -118,6 +118,8 @@ int ArrayCtrlSelectedGetCount(const ArrayCtrl &array);
 Vector<Vector<Value>> ArrayCtrlGet(const ArrayCtrl &arr);
 void ArrayCtrlSet(ArrayCtrl &array, const Vector<Vector<Value>> &vals, int fromRow = 0, int fromCol = 0);
 
+void ArrayCtrlFill(ArrayCtrl &array, const Grid &g, bool removeEmpty);
+
 template <class T>
 T *GetDefinedParentP(Ctrl *ths) {
 	while (ths->GetParent() != nullptr) {

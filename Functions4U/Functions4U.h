@@ -37,8 +37,7 @@ bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
 
 template <typename T>
 inline bool IsNum(const Point_<T> &n) {return IsNum(n.x) && IsNum(n.y);}
-	
-	
+
 	
 enum EXT_FILE_FLAGS {NO_FLAG = 0, 
 					 USE_TRASH_BIN = 1,
@@ -292,6 +291,8 @@ String RemoveGreek(String str);
 
 String CharToSubSupScript(char c, bool subscript);
 String NumToSubSupScript(int d, bool subscript);
+
+const char *Ordinal(int num);
 	
 template<typename T>	
 inline T ToRad(T angle)	{
@@ -507,7 +508,20 @@ Vector<Vector <Value> > ReadCSVFile(const String &fileName, char separator = ','
 bool ReadCSVFileByLine(const String &fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator = ',', char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
 String WriteCSV(Vector<Vector <Value> > &data, char separator = ',', bool bycols = true, char decimalSign = '.');
 bool WriteCSVFile(const String &fileName, Vector<Vector <Value> > &data, char separator = ',', bool bycols = true, char decimalSign = '.');
+
 bool GuessCSV(const String &fileName, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow);
+bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow);
+struct CSVParameters {
+	String header;
+	Vector<String> parameters;
+	char separator, decimalSign;
+	bool repetition;
+	int64 beginData;
+	int beginDataRow;
+};
+bool GuessCSV(const String &fileName, bool onlyNumbers, CSVParameters &param);
+bool GuessCSVStream(Stream &in, bool onlyNumbers, CSVParameters &param);
+
 	
 // A String based class to parse into
 class StringParse : public String {
@@ -1734,24 +1748,36 @@ Stream& CoutX();
 
 class Grid  {
 public:
-	void HeaderRows(int num)	{numHeaderRows = num;}
-	void HeaderCols(const Vector<String> &title, const Vector<int> &colWidths);
-	void SetCol(int col)		{actualCol = col;}
+	void ColWidths(const Vector<int> &colWidths);
+	void AddCol(int colWidth = 10);
+	int GetWidth(int c)	const {
+		if (c < widths.size())
+			return widths[c];
+		return widths[widths.size()-1];
+	}
 	
-	void SetRow(int row)		{actualRow = row;}
+	Grid& SetCol(int col)		{actualCol = col;	return *this;}
+	Grid& SetRow(int row)		{actualRow = row;	return *this;}
 	
-	void AddCol(const Vector<String> &title, int colWidth = 10);
-	void Add(const Vector<String> &title, String data);
-	
-	void Set(int row, int col, String data);
-	
+	Grid& Set(int row, int col, Value data);
+	const Value &Get(int row, int col) const;
+	Grid& AddRow(const Vector<String> &data);
+		
 	template<typename T>
 	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}
 
-	String GetString(bool format, bool removeEmpty, char separator = ' ');
+	String GetString(bool format, bool removeEmpty, const String &separator = " ");
+	
+	Grid& SetNumHeaderRows(int n)	{numHeaderRows = n;	return *this;}
+	int  GetNumHeaderRows()	const	{return numHeaderRows;}
+	Grid& SetNumHeaderCols(int n)	{numHeaderCols = n;	return *this;}
+	int  GetNumHeaderCols()	const	{return numHeaderCols;}
+	
+	int rows(int col = 0) const;
+	int cols() const;
 
 private:
-	Array<Array<String>> cols;
+	Array<Array<Value>> columns;
 	Vector<int> widths;		
 	
 	int numHeaderRows = 0, numHeaderCols = 0;

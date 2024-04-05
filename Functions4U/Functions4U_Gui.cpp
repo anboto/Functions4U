@@ -307,6 +307,31 @@ void ArrayCtrlSet(ArrayCtrl &arr, const Vector<Vector<Value>> &vals, int fromRow
 	}
 }
 
+void ArrayCtrlFill(ArrayCtrl &array, const Grid &g, bool removeEmpty) {
+	bool header = g.GetNumHeaderRows() > 0;
+	int beginrow = header ? 1 : 0;
+	
+	for (int c = 0; c < g.cols(); ++c) 
+		array.AddColumn(header ? g.Get(0, c).ToString() : "", g.GetWidth(c));
+
+	for (int r = beginrow; r < g.rows(); ++r) {
+		bool printRow = true;
+		if (removeEmpty) {			// Doesn't show empty rows
+			printRow = false;
+			for (int c = 0; c < g.cols(); ++c) {
+				if (!IsNull(g.Get(r, c))) {
+					printRow = true;	
+					break;
+				}
+			}
+		}
+		if (printRow) {
+			for (int c = 0; c < g.cols(); ++c) 
+				array.Set(r-beginrow, c, g.Get(r, c));
+		}
+	}
+}
+
 }
 
 #endif
