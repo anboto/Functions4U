@@ -14,7 +14,6 @@
 #include "LocalProcess2.h"
 #include <random>
 
-
 namespace Upp {
 
 
@@ -331,7 +330,7 @@ inline bool Odd(int val)	  		{return val%2;}
 inline bool Even(int val) 	  		{return !Odd(val);}
 inline int RoundEven(int val) 		{return Even(val) ? val : val+1;}
 template<class T>
-inline int Sign(T a) 				{return (a > 0) - (a < 0);}
+inline int Sign(T a) 				{return (a >= 0) - (a < 0);}
 template<class T>
 inline T Neg(T a) 					{return a > 0 ? -a : a;}
 template<class T>
@@ -1745,6 +1744,22 @@ private:
 
 Stream& CoutX();
 
+template <class T>
+String LoadFromJsonError(T& var, const char *json) {
+	try {
+		Value jv = ParseJSON(json);
+		if (jv.IsError())
+			return GetErrorText(jv);
+		LoadFromJsonValue(var, jv);
+	} catch (const ValueTypeError &err) {
+		return err;
+	} catch (const JsonizeError &err) {
+		return err;
+	} catch (...) {
+		return "Unknown error";
+	}
+	return String();
+}
 
 class Grid  {
 public:

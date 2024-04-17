@@ -1350,7 +1350,7 @@ String RemoveAccent(wchar c) {
 	const char *unaccented = "AAAACEEEEEIIIINOOOOUUUYaaaaceeeeeiiiinooooouuuyyw";
 	
 	for (int i = 0; accented[i]; ++i) {
-		if (accented[i] == c) {
+		if (*(accented.begin() + i) == c) {
 			wsret.Cat(unaccented[i]);
 			return wsret.ToString();	
 		}
@@ -1360,7 +1360,7 @@ String RemoveAccent(wchar c) {
 	const char *unmaccented[] = {"AA", "aa", "AE", "ae", "OE", "oe", "TH", "th", "SS", "ETH", 
 								 "eth", "AE", "ae", "OE", "oe", "UE", "ue", "inf"};
 	for (int i = 0; maccented[i]; ++i) {
-		if (maccented[i] == c) 
+		if (*(maccented.begin() + i) == c) 
 			return unmaccented[i];
 	}
 	wsret.Cat(c);
@@ -1372,7 +1372,7 @@ bool IsPunctuation(wchar c) {
 	const WString punct = "\"\342\200\231'()[]{}<>:;,\342\200\222\342\200\223\342\200\224\342\200\225\342\200\246.,\302\241!\302\277?\302\253\302\273-\342\200\220\342\200\230\342\200\231\342\200\234\342\200\235/\\&@*\\\342\200\242^\302\251\302\244\340\270\277\302\242$\342\202\254\306\222\302\243\342\202\246\302\245\342\202\251\342\202\252\342\200\240\342\200\241\343\200\203#\342\204\226\302\272\302\252%\342\200\260\342\200\261∞"
      					  "\302\266\342\200\262\302\256\302\247\342\204\240\342\204\227~\342\204\242|\302\246=";
 	for (int i = 0; punct[i]; ++i) {
-		if (punct[i] == c) 
+		if (*(punct.begin() + i) == c) 
 			return true;
 	}
 	return false;
@@ -1389,9 +1389,9 @@ const char *GreekSymbols(int i) {
 String GreekToText(wchar c) {
 	for (int i = 0; GreekSymbols(i)[0]; i += 2) {
 		WString ws(GreekSymbols(i+1));
-		if (c == ws[0])
+		if (c == *(ws.begin()))
 			return InitCaps(GreekSymbols(i));		
-		if (c == ws[1])
+		if (c == *(ws.begin() + 1))
 			return GreekSymbols(i);		
 	}
 	return Null;
@@ -1400,9 +1400,9 @@ String GreekToText(wchar c) {
 bool IsGreek(wchar c) {
 	for (int i = 0; GreekSymbols(i)[0]; i += 2) {
 		WString ws(GreekSymbols(i+1));
-		if (c == ws[0])
+		if (c == *(ws.begin()))
 			return true;		
-		if (c == ws[1])
+		if (c == *(ws.begin() + 1))
 			return true;		
 	}
 	return false;
@@ -1452,7 +1452,6 @@ String CharToSubSupScript(char c, bool subscript) {
 	const Vector<WString> number= {"0₀⁰", "1₁¹", "2₂²", "3₃³", "4₄⁴", "5₅⁵", "6₆⁶", "7₇⁷", "8₈⁸", "9₉⁹"};
 	const Vector<WString> symbol= {"+₊⁺", "-₋⁻", "=₌⁼", "(₍⁽", ")₎⁾", ""};
  
- 	const char *v = nullptr;
  	if (c >= 'a' && c <= 'z') 
  		return WString(subscript ? lower[c - 'a'][1]  : lower[c - 'a'][2], 1).ToString();
  	else if (c >= 'A' && c <= 'Z') 
@@ -3473,7 +3472,7 @@ bool SetConsoleColor(CONSOLE_COLOR color) {
 
 #ifdef PLATFORM_WIN32
 	static HANDLE hstdout = 0;
-	static CONSOLE_SCREEN_BUFFER_INFO csbiInfo = {};
+	//static CONSOLE_SCREEN_BUFFER_INFO csbiInfo = {};
 	static WORD woldattrs;
 	
 	if (hstdout == 0) {
