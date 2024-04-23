@@ -1299,7 +1299,7 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
 
     while (true) {
         double multiplier = Pow10Int<double>(precision);
-        double roundedResult = floor(result * multiplier) / multiplier;
+        int roundedResult = (int)(floor(result * multiplier) / multiplier);
 
         if (roundedResult >= maxVal) 
             return maxVal*p10;
