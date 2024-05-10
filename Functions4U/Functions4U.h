@@ -272,6 +272,7 @@ int NumAdvicedDigits(double range);
 String FormatDoubleAutosize(double d);	
 String FormatDoubleAutosize(double d, double range);
 String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces = false, const String &strNull = "nan");
+String FormatDoubleDecimals(double d, int maxDecimals);
 #define	FDAS	FormatDoubleAutosize
 #define	FDS		FormatDoubleSize
 

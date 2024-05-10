@@ -1075,6 +1075,7 @@ void StringToHMS(String durat, int &hour, int &min, double &seconds) {
 		seconds = Neg(seconds);
 	}
 }
+
 double StringToSeconds(String duration) {
 	int hour, min;
 	double secs;
@@ -1094,32 +1095,6 @@ String formatSeconds(double seconds, int dec, bool fill) {
 		ret << "." << FormatIntDec(static_cast<int>(decs*pow(10, dec)), dec, '0');
 	return ret;
 }
-/*
-String HMSToString0(int hour, int min, double seconds, bool units, int dec) {
-	String sunits;
-	if (units) {
-		if (hour >= 1)
-			sunits = t_("hours");
-		else if (min >= 2)
-			sunits = t_("mins");
-		else if (min == 1)
-			sunits = t_("min");
-		else if (seconds > 1)
-			sunits = t_("secs");
-		else
-			sunits = t_("sec");
-	}
-	String ret;
-	if (hour > 0)
-		ret << hour << ":";
-	if (min > 0 || hour > 0) 
-	    ret << (ret.IsEmpty() ? FormatInt(min) : FormatIntDec(min, 2, '0')) << ":";
-	
-	ret << formatSeconds(seconds, dec, min > 0 || hour > 0);
-	if (units)
-		ret << " " << sunits;
-	return ret;
-}*/
 
 String HMSToString(int hour, int min, double seconds, int dec, bool units, bool space, bool tp, 
 					bool longUnits, bool forcesec) {
@@ -1231,21 +1206,6 @@ String FormatDoubleAutosize(double d, double range) {
 	return FDS(d, NumAdvicedDigits(range));
 }
 
-/*
-String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces) {		
-	String format, data;
-	for (int res = 0; fieldWidth > res; res++) {
-		format = S("%.") + FormatInt(fieldWidth-res) + S("G");
-		data = Format(format, d);
-		if (data.GetCount() <= fieldWidth) {
-			if (fillSpaces)
-				data = String(' ', fieldWidth - data.GetCount()) + data;
-			break;
-		}
-	}
-	return data;
-}*/
-
 inline bool IsNum_(double n) {return Upp::IsFin(n) && !IsNull(n);}
 
 String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces, const String &strNull) {
@@ -1267,6 +1227,18 @@ String FormatDoubleSize(double d, int fieldWidth, bool fillSpaces, const String 
 	return data;	
 }
 
+String FormatDoubleDecimals(double d, int maxDecimals) {
+	String ret = FormatF(d, maxDecimals);
+	
+	int ichar;
+	for (ichar = ret.GetCount()-1; ichar >= 0 && ret[ichar] == '0'; --ichar)
+		;
+	if (ret[ichar] == '.')
+		ichar--;
+	
+	return ret.Left(ichar+1);
+}
+	
 int GetExponent10(double d) {
 	d = abs(d);
 	if (d >= 1)
