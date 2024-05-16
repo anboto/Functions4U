@@ -156,11 +156,11 @@ bool YmlParser::GetLine() {
 	return true;
 }			
 
-bool YmlParser::FirstIs(const String &val) {
+bool YmlParser::FirstIs(const String &vval) {
 	if (idvar >= var.size()-1)
 		return false;
 
-	if (var[idvar+1] == val) {
+	if (var[idvar+1] == vval) {
 		idvar++;
 		return true;
 	}
