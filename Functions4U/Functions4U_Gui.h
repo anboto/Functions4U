@@ -7,32 +7,6 @@
 
 namespace Upp {
 
-inline const RGBA *GetPixel(const Image &img, int x, int y) {
-	return &img[y][x];
-}
-
-inline RGBA *GetPixel(ImageBuffer &img, int x, int y) {
-	return &img[y][x];
-}
-
-inline bool IsValid(const Image &img, int x, int y) {
-	return x >= 0 && y >= 0 && x < img.GetWidth() && y < img.GetHeight();
-}
-
-inline bool IsValid(ImageBuffer &img, int x, int y) {
-	return x >= 0 && y >= 0 && x < img.GetWidth() && y < img.GetHeight();
-}
-
-template <class T> 
-inline bool IsValid(const Image &img, T &t) {
-	return t.x >= 0 && t.y >= 0 && t.x < img.GetWidth() && t.y < img.GetHeight();
-}
-
-template <class T> 
-inline bool IsValid(ImageBuffer &img, T &t) {
-	return t.x >= 0 && t.y >= 0 && t.x < img.GetWidth() && t.y < img.GetHeight();
-}
-
 Drawing DrawEquation(const String &str);
 QtfRichObject QtfEquation(const String &str);
 
@@ -119,6 +93,7 @@ Vector<Vector<Value>> ArrayCtrlGet(const ArrayCtrl &arr);
 void ArrayCtrlSet(ArrayCtrl &array, const Vector<Vector<Value>> &vals, int fromRow = 0, int fromCol = 0);
 
 void ArrayCtrlFill(ArrayCtrl &array, const Grid &g, bool removeEmpty);
+void ArrayCtrlVirtual(ArrayCtrl &array, const Grid &g);
 
 template <class T>
 T *GetDefinedParentP(Ctrl *ths) {

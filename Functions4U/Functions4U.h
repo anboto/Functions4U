@@ -793,6 +793,32 @@ Rect_<T> FitInFrame(const Size_<T> &frame, const Size_<T> &object)
 	}
 }
 
+inline const RGBA *GetPixel(const Image &img, int x, int y) {
+	return &img[y][x];
+}
+
+inline RGBA *GetPixel(ImageBuffer &img, int x, int y) {
+	return &img[y][x];
+}
+
+inline bool IsValid(const Image &img, int x, int y) {
+	return x >= 0 && y >= 0 && x < img.GetWidth() && y < img.GetHeight();
+}
+
+inline bool IsValid(ImageBuffer &img, int x, int y) {
+	return x >= 0 && y >= 0 && x < img.GetWidth() && y < img.GetHeight();
+}
+
+template <class T> 
+inline bool IsValid(const Image &img, T &t) {
+	return t.x >= 0 && t.y >= 0 && t.x < img.GetWidth() && t.y < img.GetHeight();
+}
+
+template <class T> 
+inline bool IsValid(ImageBuffer &img, T &t) {
+	return t.x >= 0 && t.y >= 0 && t.x < img.GetWidth() && t.y < img.GetHeight();
+}
+
 Color RandomColor();
 
 Image GetRect(const Image& orig, const Rect &r);
@@ -1792,12 +1818,43 @@ public:
 	int rows(int col = 0) const;
 	int cols() const;
 
+	void SetVirtualCount(int n)	{
+		vheader.Clear();
+		vconvert.Clear();
+		SetNumHeaderRows(1);
+		vnum = n;
+		isVirtual = true;
+	}
+	void AddVirtualCol(String name, Convert &c, int colWidth = 10) {
+		vheader << name;
+		vconvert << &c;
+		AddCol(colWidth);
+	}
+	const String& GetVirtualHeader(int id)	 const {return vheader[id];}
+	const Convert& GetVirtualConvert(int id) const {return *vconvert[id];}
+	
+	void Clear() {
+		columns.Clear();
+		widths.Clear();		
+		numHeaderRows = numHeaderCols = actualCol = actualRow = 0;
+	
+		isVirtual = false;
+		vheader.Clear();
+		vconvert.Clear();
+		vnum = 0;
+	}
+	
 private:
 	Array<Array<Value>> columns;
 	Vector<int> widths;		
 	
 	int numHeaderRows = 0, numHeaderCols = 0;
 	int actualCol = 0, actualRow = 0;
+	
+	bool isVirtual = false;
+	int vnum = 0;
+	Vector<String> vheader;
+	Vector<Convert*> vconvert;
 };
 
 }

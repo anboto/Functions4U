@@ -3705,12 +3705,16 @@ const Value &Grid::Get(int row, int col) const {
 }
 
 int Grid::rows(int col) const {
+	if (vnum > 0)
+		return vnum;
 	if (columns.IsEmpty())
 		return 0;
 	return columns[col].size();
 }
 
 int Grid::cols() const {
+	if (isVirtual)
+		return vheader.size();
 	return columns.size();
 }
 	

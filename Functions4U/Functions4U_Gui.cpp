@@ -332,6 +332,15 @@ void ArrayCtrlFill(ArrayCtrl &array, const Grid &g, bool removeEmpty) {
 	}
 }
 
+void ArrayCtrlVirtual(ArrayCtrl &array, const Grid &g) {
+	array.Clear();
+	array.ClearSelection();
+	array.SetVirtualCount(g.rows());
+	for (int i = 0; i < g.cols(); ++i) 
+		array.AddRowNumColumn(g.GetVirtualHeader(i), g.GetWidth(i)).SetConvert(g.GetVirtualConvert(i));
+	array.Refresh();
+}
+
 }
 
 #endif
