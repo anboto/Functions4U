@@ -341,6 +341,16 @@ void ArrayCtrlVirtual(ArrayCtrl &array, const Grid &g) {
 	array.Refresh();
 }
 
+void ArrayCtrlVirtual_SetHeader(ArrayCtrl &array, Grid &g, int id, String text) {
+	array.HeaderTab(id).SetText(text);
+	g.SetVirtualHeader(id, text);
+}
+
+void ArrayCtrlVirtual_UpdateHeaders(ArrayCtrl &array, const Grid &g) {
+	for (int r = 0; r < array.GetColumnCount(); ++r)	
+		array.HeaderTab(r).SetText(g.GetVirtualHeader(r));	
+}
+
 }
 
 #endif

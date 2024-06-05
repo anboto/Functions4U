@@ -1176,7 +1176,7 @@ void SetSortOrder(Range1& a, const Range2& order) {
 		a[i] = pick(temp[order[i]]);	
 }
 
-// Trims a range of Strings. It only works if Range has size()function
+// Trims a range of Strings. It only works if Range has size() function
 template <class Range>
 typename std::enable_if<std::is_member_function_pointer<decltype(&Range::size)>::value, Range>::type
 Trim(const Range& a) {
@@ -1829,8 +1829,11 @@ public:
 		vheader << name;
 		vconvert << &c;
 		AddCol(colWidth);
+		numHeaderCols++;
 	}
-	const String& GetVirtualHeader(int id)	 const {return vheader[id];}
+	const String& GetVirtualHeader(int id)	 const 	{return vheader[id];}
+	String& SetVirtualHeader(int id, String txt)	{return vheader[id] = txt;}
+	
 	const Convert& GetVirtualConvert(int id) const {return *vconvert[id];}
 	
 	void Clear() {

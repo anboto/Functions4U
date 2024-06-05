@@ -94,7 +94,9 @@ void ArrayCtrlSet(ArrayCtrl &array, const Vector<Vector<Value>> &vals, int fromR
 
 void ArrayCtrlFill(ArrayCtrl &array, const Grid &g, bool removeEmpty);
 void ArrayCtrlVirtual(ArrayCtrl &array, const Grid &g);
-
+void ArrayCtrlVirtual_SetHeader(ArrayCtrl &array, Grid &g, int id, String text);
+void ArrayCtrlVirtual_UpdateHeaders(ArrayCtrl &array, const Grid &g);
+	
 template <class T>
 T *GetDefinedParentP(Ctrl *ths) {
 	while (ths->GetParent() != nullptr) {
