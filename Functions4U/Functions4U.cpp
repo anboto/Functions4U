@@ -3691,8 +3691,10 @@ Grid& Grid::AddRow(const Vector<String> &data) {
 	actualRow++;
 	actualCol = 0;
 	
-	for (int c = 0; c < data.size(); ++c)
+	for (int c = 0; c < data.size(); ++c) {
 		Set(Null, Null, data[c]);
+		actualCol++;
+	}
 	
 	return *this;
 }
