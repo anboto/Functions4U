@@ -1862,4 +1862,15 @@ private:
 
 }
 
+// Compiler options
+
+// Normal
+// -Wall -Wextra 
+
+// Extra
+// -Wno-unused-parameter -Wno-logical-op-parentheses -Wno-deprecated-copy-with-user-provided-copy -Wno-overloaded-virtual -Wno-missing-braces 
+
+// Full
+// -Wshadow	
+
 #endif
