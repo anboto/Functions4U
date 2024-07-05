@@ -1271,13 +1271,13 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
 
     while (true) {
         double multiplier = Pow10Int<double>(precision);
-        int roundedResult = (int)(floor(result * multiplier) / multiplier);
+        double roundedResult = floor(result * multiplier)/multiplier;
 
         if (roundedResult >= maxVal) 
             return maxVal*p10;
 
         if (roundedResult != result) {
-        	if (!Between((double)roundedResult, minVal, maxVal)) 
+        	if (!Between(roundedResult, minVal, maxVal)) 
         		roundedResult += multiplier;
             return roundedResult*p10;
         }
