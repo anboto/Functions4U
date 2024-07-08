@@ -19,6 +19,7 @@ library(WIN32) oleaut32;
 file
 	Functions4U.cpp,
 	Functions4U.h,
+	FileArray.cpp,
 	Parser.cpp,
 	Functions4U_Gui.cpp,
 	Functions4U_Gui.h,

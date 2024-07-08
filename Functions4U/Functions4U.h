@@ -58,12 +58,12 @@ bool FileStrAppend(const char *file, const char *str);
 bool AppendFile(const char *filename, const char *str);
 
 template<typename T>
-String AppendFileNameX(T t) {
+String AppendFileNameX(const T &t) {
     return t;
 }
 
 template<typename T, typename... Args>
-String AppendFileNameX(T t, Args... args) {
+String AppendFileNameX(const T &t, Args... args) {
     return AppendFileName(t, AppendFileNameX(args...));
 }
 
@@ -174,14 +174,14 @@ class FileDiffArray;
 class FileDataArray : public ErrorHandling {
 public:
 	FileDataArray(bool useId = false, int fileFlags = 0);
-	bool Init(String folder, FileDataArray &orig, FileDiffArray &diff);
+	bool Init(FileDataArray &orig, FileDiffArray &diff);
 	void Clear();
-	bool Search(String dir, String condFile, bool recurse = false, String findText = "");
+	bool Search(const String &dir, const String &condFile, bool recurse = false, const String &findText = "", Function<bool(uint64, uint64)> Print = Null);
 	FileData& operator[](long i)	{return fileList[i];}
-	long GetFileCount()				{return fileCount;};
-	long GetFolderCount()			{return folderCount;};
-	long GetCount() 				{return fileCount + folderCount;};
-	long size() 					{return fileCount + folderCount;};
+	uint64 GetFileCount()			{return fileCount;};
+	uint64 GetFolderCount()			{return folderCount;};
+	uint64 GetCount() 				{return fileCount + folderCount;};
+	uint64 size() 					{return fileCount + folderCount;};
 	uint64 GetSize()				{return fileSize;};
 	inline bool UseId() 			{return useId;};
 	void SortByName(bool ascending = true);
@@ -195,9 +195,10 @@ public:
 	bool AppendFile(const char *fileName);
 	bool LoadFile(const char *fileName);
 	bool SaveErrorFile(const char *fileName);
+	void SetSeparator(char c) {sep = String(c, 1);}
 
 private:
-	void Search_Each(String dir, String condFile, bool recurse, String findText);
+	void Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText);
 	int64 GetFileId(String fileName);
 	String GetRelativePath(const String &fullPath);
 	String ToString();
@@ -206,10 +207,11 @@ private:
 	Array<FileData> fileList;
 	Vector<String> errorList;
 	String basePath;
-	long fileCount, folderCount;
+	uint64 fileCount, folderCount;
 	uint64 fileSize;
 	bool useId;
 	int fileFlags;
+	String sep = ";";  
 };
 
 struct FileDiffData {
@@ -241,9 +243,11 @@ public:
 	bool SaveFile(const char *fileName);
 	bool LoadFile(const char *fileName);
 	String ToString();
+	void SetSeparator(char c) {sep = String(c, 1);}
 	
 private:
 	Array<FileDiffData> diffList;
+	String sep = ";";
 };
 
 String Replace(String str, String find, String replace); 
