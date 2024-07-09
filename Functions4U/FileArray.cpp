@@ -37,8 +37,8 @@ bool FileDataArray::Init(FileDataArray &orig, FileDiffArray &diff) {
 	folderCount = orig.folderCount;
 	fileSize = orig.fileSize;
 	useId = orig.useId;
-	fileList.SetCount(orig.GetCount());
-	for (uint64 i = 0; i < orig.GetCount(); ++i)
+	fileList.SetCount((int)orig.GetCount());
+	for (int i = 0; i < (int)orig.GetCount(); ++i)
 		fileList[i] = orig[i];
 	
 	for (int i = 0; i < diff.GetCount(); ++i) {
@@ -459,10 +459,10 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 	bool equal = true;
 	diffList.Clear();
 	Vector<bool> secReviewed;
-	secReviewed.SetCount(secondary.size(), false);
+	secReviewed.SetCount((int)secondary.size(), false);
 	
-	for (uint64 i = 0; i < master.size(); ++i) {
-		prog = (50*i)/master.size();
+	for (int i = 0; i < (int)master.size(); ++i) {
+		prog = (50*i)/((int)master.size());
 		if (prog != oldprog) {
 			progress(prog);
 			oldprog = prog;
