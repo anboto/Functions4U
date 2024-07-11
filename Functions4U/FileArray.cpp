@@ -102,7 +102,7 @@ bool FileDataArray::Search(const String &dir, const String &condFile, bool recur
 	}
 	for (uint64 n = 0; !list.IsEmpty(); n++) {
 		Search_Each(list, condFile, recurse, findText);
-		if (Print && !(n%500))
+		if (Print && !(n%100))
 			Print(fileCount, folderCount); 
 	}
 	return errorList.IsEmpty();
@@ -129,8 +129,8 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 				} else */ 
 				if (findText.IsEmpty()) {
 					uint64 len = ff.GetLength();
-					fileList.Add(FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), 
-											(useId && len > 0) ? GetFileId(p) : 0));
+					fileList << FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), 
+											(useId && len > 0) ? GetFileId(p) : 0);
 					fileCount++;
 					fileSize += len;
 				} else {
@@ -142,7 +142,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 								++i;
 								if (i == findText.GetCount()) {
 									uint64 len = ff.GetLength();
-									fileList.Add(FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), useId ? GetFileId(p) : 0));
+									fileList << FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), useId ? GetFileId(p) : 0);
 									fileCount++;
 									fileSize += len;
 									break;
@@ -165,7 +165,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 			String name = ff.GetName();
 			if(ff.IsDirectory() && name != "." && name != "..") {
 				String p = AppendFileNameX(dir, name);
-				fileList.Add(FileData(true, name, GetRelativePath(dir), 0, ff.GetLastWriteTime(), 0));
+				fileList << FileData(true, name, GetRelativePath(dir), 0, ff.GetLastWriteTime(), 0);
 				folderCount++;
 				if (recurse)
 					list << p;
@@ -321,16 +321,31 @@ int FileDataArray::Find(FileDataArray &data, int id) {
 }
 
 String FileDataArray::ToString() {
+	if (fileList.IsEmpty())
+		return String("");
+	
 	String ret;
 	String sp(sep, 1);
 	
-	ret << "Folder" << sp << "File" << sp << "IsFolder" << sp << "Size" << sp 
+	ret << "Folder" << sp << "File" << sp << "Ext" << sp << "IsFolder" << sp << "Size" << sp 
 		<< "Year" << sp << "Month" << sp << "Day" << sp << "Hour" << sp << "Min" << sp << "Sec" << sp 
 		<< "Id" << sp << "#char" << sp << "#Total char (max. 400)";
 	for (int i = 0; i < fileList.GetCount(); ++i) {
 		ret << "\n";
 		ret << "\"" << fileList[i].relFilename << "\"" << sp;
-		ret << "\"" << fileList[i].fileName << "\"" << sp;
+		if (fileList[i].isFolder) {
+			ret << "\"" << fileList[i].fileName << "\"" << sp;
+			ret << sp;
+		} else {
+			String ext = GetFileExt(fileList[i].fileName);
+			if (ext.GetCount() > 6) {		// Too long to be an extension
+				ret << "\"" << fileList[i].fileName << "\"" << sp;
+				ret << sp;	
+			} else {
+				ret << "\"" << GetFileTitle(fileList[i].fileName) << "\"" << sp;
+				ret << ext << sp;
+			}
+		}
 		ret << fileList[i].isFolder << sp;
 		ret << fileList[i].length << sp;
 		ret << FormatInt(fileList[i].t.year) << sp;
@@ -359,6 +374,9 @@ String FileDataArray::GetErrorText() {
 }
 
 bool FileDataArray::SaveFile(const char *fileName) {
+	if (fileList.IsEmpty())
+		throw Exc("No data found");
+		
 	return Upp::SaveFileBOMUtf8(fileName, ToString());
 }
 
@@ -382,7 +400,8 @@ bool FileDataArray::LoadFile(const char *fileName) {
 	fileList.SetCount(numData);	
 	for (int row = 0; row < numData; ++row) {		
 		fileList[row].relFilename = in.GetText(sep);	
-		fileList[row].fileName = in.GetText(sep);	
+		fileList[row].fileName = in.GetText(sep);
+		fileList[row].fileName += in.GetText(sep);	
 		fileList[row].isFolder = in.GetText(sep) == "true" ? true : false;	
 		if (fileList[row].isFolder)
 			folderCount++;

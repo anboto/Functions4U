@@ -867,12 +867,27 @@ struct TempAssign {
 	T oldvalue, *variable;
 };
 
-/*						Replaced with std::atomic
+// Replaced with std::atomic only for trivial classes, not for String for example
 template <class T>
-class ThreadSafe {
-...
-};*/
+class ThreadSafe : public T {
+public:
+     ThreadSafe& operator=(const ThreadSafe& s) {
+        if (this == &s) 
+            return *this;
+        Mutex::Lock lock(mutex);
+        Mutex::Lock lock_s(s.mutex);
+        T::operator=(s);
+        return *this;
+    }
+    ThreadSafe& operator=(const T& s) {
+        Mutex::Lock lock(mutex);
+        T::operator=(s);
+        return *this;
+    }
 
+private:
+    mutable Mutex mutex;
+};
 
 template <class Range>
 static void ShuffleAscending(Range &data, std::default_random_engine &generator) {
