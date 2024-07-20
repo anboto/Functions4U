@@ -1553,6 +1553,7 @@ void Tokenize(const String &str, const String &token, Vector<String> &ret, int p
 }
 
 String GetLine(const String &str, int &pos) {
+	ASSERT(pos >= 0);
 	String ret;
 	if (pos >= str.GetCount())
 		return String::GetVoid();
@@ -1567,18 +1568,21 @@ String GetLine(const String &str, int &pos) {
 	return TrimBoth(ret);
 }
 
-Value GetField(const String &str, int &pos, char separator, char decimalSign, bool onlyStrings) {
+String GetField(const String &str, int &pos, char separator) {
 	ASSERT(separator != '\"');	
 	String sret;
 	int npos = str.Find(separator, pos);
 	int spos = str.Find('\"', pos);
 	if (spos < 0 || spos > npos) {
 		if (npos < 0) {
-			int lspos = str.Find('\"', spos + 1);
-			if (lspos < 0) 
-				sret = str.Mid(max(pos, spos));
-			else
-				sret = str.Mid(spos + 1, lspos - spos - 1);
+			if (spos >= 0) {
+				int lspos = str.Find('\"', spos + 1);
+				if (lspos < 0) 
+					sret = str.Mid(max(pos, spos));
+				else
+					sret = str.Mid(spos + 1, lspos - spos - 1);
+			} else
+				sret = Trim(str.Mid(pos));
 			pos = -1;
 		} else {
 			sret = Trim(str.Mid(pos, npos - pos));
@@ -1595,6 +1599,11 @@ Value GetField(const String &str, int &pos, char separator, char decimalSign, bo
 			pos = npos + 1;
 		}
 	}	
+	return sret;	
+}
+
+Value GetField(const String &str, int &pos, char separator, char decimalSign, bool onlyStrings) {
+	String sret = GetField(str, pos, separator);
 	if (onlyStrings)
 		return sret;
 	

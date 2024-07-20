@@ -78,6 +78,7 @@ void Tokenize(const String &str, const String &token, Vector<String> &ret, int p
 String Tokenize2(const String &str, const String &token, int &pos);
 String Tokenize2(const String &str, const String &token);
 String GetLine(const String &str, int &pos);
+String GetField(const String &str, int &pos, char separator);
 	
 /////////
 bool DirectoryExistsX(const char *path, EXT_FILE_FLAGS flags = NO_FLAG); 
@@ -1879,6 +1880,11 @@ private:
 	Vector<Convert*> vconvert;
 };
 
+String DocxToText(String filename, bool noFormat);
+String PptxToText(String filename);
+String XlsxToText(String filename);
+Index<String> TextToWords(const String &str, bool repeat);
+	
 }
 
 // Compiler options

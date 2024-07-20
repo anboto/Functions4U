@@ -12,13 +12,17 @@ uses
 	plugin/lz4,
 	Painter,
 	plugin/bz2,
-	PdfDraw;
+	PdfDraw,
+	plugin/zip,
+	Sql,
+	plugin/sqlite3;
 
 library(WIN32) oleaut32;
 
 file
 	Functions4U.cpp,
 	Functions4U.h,
+	ScanFiles.cpp,
 	FileArray.cpp,
 	Parser.cpp,
 	Functions4U_Gui.cpp,
