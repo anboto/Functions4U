@@ -1309,12 +1309,12 @@ double GetRangeMajorUnits(double minV, double maxV) {
 	return dy;
 }
 
-String RemoveAccent(wchar c) {
+WString RemoveAccentW(wchar c) {
 	WString wsret;
 
 	if (IsAlNum(c) || IsSpace(c)) {
 		wsret.Cat(c);
-		return wsret.ToString();
+		return wsret;
 	}
 	//const WString accented = "ÂÃÀÁÇÈÉÊËẼÌÍÎÏÑÒÓÔÕÙÚÛÝàáâãçèéêëẽìíîïñòóôõøùúûýÿ";
 	const WString accented = "\303\202\303\203\303\200\303\201\303\207\303\210\303\211\303\212\303\213\341\272\274\303\214\303\215\303\216\303\217\303\221\303\222\303\223\303\224\303\225\303\231\303\232\303\233\303\235\303\240\303\241\303\242\303\243\303\247\303\250\303\251\303\252\303\253\341\272\275\303\254\303\255\303\256\303\257\303\261\303\262\303\263\303\264\303\265\303\270\303\271\303\272\303\273\303\275\303\277ω";
@@ -1323,7 +1323,7 @@ String RemoveAccent(wchar c) {
 	for (int i = 0; accented[i]; ++i) {
 		if (*(accented.begin() + i) == c) {
 			wsret.Cat(unaccented[i]);
-			return wsret.ToString();	
+			return wsret;	
 		}
 	}
 	//const WString maccented = "ÅåÆæØøþÞßÐðÄäÖöÜü";
@@ -1335,7 +1335,11 @@ String RemoveAccent(wchar c) {
 			return unmaccented[i];
 	}
 	wsret.Cat(c);
-	return wsret.ToString();
+	return wsret;
+}
+
+String RemoveAccent(wchar c) {
+	return RemoveAccentW(c).ToString();
 }
 
 bool IsPunctuation(wchar c) {
@@ -2522,9 +2526,12 @@ bool Dl::Load(const String &fileDll) {
 			return false;
 	
 	hinstLib = LoadLibraryEx(TEXT(ToSystemCharset(fileDll)), nullptr, LOAD_IGNORE_CODE_AUTHZ_LEVEL);
-	if (!hinstLib) 
-		return false;
-	return true;
+	return hinstLib != 0;
+}
+
+void Dl::Load_throw(const String &fileDll) {
+	if (!Load(fileDll))
+		throw Exc(GetErrorMessage(GetLastError()));
 }
 
 void *Dl::GetFunction(const String &functionName) const {
@@ -3001,9 +3008,10 @@ void Grid::ColWidths(const Vector<int> &colWidths) {
 	widths = clone(colWidths);
 }
 
-void Grid::AddCol(int colWidth) {
+Grid &Grid::AddCol(int colWidth) {
 	widths << colWidth;
 	actualCol = widths.size()-1;
+	return *this;
 }
 	
 Grid& Grid::Set(int row, int col, Value data) {
@@ -3057,7 +3065,7 @@ int Grid::cols() const {
 	return columns.size();
 }
 	
-String Grid::GetString(bool format, bool removeEmpty, const String &separator) {
+String Grid::AsString(bool format, bool removeEmpty, const String &separator) {
 	String ret;
 	for (int r = 0; r < columns[0].size(); ++r) {
 		bool printRow;
@@ -3075,9 +3083,17 @@ String Grid::GetString(bool format, bool removeEmpty, const String &separator) {
 			for (int c = 0; c < columns.size(); ++c) {
 				if (format) {		// Add spaces to maintain the position of each column
 					String str = columns[c][r].ToString();
-					if (widths[c] > str.GetCount())
-						ret << String(' ', widths[c] - str.GetCount());
-					ret << str.Left(widths[c]);
+					if (widths[c] >= str.GetCount()) {
+						String spaces = String(' ', widths[c] - str.GetCount());
+						if (columns[c][r].Is<String>())
+							ret << str << spaces;
+						else
+							ret << spaces << str;
+					} else {
+						int lenLeft = widths[c]/2;
+						int lenRight = widths[c] - lenLeft;
+						ret << str.Left(lenLeft - 1) << S("***") << str.Right(lenRight - 2);
+					}
 				} else
 					ret << columns[c][r];
 				if (c < columns.size()-1)

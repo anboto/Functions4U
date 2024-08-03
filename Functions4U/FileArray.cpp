@@ -37,8 +37,8 @@ bool FileDataArray::Init(FileDataArray &orig, FileDiffArray &diff) {
 	folderCount = orig.folderCount;
 	fileSize = orig.fileSize;
 	useId = orig.useId;
-	fileList.SetCount((int)orig.GetCount());
-	for (int i = 0; i < (int)orig.GetCount(); ++i)
+	fileList.SetCount(orig.size());
+	for (int i = 0; i < orig.size(); ++i)
 		fileList[i] = orig[i];
 	
 	for (int i = 0; i < diff.GetCount(); ++i) {

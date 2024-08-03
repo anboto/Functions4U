@@ -4,8 +4,6 @@
 #include <plugin/zip/zip.h>
 
 
-// pdftotext -nopgbrk fichero.pdf fichero.txt
-
 namespace Upp {
 	
 String DocxToText(String filename, bool noFormat) {
@@ -85,11 +83,7 @@ String PptxToText(String filename) {
     return text;
 }
 
-String XlsxToText(String filename) {
-    FileUnZip unzip(filename);
-	if (unzip.IsError()) 
-        return String();
- 
+String XlsxToText_shared(FileUnZip &unzip) {
     String strxml = unzip.ReadFile("xl/sharedStrings.xml");
 	if (strxml.IsEmpty())
 		return String();
@@ -108,6 +102,37 @@ String XlsxToText(String filename) {
     return text;
 }
 
+String XlsxToText_sheets(FileUnZip &unzip) {
+	String text;
+	for (int i = 1; true; ++i) {
+	    String strxml = unzip.ReadFile(Format("xl/worksheets/sheet%d.xml", i).begin());
+	    if (strxml.IsVoid())
+			return text;
+		if (strxml.IsEmpty())
+			continue;
+	
+		XmlNode doc = ParseXML(strxml);
+		const XmlNode &body = doc["sheetData"];
+
+	    for (const XmlNode &node : body) {
+			if (node.GetTag() == "row") {
+	            const XmlNode &tt = node["t"];
+	            for (int i = 0; i < tt.GetCount(); ++i)
+	            	text << tt.Node(i).GetText() << "\n";
+	        }
+	    }
+	    text << "\n";
+	}
+}
+
+String XlsxToText(String filename) {
+	FileUnZip unzip(filename);
+	if (unzip.IsError()) 
+        return String();
+	
+	return XlsxToText_shared(unzip) + S("\n") + XlsxToText_sheets(unzip);
+}
+
 Index<String> TextToWords(const String &str, bool repeat) {
 	WString wstr(str);
 	
@@ -115,8 +140,8 @@ Index<String> TextToWords(const String &str, bool repeat) {
 	
 	WString wtxt;
 	for (int i = 0; i < wstr.GetCount(); ++i) {
-		if (IsLetter(wstr[i]))
-			wtxt.Cat(wstr[i]);
+		if (IsLetter(wstr[i]) || IsDigit(wstr[i]))
+			wtxt.Cat(RemoveAccent(wstr[i]).ToWString());
 		else if (wtxt.GetCount() > 0) {
 			if (repeat)
 				ret << wtxt.ToString();
@@ -133,98 +158,5 @@ Index<String> TextToWords(const String &str, bool repeat) {
 	}	
 	return ret;
 }
-
-/*
-
-void ScanForDocxFiles(Vector<String>& fileList, const String& directory);
-void ScanForPptxFiles(Vector<String>& fileList, const String& directory);
-void ScanForXlsxFiles(Vector<String>& fileList, const String& directory);
-
-String ExtractTextFromDocx(const String& filePath);
-String ExtractTextFromPptx(const String& filePath);
-String ExtractTextFromXlsx(const String& filePath);
-
-std::unordered_set<String> Tokenize(const String& text);
-void SaveWordsToDatabase(const String& filePath, const std::unordered_set<String>& words);
-void CreateFTSTable();
-void SearchKeyword(const String& keyword);
-
-std::unordered_set<String> Tokenize(const String& text) {
-    std::unordered_set<String> words;
-    StringStream ss(text);
-    String word;
-    while (!ss.IsEof()) {
-        ss >> word;
-        word = ToLower(word);
-        word = Filter(word, [](int c) { return IsAlNum(c); });
-        words.insert(word);
-    }
-    return words;
-}
-
-void SaveWordsToDatabase(const String& filePath, const std::unordered_set<String>& words) {
-    Sqlite3Session sqlite3;
-    if (!sqlite3.Open("file_words.db"))
-        throw Exc("Can't create or open database file");
-
-    Sql sql(sqlite3);
-    sql.Execute("CREATE TABLE IF NOT EXISTS FileWords (path TEXT PRIMARY KEY, words TEXT)");
-
-    String wordsStr;
-    for (const auto& word : words)
-        wordsStr << word << ' ';
-
-    sql.Execute("INSERT OR REPLACE INTO FileWords (path, words) VALUES (?, ?)",
-                filePath, wordsStr);
-}
-
-
-void SearchKeyword(const String& keyword) {
-    Sqlite3Session sqlite3;
-    if (!sqlite3.Open("file_words.db"))
-        throw Exc("Can't create or open database file");
-
-    Sql sql(sqlite3);
-    sql.Execute("SELECT path FROM FileWords WHERE words MATCH ?", keyword);
-    while (sql.Fetch())
-        Cout() << sql[0] << '\n';
-}
-
-CONSOLE_APP_MAIN {
-    const String directory = "/path/to/scan";
-
-    // Create FTS table
-    CreateFTSTable();
-
-    // Scan for DOCX files
-    Vector<String> docxFiles;
-    ScanForDocxFiles(docxFiles, directory);
-    for (const auto& filePath : docxFiles) {
-        String text = ExtractTextFromDocx(filePath);
-        std::unordered_set<String> words = Tokenize(text);
-        SaveWordsToDatabase(filePath, words);
-    }
-
-    // Scan for PPTX files
-    Vector<String> pptxFiles;
-    ScanForPptxFiles(pptxFiles, directory);
-    for (const auto& filePath : pptxFiles) {
-        String text = ExtractTextFromPptx(filePath);
-        std::unordered_set<String> words = Tokenize(text);
-        SaveWordsToDatabase(filePath, words);
-    }
-
-    // Scan for XLSX files
-    Vector<String> xlsxFiles;
-    ScanForXlsxFiles(xlsxFiles, directory);
-    for (const auto& filePath : xlsxFiles) {
-        String text = ExtractTextFromXlsx(filePath);
-        std::unordered_set<String> words = Tokenize(text);
-        SaveWordsToDatabase(filePath, words);
-    }
-
-    // Search for a keyword
-    SearchKeyword("example");
-}*/
 
 }

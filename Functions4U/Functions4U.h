@@ -120,6 +120,7 @@ String LoadFile(const char *fileName, off_t from, size_t len = 0);
 int64 GetLength(const char *fileDirName); 
 int64 GetDirectoryLength(const char *directoryName);
 
+#define GetSourcesFolder GetDataFile
 
 String ForceExtSafer(const char* fn, const char* ext);
 	
@@ -181,8 +182,7 @@ public:
 	FileData& operator[](long i)	{return fileList[i];}
 	uint64 GetFileCount()			{return fileCount;};
 	uint64 GetFolderCount()			{return folderCount;};
-	uint64 GetCount() 				{return fileCount + folderCount;};
-	uint64 size() 					{return fileCount + folderCount;};
+	int size() 						{return fileList.size();};
 	uint64 GetSize()				{return fileSize;};
 	inline bool UseId() 			{return useId;};
 	void SortByName(bool ascending = true);
@@ -287,6 +287,7 @@ double GetRangeMajorUnits(double minV, double maxV);
 	
 String RemoveAccents(String str);
 String RemoveAccent(wchar c);
+WString RemoveAccentW(wchar c);
 String RemovePunctuation(String str);
 bool IsPunctuation(wchar c);
 
@@ -755,8 +756,12 @@ Vector<String> GetDriveList();
 
 class Dl {
 public:
+	Dl() {}
+	Dl(const String &fileDll) 	{Load(fileDll);}
 	virtual ~Dl();
+	bool IsLoaded()				{return hinstLib != 0;}
 	bool Load(const String &fileDll);
+	void Load_throw(const String &fileDll);
 	void *GetFunction(const String &functionName) const;
 	void *GetFunction_throw(const String &functionName) const;
 #if defined(PLATFORM_WIN32)
@@ -1811,7 +1816,7 @@ String LoadFromJsonError(T& var, const char *json) {
 class Grid  {
 public:
 	void ColWidths(const Vector<int> &colWidths);
-	void AddCol(int colWidth = 10);
+	Grid &AddCol(int colWidth = 10);
 	int GetWidth(int c)	const {
 		if (c < widths.size())
 			return widths[c];
@@ -1828,7 +1833,7 @@ public:
 	template<typename T>
 	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}
 
-	String GetString(bool format, bool removeEmpty, const String &separator = " ");
+	String AsString(bool format, bool removeEmpty, const String &separator = " ");
 	
 	Grid& SetNumHeaderRows(int n)	{numHeaderRows = n;	return *this;}
 	int  GetNumHeaderRows()	const	{return numHeaderRows;}
