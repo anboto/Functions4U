@@ -9,6 +9,10 @@
 
 namespace Upp {
 
+String GetSourceFolder() {
+	return GetDataFile("");
+}
+
 #if defined(PLATFORM_WIN32) || defined (PLATFORM_WIN64)
 static String WinLastError() {
 	LPVOID lpMsgBuf;

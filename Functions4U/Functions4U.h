@@ -120,7 +120,7 @@ String LoadFile(const char *fileName, off_t from, size_t len = 0);
 int64 GetLength(const char *fileDirName); 
 int64 GetDirectoryLength(const char *directoryName);
 
-#define GetSourcesFolder GetDataFile
+String GetSourceFolder();
 
 String ForceExtSafer(const char* fn, const char* ext);
 	

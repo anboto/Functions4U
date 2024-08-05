@@ -112,17 +112,17 @@ String XlsxToText_sheets(FileUnZip &unzip) {
 			continue;
 	
 		XmlNode doc = ParseXML(strxml);
-		const XmlNode &body = doc["sheetData"];
+		const XmlNode &body = doc["worksheet"]["sheetData"];
 
 	    for (const XmlNode &node : body) {
 			if (node.GetTag() == "row") {
-	            const XmlNode &tt = node["t"];
-	            for (int i = 0; i < tt.GetCount(); ++i)
-	            	text << tt.Node(i).GetText() << "\n";
+	            const XmlNode &cc = node["c"]["is"]["t"];
+	            for (int i = 0; i < cc.GetCount(); ++i) 
+	            	text << cc.Node(i).GetText() << "\n";
 	        }
 	    }
-	    text << "\n";
 	}
+	return text;
 }
 
 String XlsxToText(String filename) {
