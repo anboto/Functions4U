@@ -10,7 +10,11 @@
 namespace Upp {
 
 String GetSourceFolder() {
-	return GetDataFile("");
+	String ret = GetDataFile("");
+	int c = ret[ret.GetCount()-1];
+	if (c == '\\' || c == '/')
+		return ret.Left(ret.GetCount()-1);
+	return ret;
 }
 
 #if defined(PLATFORM_WIN32) || defined (PLATFORM_WIN64)
