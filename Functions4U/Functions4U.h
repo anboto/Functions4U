@@ -25,13 +25,13 @@ inline bool IsNum(const double &n) 	{return !__builtin_isnan(n) && !__builtin_is
 inline bool IsNum(const float &n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
 #endif
 inline bool IsNum(const int &n) 	{return !IsNull(n);}
-template <typename T>
-inline bool IsNum(const std::complex<T> &n) {return !(!IsNum(n.real()) || !IsNum(n.imag()) || (n.real() == 0 && n.imag() == 0));}
+template <typename T>									   // No idea about the reason of this: (n.real() == 0 && n.imag() == 0)
+inline bool IsNum(const std::complex<T> &n) {return !(!IsNum(n.real()) || !IsNum(n.imag())/* || (n.real() == 0 && n.imag() == 0)*/);}
 
 template <typename T>
 bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
 
-#define NaNComplex		std::numeric_limits<std::complex<double>>::quiet_NaN()
+#define NaNComplex		std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN())
 #define NaNDouble		std::numeric_limits<double>::quiet_NaN()
 
 template <typename T>
