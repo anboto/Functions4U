@@ -121,6 +121,7 @@ int64 GetLength(const char *fileDirName);
 int64 GetDirectoryLength(const char *directoryName);
 
 String GetSourceFolder();
+bool IsTheIDE();
 
 String ForceExtSafer(const char* fn, const char* ext);
 	
@@ -1011,9 +1012,12 @@ bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 
 template <class T1, class T2>
 bool EqualDecimals(const T1& a, const T2& b, int numdecimals) {
-	String sa = FormatF(a, numdecimals);
-	String sb = FormatF(b, numdecimals);
-	return sa == sb;
+	if (Sign(a) != Sign(b))
+		return false;
+	double dec = Pow10Int<double>(numdecimals);
+	uint64 ia = (uint64)(a*dec);
+	uint64 ib = (uint64)(b*dec);
+	return ia == ib;
 }
 
 template <class Range>

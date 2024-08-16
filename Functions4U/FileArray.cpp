@@ -10,12 +10,16 @@
 namespace Upp {
 
 String GetSourceFolder() {
-	String ret = GetDataFile("");
+	String ret = GetEnv("UPP_MAIN__");
+	if (ret.IsEmpty())
+		return String::GetVoid();
 	int c = ret[ret.GetCount()-1];
 	if (c == '\\' || c == '/')
 		return ret.Left(ret.GetCount()-1);
 	return ret;
 }
+
+bool IsTheIDE() {return !GetEnv("UPP_MAIN__").IsEmpty();}
 
 #if defined(PLATFORM_WIN32) || defined (PLATFORM_WIN64)
 static String WinLastError() {

@@ -1242,6 +1242,8 @@ int GetExponent10(double d) {
 	d = abs(d);
 	if (d >= 1)
     	return int(log10(d));
+	else if (d == 0)
+		return 0;
 	else
 		return -int(log10(1/d))-1;
 }
