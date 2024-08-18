@@ -1012,12 +1012,7 @@ bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 
 template <class T1, class T2>
 bool EqualDecimals(const T1& a, const T2& b, int numdecimals) {
-	if (Sign(a) != Sign(b))
-		return false;
-	double dec = Pow10Int<double>(numdecimals);
-	uint64 ia = (uint64)(a*dec);
-	uint64 ib = (uint64)(b*dec);
-	return ia == ib;
+	return abs((double)a-(double)b)*Pow10Int<double>(numdecimals) < 1;
 }
 
 template <class Range>
