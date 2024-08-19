@@ -1618,7 +1618,7 @@ public:
 	}
 	const String &GetText(int i) const {
 		if (fields.IsEmpty())
-			throw Exc(in->Str() + t_("No data available"));
+			throw Exc(in->Str() + t_("The row is empty"));
 		if (IsNull(i))
 			i = fields.GetCount()-1;
 		CheckId(i);
