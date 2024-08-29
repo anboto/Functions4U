@@ -47,7 +47,8 @@ enum EXT_FILE_FLAGS {NO_FLAG = 0,
 String GetDesktopManagerNew();
 
 bool LaunchFile(const char *file, const char *params = nullptr, const char *directory = ".");
-
+bool LaunchCommand(const char* command, const char* directory = NULL);
+	
 bool FileCat(const char *file, const char *appendFile);
 
 int FileCompare(const char *path1, const char *path2);
@@ -1011,8 +1012,8 @@ bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 }
 
 template <class T1, class T2>
-bool EqualDecimals(const T1& a, const T2& b, int numdecimals) {
-	return abs((double)a-(double)b)*Pow10Int<double>(numdecimals) < 1;
+bool EqualDecimals(const T1& a, const T2& b, int numDecimals) {
+	return abs((double)a-(double)b)*Pow10Int<double>(numDecimals) < 1;
 }
 
 template <class Range>
@@ -1129,15 +1130,14 @@ template <class Range>
 int FindRoundDecimals(const Range& r, const typename Range::value_type& value, int numDecimals, int from = 0) {
 	int id = FindClosest(r, value, from);
 	if (id >= 0) {
-		String svalue = FormatF(value, numDecimals);
-		if (FormatF(r[id], numDecimals) == svalue) 
+		if (EqualDecimals(value, r[id], numDecimals))
 			return id;
 	}
 	return -1;
 }
     
-template <class Range>
-bool Compare(const Range& a, const Range& b) {
+template <class Range1, class Range2>
+bool Compare(const Range1& a, const Range2& b) {
 	if (a.size() != b.size())
 		return false;
 	for (int i = 0; i < a.size(); i++) {

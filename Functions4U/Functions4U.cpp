@@ -26,7 +26,7 @@
 
 	
 /*
-Hi Koldo,º
+Hi Koldo,
 
 I checked the functions in Functions4U. Here are some notes about trashing:
 
@@ -66,7 +66,7 @@ namespace Upp {
 // LaunchFile
 
 #if defined(PLATFORM_WIN32) || defined (PLATFORM_WIN64)
-bool LaunchFileCreateProcess(const char *file, const char *, const char *directory) {
+bool LaunchFileCreateProcess(const char *file, const char *params, const char *directory) {
 	STARTUPINFOW startInfo;
     PROCESS_INFORMATION procInfo;
 
@@ -74,17 +74,18 @@ bool LaunchFileCreateProcess(const char *file, const char *, const char *directo
     startInfo.cb = sizeof(startInfo);
     ZeroMemory(&procInfo, sizeof(procInfo));
 
-	WString wexec;
-	wexec = Format("\"%s\" \"%s\"", GetExtExecutable(GetFileExt(file)), file).ToWString();
-	WStringBuffer wsbexec(wexec);
+	String command = Format("\"%s\" \"%s\" %s", GetExtExecutable(GetFileExt(file)), file, params);
+	Vector<WCHAR> cmd = ToSystemCharsetW(command);
 	
-	if (!CreateProcessW(NULL, (LPWSTR)wsbexec.Begin(), NULL, NULL, FALSE, 0, NULL, ToSystemCharsetW(directory), &startInfo, &procInfo))  
+	if (!CreateProcessW(NULL, cmd, NULL, NULL, FALSE, 0, NULL, directory ? ToSystemCharsetW(directory) : NULL, &startInfo, &procInfo))  
 		return false;
 
    	WaitForSingleObject(procInfo.hProcess, 0);
 
-    CloseHandle(procInfo.hProcess);
-    CloseHandle(procInfo.hThread);	
+	if (!CloseHandle(procInfo.hProcess))
+		return false;
+	if (!CloseHandle(procInfo.hThread))
+		return false;	
 	return true;
 }
 
@@ -142,6 +143,37 @@ bool LaunchFile(const char *_file, const char *_params, const char *) {
 }
 #endif
 
+bool LaunchCommand(const char* command, const char* directory) {
+#if defined(PLATFORM_WIN32) 
+	STARTUPINFOW startInfo;
+    PROCESS_INFORMATION procInfo;
+
+    ZeroMemory(&startInfo, sizeof(startInfo));
+    startInfo.cb = sizeof(startInfo);
+    ZeroMemory(&procInfo, sizeof(procInfo));
+
+	if (!CreateProcessW(NULL, ToSystemCharsetW(command), NULL, NULL, FALSE, DETACHED_PROCESS, NULL, directory ? ToSystemCharsetW(directory) : NULL, &startInfo, &procInfo))
+		return false;
+
+    if (!CloseHandle(procInfo.hProcess))
+        return false;
+    if (!CloseHandle(procInfo.hThread))
+        return false;
+#else
+	String actualDirectory;
+	if (directory) {
+		actualDirectory = GetCurrentDirectory();
+		if (!SetCurrentDirectory(directory))
+			return false;
+	}
+	system(S(command) + "&");
+	if (directory) {
+		if (!SetCurrentDirectory(actualDirectory))
+			return false;
+	}
+#endif	
+	return true;
+}
 /////////////////////////////////////////////////////////////////////
 // General utilities
 
