@@ -77,6 +77,7 @@ String FitFileName(String fileName, int len);
 Vector<String> Tokenize(const String &str, const String &token, int pos = 0);
 void Tokenize(const String &str, const String &token, Vector<String> &ret, int pos = 0);
 String Tokenize2(const String &str, const String &token, int &pos);
+String Tokenize2(const String &str, const String &token, int &pos);
 String Tokenize2(const String &str, const String &token);
 String GetLine(const String &str, int &pos);
 String GetField(const String &str, int &pos, char separator);
