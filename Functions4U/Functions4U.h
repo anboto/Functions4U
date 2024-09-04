@@ -1825,10 +1825,14 @@ public:
 	
 	Grid& SetCol(int col)		{actualCol = col;	return *this;}
 	Grid& SetRow(int row)		{actualRow = row;	return *this;}
+	Grid& NextCol()				{++actualCol;		return *this;}
+	Grid& NextRow()				{++actualRow;		return *this;}
+	Grid& NextRowLF()			{++actualRow; actualCol = 0;	return *this;}
 	
-	Grid& Set(int row, int col, Value data);
+	Grid& Set(int row, int col, const Value &data);
+	Grid& Set(const Value &data);
 	const Value &Get(int row, int col) const;
-	Grid& AddRow(const Vector<String> &data);
+	Grid& SetRow(const Vector<Value> &data);
 		
 	template<typename T>
 	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}

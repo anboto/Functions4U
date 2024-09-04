@@ -1488,13 +1488,11 @@ const char *Ordinal(int num) {
 	num = abs(num);
     if (num % 100 >= 11 && num % 100 <= 13) 
         return "th";
-    else {
-        switch (num % 10) {
-            case 1:		return "st";
-            case 2:		return "nd";
-            case 3:		return "rd";
-            default:	return "th";
-        }
+    switch (num % 10) {
+    case 1:		return "st";
+    case 2:		return "nd";
+    case 3:		return "rd";
+    default:	return "th";
     }
 }
 
@@ -3048,7 +3046,7 @@ Grid &Grid::AddCol(int colWidth) {
 	return *this;
 }
 	
-Grid& Grid::Set(int row, int col, Value data) {
+Grid& Grid::Set(int row, int col, const Value &data) {
 	if (!IsNull(col))
 		actualCol = col;
 	if (!IsNull(row))
@@ -3066,14 +3064,21 @@ Grid& Grid::Set(int row, int col, Value data) {
 	return *this;
 }
 
-Grid& Grid::AddRow(const Vector<String> &data) {
-	actualRow++;
+Grid& Grid::Set(const Value &data) {
+	Set(Null, Null, data);	
+	actualCol++;
+	return *this;
+}
+
+Grid& Grid::SetRow(const Vector<Value> &data) {
 	actualCol = 0;
 	
 	for (int c = 0; c < data.size(); ++c) {
 		Set(Null, Null, data[c]);
 		actualCol++;
 	}
+	actualRow++;
+	actualCol = 0;
 	
 	return *this;
 }
