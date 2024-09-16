@@ -35,6 +35,9 @@ bool IsNull(const std::complex<T> &d)	{return !IsNum(d);};
 #define NaNDouble		std::numeric_limits<double>::quiet_NaN()
 
 template <typename T>
+inline std::complex<T> i()	{return std::complex<T>(0, 1);};
+
+template <typename T>
 inline bool IsNum(const Point_<T> &n) {return IsNum(n.x) && IsNum(n.y);}
 
 	
@@ -1798,6 +1801,8 @@ Stream& CoutX();
 
 template <class T>
 String LoadFromJsonError(T& var, const char *json) {
+	if (json[0] == '\0')
+		return t_("No data found");
 	try {
 		Value jv = ParseJSON(json);
 		if (jv.IsError())
@@ -1808,7 +1813,7 @@ String LoadFromJsonError(T& var, const char *json) {
 	} catch (const JsonizeError &err) {
 		return err;
 	} catch (...) {
-		return "Unknown error";
+		return t_("Unknown error");
 	}
 	return String();
 }

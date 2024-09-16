@@ -71,7 +71,7 @@ int GetEditWidth(const String &str, const Font font);
 
 class ConsoleOutput {
 public:
-	ConsoleOutput() 				{Init();}
+	ConsoleOutput() 						 {Init();}
 	explicit ConsoleOutput(bool forceWindow) {Init(forceWindow);}
 	virtual ~ConsoleOutput(); 
 	
