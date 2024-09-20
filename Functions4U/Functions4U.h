@@ -1502,9 +1502,9 @@ public:
 		Read(&data, sizeof(T));
 		return data;
 	}
-	void Jump(int n) {
+	/*void Jump(int n) {
 		
-	}
+	}*/
 };
 
 class FileOutBinary : public FileOut {

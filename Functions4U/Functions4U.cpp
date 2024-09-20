@@ -1815,6 +1815,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	// Re adjust check window if the file is small
 	if (lines.size() < numLinesToDiscard + numLinesToCheck) {
 		numLinesToCheck = (numLinesToCheck*lines.size())/(numLinesToDiscard + numLinesToCheck);
+		numLinesToCheck = max(numLinesToCheck, min(4, lines.size()));
 		numLinesToDiscard = lines.size() - numLinesToCheck;
 	}
 
@@ -1831,6 +1832,9 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	};
 		
 	auto CompareVector = [](const Vector<int> &a)->int {			// Checks if all the values are the same, and returns it
+		if (a.IsEmpty())
+			return -1;
+		
 		int n = a[0];
 		
 		for (int i = 1; i < a.size(); ++i) {
@@ -1889,7 +1893,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 		return false;
 
 	// Analyses the header
-	int beginHeader = -1, endHeader = -1;
+	int beginHeader = 0, endHeader = 0;
 	for (int r = numLinesToDiscard-1; r >= 0; --r) {
 		Vector<String> data = Split(lines[r], separator, repetition);
 		if (data.size() != numBest) 
