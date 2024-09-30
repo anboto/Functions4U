@@ -387,8 +387,8 @@ be part of the text.&]
 [s0; -|It is opposite to StringToSeconds()&]
 [s3; &]
 [s4;%- &]
-[s5;:StringToSeconds`(String`):%- [@(0.0.255) double]_[* StringToSeconds]([_^String^ String
-]_[*@3 str])&]
+[s5;:StringToSeconds`(const char`*`):%- [@(0.0.255) double]_[* StringToSeconds]([@(0.0.255) c
+onst]_[@(0.0.255) char]_`*[*@3 s])&]
 [s2; Converts a String [%-*@3 str ]formatted as HH:MM:SS to a returned 
 amount of seconds.&]
 [s0; -|It is opposite to SecondsToString()&]
@@ -404,11 +404,11 @@ will be part of the text.&]
 [s0; -|It is opposite to StringToHMS().&]
 [s0; &]
 [s4;%- &]
-[s5;:StringToHMS`(String`,int`&`,int`&`,double`&`):%- [@(0.0.255) void]_[* StringToHMS]([_^String^ S
-tring]_[*@3 durat], [@(0.0.255) int]_`&[*@3 hour], [@(0.0.255) int]_`&[*@3 min], 
-[@(0.0.255) double]_`&[*@3 seconds])&]
-[s2; It converts a String [%-*@3 durat ]formatted as HH:MM:SS to get 
-[%-*@3 hour], [%-*@3 min ]and [%-*@3 seconds].&]
+[s5;:StringToHMS`(const char`*`,int`&`,int`&`,double`&`):%- [@(0.0.255) void]_[* StringTo
+HMS]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 s], [@(0.0.255) int]_`&[*@3 hour], 
+[@(0.0.255) int]_`&[*@3 min], [@(0.0.255) double]_`&[*@3 seconds])&]
+[s2; It converts a String [%-*@3 s ]formatted as HH:MM:SS to get [%-*@3 hour], 
+[%-*@3 min ]and [%-*@3 seconds].&]
 [s0; -|It is opposite to HMSToString()&]
 [s3; &]
 [s4; &]
@@ -418,14 +418,14 @@ tring]_[*@3 durat], [@(0.0.255) int]_`&[*@3 hour], [@(0.0.255) int]_`&[*@3 min],
 is true, they will appear like in 123.4 Kb&]
 [s3; &]
 [s4;%- &]
-[s5;:StrToTime`(const char`*`):%- [_^Time^ `::Time]_[* StrToTime]([@(0.0.255) const]_[@(0.0.255) c
+[s5;:StringToTime`(const char`*`):%- [_^Time^ `::Time]_[* StringToTime]([@(0.0.255) const]_[@(0.0.255) c
 har]_`*[*@3 s])&]
 [s2;%- [%% Like ][@(0.0.255) const]_[@(0.0.255) char]_`*[* StrToTime]([@(0.0.255) struct]_[_^Time^ U
 pp`::Time][@(0.0.255) `&]_[*@3 d], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 s]), 
 but returning directly a Time.&]
 [s3; &]
 [s4;%- &]
-[s5;:StrToDate`(const char`*`):%- [_^Date^ `::Date]_[* StrToDate]([@(0.0.255) const]_[@(0.0.255) c
+[s5;:StringToDate`(const char`*`):%- [_^Date^ `::Date]_[* StringToDate]([@(0.0.255) const]_[@(0.0.255) c
 har]_`*[*@3 s])&]
 [s2;%- [%% Like ][@(0.0.255) const]_[@(0.0.255) char]_`*[* StrToDate]([@(0.0.255) struct]_[_^Time^ U
 pp`::Date][@(0.0.255) `&]_[*@3 d], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 s]), 

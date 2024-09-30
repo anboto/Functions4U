@@ -1061,7 +1061,7 @@ int ReverseFind(const String& s, const String& toFind, int from) {
 	return -1;
 }
 
-Time StrToTime(const char *s) {
+Time StringToTime(const char *s) {
 	Time ret;
 	if (StrToTime(ret, s))
 		return ret;
@@ -1069,7 +1069,7 @@ Time StrToTime(const char *s) {
 		return Null;
 }
 
-Date StrToDate(const char *s) {
+Date StringToDate(const char *s) {
 	Time ret;
 	if (StrToDate(ret, s))
 		return ret;
@@ -1077,8 +1077,11 @@ Date StrToDate(const char *s) {
 		return Null;
 }
 
-void StringToHMS(String durat, int &hour, int &min, double &seconds) {
-	StringParse duration(durat);
+Upp::Time StrToTime(const char *s)	{return StringToTime(s);}
+Date StrToDate(const char *s)		{return StringToDate(s);}
+
+void StringToHMS(const char *s, int &hour, int &min, double &seconds) {
+	StringParse duration(s);
 	String s1, s2, s3; 
 	s1 = duration.GetText(":");
 	s2 = duration.GetText(":");
@@ -1107,10 +1110,10 @@ void StringToHMS(String durat, int &hour, int &min, double &seconds) {
 	}
 }
 
-double StringToSeconds(String duration) {
+double StringToSeconds(const char *s) {
 	int hour, min;
 	double secs;
-	StringToHMS(duration, hour, min, secs); 
+	StringToHMS(s, hour, min, secs); 
 	return 3600.*hour + 60.*min + secs;
 }
 

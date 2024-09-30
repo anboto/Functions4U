@@ -263,9 +263,14 @@ String Replace(String str, char find, char replace);
 int ReverseFind(const String& s, const String& toFind, int from = 0);
 
 String FormatLong(long a); 
-	
+
+Upp::Time StringToTime(const char *s);
+Date StringToDate(const char *s);
 Upp::Time StrToTime(const char *s);
 Date StrToDate(const char *s);
+
+double StringToSeconds(const char *s);		
+void StringToHMS(const char *s, int &hour, int &min, double &seconds); 
 
 String BytesToString(uint64 bytes, bool units = true);
 
@@ -273,8 +278,6 @@ String SecondsToString(double seconds, int dec = 2, bool units = false, bool spa
 						bool tp = false, bool longUnits = false, bool forceSec = false);
 String HMSToString(int hour, int min, double seconds, int dec = 2, bool units = false, bool space = false,
 						bool tp = false, bool longUnits = false, bool forceSec = false);
-double StringToSeconds(String str);		
-void StringToHMS(String durat, int &hour, int &min, double &seconds); 
 
 String SeasonName(int iseason);
 int GetSeason(Date &date);
@@ -451,7 +454,7 @@ T fact(T val) {
 
 template <class T> 
 inline bool Between(const T& val, const T& min, const T& max) { 
-	ASSERT(max > min);
+	ASSERT(max >= min);
 	return val >= min && val <= max;
 }
 template <class T> 
@@ -461,6 +464,7 @@ inline bool Between(const T& val, const T& range) {
 }
 template <class T> 
 inline T BetweenVal(const T& val, const T& _min, const T& _max) { 
+	ASSERT(_max >= _min);
 	return max(_min, min(_max, val));
 }
 template <class T> 
