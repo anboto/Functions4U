@@ -3059,8 +3059,10 @@ Grid& Grid::Set(int row, int col, const Value &data) {
 	if (!IsNull(row))
 		actualRow = row;
 	
-	if (actualCol >= columns.size())
+	if (actualCol >= columns.size()) {
 		columns.SetCount(actualCol+1);
+		widths.SetCount(actualCol+1, 10);
+	}
 	if (actualRow >= columns[actualCol].size()) {
 		for (int c = 0; c < columns.size(); ++c)
 			if (columns[c].size() <= actualRow)
@@ -3083,6 +3085,8 @@ Grid& Grid::SetRow(const Vector<Value> &data) {
 	for (int c = 0; c < data.size(); ++c) {
 		Set(Null, Null, data[c]);
 		actualCol++;
+		if (widths.size() <= actualCol)
+			widths.SetCount(actualCol+1, 10);
 	}
 	actualRow++;
 	actualCol = 0;
@@ -3152,5 +3156,133 @@ String Grid::AsString(bool format, bool removeEmpty, const String &separator) {
 	return ret;
 }
 
+String Grid::AsLatex(bool removeEmpty, bool setGrid) {
+	String ret;
+	for (int r = 0; r < columns[0].size(); ++r) {
+		bool printRow;
+		if (removeEmpty) {			// Doesn't show empty rows
+			printRow = false;
+			for (int c = 0; c < columns.size(); ++c) {
+				if (!columns[c][r].IsNull()) {
+					printRow = true;	
+					break;
+				}
+			}
+		} else
+			printRow = true;
+		if (printRow) {
+			for (int c = 0; c < columns.size(); ++c) {
+				String str = columns[c][r].ToString();
+				str = Replace(str, "%", "\\%");
+				const Grid::Fmt &fmt = GetFormat(r, c);
+				if (fmt.fnt.IsBold())
+					str = "\\textbf{" + str + "}";
+				if (fmt.fnt.IsItalic())
+					str = "\\textit{" + str + "}";
+				if (!IsNull(fmt.text)) {
+					String col = FormatIntHex(fmt.text.GetR(), 2) + FormatIntHex(fmt.text.GetG(), 2) + FormatIntHex(fmt.text.GetB(), 2);
+					str = "\\textcolor[HTML]{" + col + "}{" + str + "}";
+				}
+				if (!IsNull(fmt.back)) {
+					String col = FormatIntHex(fmt.back.GetR(), 2) + FormatIntHex(fmt.back.GetG(), 2) + FormatIntHex(fmt.back.GetB(), 2);
+					str += "\\cellcolor[HTML]{" + col + "}";
+				}
+				if (setGrid) {
+					int al = GetAlignment(r, c);
+					String align;
+					switch (al) {
+					case ALIGN_LEFT:	align = "l";	break;
+					case ALIGN_CENTER:	align = "c";	break;
+					case ALIGN_RIGHT:	align = "r";	break;
+					default:			align = "l";	break;
+					}
+					ret << Format("\\multicolumn{1}{|" + align + "|}{%s}", str);
+				} else
+					ret << str;
+				if (c < columns.size()-1)
+					ret << " & ";
+			}
+			if (r < columns[0].size()-1)
+				ret << " \\\\ \\hline\n";
+		}
+	}
+	return ret;
+}
+
+Grid& Grid::Set(int row, int col, const Grid::Fmt &fmt) {
+	if (!IsNull(col))
+		actualCol = col;
+	if (!IsNull(row))
+		actualRow = row;
 	
+	if (actualCol >= columns.size()) {
+		columns.SetCount(actualCol+1);
+		widths.SetCount(actualCol+1, 10);
+	}
+	if (actualRow >= columns[actualCol].size()) {
+		for (int c = 0; c < columns.size(); ++c)
+			if (columns[c].size() <= actualRow)
+				columns[c].SetCount(actualRow+1);
+	}
+	formatCell.GetAdd(Tuple<int, int>(actualRow, actualCol)) = clone(fmt);
+	
+	return *this;
+}
+
+Grid& Grid::Set(const Grid::Fmt &fmt) {
+	Set(Null, Null, fmt);		// Grid is not changed
+	return *this;
+}
+
+const Grid::Fmt &Grid::GetFormat(int row, int col) const {
+	int id = formatCell.Find(Tuple<int, int>(row, col));
+	if (id >= 0) 
+		return formatCell[id];	
+	for (int i = 0; i < formatRange.size(); ++i) {
+		const Tuple<int, int, int, int> &tp = formatRange.GetKey(i);
+		if ((IsNull(tp.a) || IsNull(tp.c) || Between(row, tp.a, tp.c)) && (IsNull(tp.b) || IsNull(tp.d) || Between(col, tp.b, tp.d)))
+			return formatRange[i];
+	}
+	static const Grid::Fmt dummy;
+	return dummy;
+}
+
+Grid& Grid::Set(int row, int col, Alignment align) {
+	if (!IsNull(col))
+		actualCol = col;
+	if (!IsNull(row))
+		actualRow = row;
+	
+	if (actualCol >= columns.size()) {
+		columns.SetCount(actualCol+1);
+		widths.SetCount(actualCol+1, 10);
+	}
+	if (actualRow >= columns[actualCol].size()) {
+		for (int c = 0; c < columns.size(); ++c)
+			if (columns[c].size() <= actualRow)
+				columns[c].SetCount(actualRow+1);
+	}
+	alignCell.GetAdd(Tuple<int, int>(actualRow, actualCol)) = align;
+	
+	return *this;
+}
+
+Grid& Grid::Set(Alignment align) {
+	Set(Null, Null, align);		// Grid is not changed
+	return *this;
+}
+
+Alignment Grid::GetAlignment(int row, int col) const {
+	int id = alignCell.Find(Tuple<int, int>(row, col));
+	if (id >= 0) 
+		return (Alignment)alignCell[id];	
+	for (int i = 0; i < alignRange.size(); ++i) {
+		const Tuple<int, int, int, int> &tp = alignRange.GetKey(i);
+		if ((IsNull(tp.a) || IsNull(tp.c) || Between(row, tp.a, tp.c)) && (IsNull(tp.b) || IsNull(tp.d) || Between(col, tp.b, tp.d)))
+			return (Alignment)alignRange[i];
+	}
+	return ALIGN_NULL;
+}
+
+
 }

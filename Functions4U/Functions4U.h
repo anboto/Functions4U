@@ -1847,6 +1847,7 @@ public:
 	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}
 
 	String AsString(bool format, bool removeEmpty, const String &separator = " ");
+	String AsLatex(bool removeEmpty, bool setGrid);
 	
 	Grid& SetNumHeaderRows(int n)	{numHeaderRows = n;	return *this;}
 	int  GetNumHeaderRows()	const	{return numHeaderRows;}
@@ -1885,6 +1886,23 @@ public:
 		vnum = 0;
 	}
 	
+	bool IsEmpty() {return columns.IsEmpty();}
+	
+	struct Fmt : Moveable<Fmt> {
+		Fmt() {}
+		Fmt(const Font &fnt, const Color &text = Null, const Color &back = Null) : fnt(fnt), text(text), back(back) {}
+		Font fnt;
+		Color text = Null, back = Null;
+	};
+	
+	Grid& Set(int row, int col, const Fmt &fmt);
+	Grid& Set(const Fmt &fmt);
+	const Fmt &GetFormat(int row, int col) const;
+	
+	Grid& Set(int row, int col, Alignment align);
+	Grid& Set(Alignment align);
+	Alignment GetAlignment(int row, int col) const;
+	
 private:
 	Array<Array<Value>> columns;
 	Vector<int> widths;		
@@ -1896,6 +1914,11 @@ private:
 	int vnum = 0;
 	Vector<String> vheader;
 	Vector<Convert*> vconvert;
+	
+	VectorMap<Tuple<int, int>, Fmt> formatCell;
+	VectorMap<Tuple<int, int, int, int>, Fmt> formatRange;
+	VectorMap<Tuple<int, int>, int> alignCell;
+	VectorMap<Tuple<int, int, int, int>, int> alignRange;
 };
 
 String DocxToText(String filename, bool noFormat);
