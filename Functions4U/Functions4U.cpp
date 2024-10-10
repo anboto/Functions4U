@@ -77,7 +77,7 @@ bool LaunchFileCreateProcess(const char *file, const char *params, const char *d
 	String command = Format("\"%s\" \"%s\" %s", GetExtExecutable(GetFileExt(file)), file, params);
 	Vector<WCHAR> cmd = ToSystemCharsetW(command);
 	
-	if (!CreateProcessW(NULL, cmd, NULL, NULL, FALSE, 0, NULL, directory ? ToSystemCharsetW(directory) : NULL, &startInfo, &procInfo))  
+	if (!CreateProcessW(NULL, cmd, NULL, NULL, FALSE, 0, NULL, directory ? ToSystemCharsetW(directory) : (LPCWSTR)NULL, &startInfo, &procInfo))  
 		return false;
 
    	WaitForSingleObject(procInfo.hProcess, 0);
@@ -152,7 +152,7 @@ bool LaunchCommand(const char* command, const char* directory) {
     startInfo.cb = sizeof(startInfo);
     ZeroMemory(&procInfo, sizeof(procInfo));
 
-	if (!CreateProcessW(NULL, ToSystemCharsetW(command), NULL, NULL, FALSE, DETACHED_PROCESS, NULL, directory ? ToSystemCharsetW(directory) : NULL, &startInfo, &procInfo))
+	if (!CreateProcessW(NULL, ToSystemCharsetW(command), NULL, NULL, FALSE, DETACHED_PROCESS, NULL, directory ? ToSystemCharsetW(directory) : (LPCWSTR)NULL, &startInfo, &procInfo))
 		return false;
 
     if (!CloseHandle(procInfo.hProcess))
