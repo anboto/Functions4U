@@ -21,6 +21,7 @@ library(WIN32) oleaut32;
 
 file
 	Functions4U.cpp,
+	Defs.h,
 	Functions4U.h,
 	ScanFiles.cpp,
 	FileArray.cpp,

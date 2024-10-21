@@ -285,6 +285,8 @@ CONSOLE_APP_MAIN
 	UppLog() << "\n";
 	Cout() << "\nPress enter key to end";
 	ReadStdIn();
+	#else
+	Cout() << "\nProgram ended succesfully";
 	#endif   
 }
 
