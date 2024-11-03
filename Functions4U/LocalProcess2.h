@@ -17,6 +17,7 @@ public:
 #ifdef PLATFORM_WIN32	
 	void Pause();
 	bool IsPaused()		{return paused;}
+	int64 GetMemory();
 #endif
 	
 private:

@@ -7,6 +7,7 @@ namespace Upp {
 
 #ifdef PLATFORM_WIN32
 #include <tlhelp32.h>
+#include <psapi.h>
 #endif
 #ifdef PLATFORM_POSIX
 #include <signal.h>
@@ -741,6 +742,28 @@ void LocalProcess2::Pause() {
 		PauseChildThreads(children[i], paused);
     PauseChildThreads(dwProcessId, paused);
 }
+
+int64 GetProcessMemoryUsage(DWORD dwProcessId) {
+	HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
+	if (handle != NULL) {
+	    PROCESS_MEMORY_COUNTERS pmc;
+	    if (GetProcessMemoryInfo(handle, &pmc, sizeof(pmc))) 
+	        return pmc.WorkingSetSize; 
+	}
+    return 0;
+}
+
+int64 LocalProcess2::GetMemory() {
+	if (!IsRunning())
+		return 0;	
+	
+	int64 ret = 0;
+	Vector<DWORD> children = GetChildProcessList(dwProcessId);
+	for (int i = 0; i < children.GetCount(); ++i)
+		ret += GetProcessMemoryUsage(children[i]);
+	return ret;
+}
+
 #endif
 
 }

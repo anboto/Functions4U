@@ -1282,10 +1282,10 @@ class LocalProcessX
 typedef LocalProcessX CLASSNAME;
 public:
 	virtual ~LocalProcessX() 		{Stop();}
-	enum ProcessStatus {RUNNING = 1, STOP_OK = 0, STOP_TIMEOUT = -1, STOP_USER = -2, STOP_NORESPONSE = -3};
+	enum ProcessStatus {RUNNING = 1, STOP = 0, STOP_TIMEOUT = -1, STOP_USER = -2, STOP_NORESPONSE = -3};
 	bool Start(const char *cmd, const char *envptr = nullptr, const char *dir = nullptr, double _refreshTime = -1, 
 		double _maxTimeWithoutOutput = -1, double _maxRunTime = -1, bool convertcharset = true) {
-		status = STOP_OK;
+		status = STOP;
 		p.ConvertCharset(convertcharset);
 		timeElapsed.Start();
 		timeWithoutOutput.Start();
@@ -1323,7 +1323,7 @@ public:
 			}
 #endif
 		} else 
-			status = STOP_OK;
+			status = STOP;
 		
 		bool resetTimeout = false;
 		if (!out.IsEmpty())
@@ -1370,10 +1370,12 @@ public:
 #endif
 	void Write(String str) 	{p.Write(str);}
 	int GetStatus()  		{return status;}
+	int GetExitCode()		{return p.GetExitCode();}
 	bool IsRunning() 		{return status > 0;}
 	Function<bool(double, const String&, bool, bool&)> WhenTimer;
 	#ifdef PLATFORM_WIN32
-	DWORD GetPid()	{return p.GetPid();}
+	DWORD GetPid()			{return p.GetPid();}
+	int64 GetMemory() 		{return p.GetMemory();}
 	#endif
 	
 	virtual void  SetData(const Value& v)	{value = v;}
@@ -1383,7 +1385,7 @@ private:
 	Value value;
 	LocalProcess2 p;
 	RealTimeStop timeElapsed, timeWithoutOutput;
-	ProcessStatus status = STOP_OK;
+	ProcessStatus status = STOP;
 	double maxTimeWithoutOutput = 0, maxRunTime = 0;
 	double refreshTime = 0;
 #ifdef CTRLLIB_H	
