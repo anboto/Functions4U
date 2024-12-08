@@ -160,7 +160,7 @@ public:
 	FileDataArray(bool useId = false, int fileFlags = 0);
 	bool Init(FileDataArray &orig, FileDiffArray &diff);
 	void Clear();
-	bool Search(const String &dir, const String &condFile, bool recurse = false, const String &findText = "", Function<bool(uint64, uint64)> Print = Null);
+	bool Search(const String &dir, const String &condFile, bool recurse = false, const String &findText = "", Function<bool(uint64, uint64)> Print = Null, bool files = true, bool folders = true);
 	FileData& operator[](long i)	{return fileList[i];}
 	uint64 GetFileCount()			{return fileCount;};
 	uint64 GetFolderCount()			{return folderCount;};
@@ -181,7 +181,7 @@ public:
 	void SetSeparator(char c) {sep = String(c, 1);}
 
 private:
-	void Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText);
+	void Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText, bool files, bool folders);
 	int64 GetFileId(String fileName);
 	String GetRelativePath(const String &fullPath);
 	String ToString();
@@ -1317,7 +1317,7 @@ public:
 #endif
 				if (maxTimeWithoutOutput > 0 && timeWithoutOutput.Seconds() > maxTimeWithoutOutput) 
 					status = STOP_NORESPONSE;
-				else if (maxRunTime > 0 && timeElapsed.Seconds() > maxRunTime) 
+				else if (maxRunTime > 0 	 && timeElapsed.Seconds() > maxRunTime) 
 					status = STOP_TIMEOUT;
 #ifdef PLATFORM_WIN32				
 			}
@@ -1367,6 +1367,7 @@ public:
 	}
 	bool IsPaused()			{return p.IsPaused();}
 	double Seconds()		{return timeElapsed.Seconds();}
+	double GetMaxRunTime()	{return maxRunTime;}
 #endif
 	void Write(String str) 	{p.Write(str);}
 	int GetStatus()  		{return status;}
@@ -1375,7 +1376,7 @@ public:
 	Function<bool(double, const String&, bool, bool&)> WhenTimer;
 	#ifdef PLATFORM_WIN32
 	DWORD GetPid()			{return p.GetPid();}
-	int64 GetMemory() 		{return p.GetMemory();}
+	uint64 GetMemory() 		{return p.GetMemory();}
 	#endif
 	
 	virtual void  SetData(const Value& v)	{value = v;}

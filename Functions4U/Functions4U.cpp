@@ -1829,6 +1829,11 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 			if (a[i].Find(decimal == '.' ? ',' : '.') < 0) {		// If ',' is the decimal, '.' is not allowed in a number, and the opposite
 				if (!IsNull(ScanDouble(a[i], &endptr, decimal == ',')))
 					num++;
+				else {
+					String str = ToLower(a[i]);
+					if (str == "nan" || str == "null")
+						num++;
+				}
 			}
 		}
 		return num;

@@ -112,7 +112,6 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 	HANDLE hp = GetCurrentProcess();
 
 	SECURITY_ATTRIBUTES sa;
-
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.lpSecurityDescriptor = NULL;
 	sa.bInheritHandle = TRUE;
@@ -124,6 +123,9 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 	CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0);
 	DuplicateHandle(hp, hOutputReadTmp, hp, &hOutputRead, 0, FALSE, DUPLICATE_SAME_ACCESS);
 	CloseHandle(hOutputReadTmp);
+
+	DWORD pipeMode = PIPE_NOWAIT;
+    SetNamedPipeHandleState(hOutputRead, &pipeMode, NULL, NULL);
 
 	if(spliterr) {
 		CreatePipe(&hErrorReadTmp, &hErrorWrite, &sa, 0);
@@ -743,7 +745,7 @@ void LocalProcess2::Pause() {
     PauseChildThreads(dwProcessId, paused);
 }
 
-int64 GetProcessMemoryUsage(DWORD dwProcessId) {
+uint64 GetProcessMemoryUsage(DWORD dwProcessId) {
 	HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
 	if (handle != NULL) {
 	    PROCESS_MEMORY_COUNTERS pmc;
@@ -753,11 +755,11 @@ int64 GetProcessMemoryUsage(DWORD dwProcessId) {
     return 0;
 }
 
-int64 LocalProcess2::GetMemory() {
+uint64 LocalProcess2::GetMemory() {
 	if (!IsRunning())
 		return 0;	
 	
-	int64 ret = 0;
+	uint64 ret = 0;
 	Vector<DWORD> children = GetChildProcessList(dwProcessId);
 	for (int i = 0; i < children.GetCount(); ++i)
 		ret += GetProcessMemoryUsage(children[i]);

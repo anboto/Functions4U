@@ -17,7 +17,7 @@ uses
 	Sql,
 	plugin/sqlite3;
 
-library(WIN32) oleaut32;
+library(WIN32) "oleaut32 psapi";
 
 file
 	Functions4U.cpp,

@@ -96,7 +96,7 @@ void FileDataArray::Clear() {
 	basePath = "";
 }
 
-bool FileDataArray::Search(const String &dir, const String &condFile, bool recurse, const String &findText, Function<bool(uint64, uint64)> Print) {
+bool FileDataArray::Search(const String &dir, const String &condFile, bool recurse, const String &findText, Function<bool(uint64, uint64)> Print, bool files, bool folders) {
 	Clear();
 	Vector<String> list;
 	
@@ -113,14 +113,14 @@ bool FileDataArray::Search(const String &dir, const String &condFile, bool recur
 		list << dir;
 	}
 	for (uint64 n = 0; !list.IsEmpty(); n++) {
-		Search_Each(list, condFile, recurse, findText);
+		Search_Each(list, condFile, recurse, findText, files, folders);
 		if (Print && !(n%100))
 			Print(fileCount, folderCount); 
 	}
 	return errorList.IsEmpty();
 }
 
-void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText) {
+void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText, bool files, bool folders) {
 	FindFile ff;
 	
 	String dir = pick(list[list.size()-1]);
@@ -128,7 +128,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 	
 	if (ff.Search(AppendFileNameX(dir, condFile))) {
 		do {
-			if (ff.IsFile()) {
+			if (files && ff.IsFile()) {
 				String p = AppendFileNameX(dir, ff.GetName());
 				//if (ff.IsSymLink()) { 
 				//	p = p;
@@ -175,7 +175,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 	if (ff.Search(AppendFileNameX(dir, "*"))) {
 		do {
 			String name = ff.GetName();
-			if(ff.IsDirectory() && name != "." && name != "..") {
+			if(folders && ff.IsDirectory() && name != "." && name != "..") {
 				String p = AppendFileNameX(dir, name);
 				fileList << FileData(true, name, GetRelativePath(dir), 0, ff.GetLastWriteTime(), 0);
 				folderCount++;
