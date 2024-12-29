@@ -1831,7 +1831,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 					num++;
 				else {
 					String str = ToLower(a[i]);
-					if (str == "nan" || str == "null")
+					if (str == "nan" || str == "null" || str == "true" || str == "false")
 						num++;
 				}
 			}
@@ -1874,10 +1874,10 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	int numBest = -1;
 	for (int irep = 0; irep < sepRepetition.size(); ++irep) {
 		for (int idec = 0; idec < decimals.size(); ++idec) {
-			for (int ih = 0; ih < separators.size(); ++ih) {
+			for (int isep = 0; isep < separators.size(); ++isep) {
 				Vector<int> numF, numNum;
 				for (int row = 0; row < numLinesToCheck; ++row) {
-					Vector<String> data = Split(lines[row+numLinesToDiscard], separators[ih], sepRepetition[irep]);
+					Vector<String> data = Split(lines[row+numLinesToDiscard], separators[isep], sepRepetition[irep]);
 					numF << data.size();
 					if (onlyNumbers)
 						numNum << NumNum(data, decimals[idec]);
@@ -1889,7 +1889,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 					num = CompareVector(numF);
 				
 				if (num > numBest) {
-					separator = separators[ih];
+					separator = separators[isep];
 					decimalSign = decimals[idec];
 					repetition = sepRepetition[irep];
 					numBest = num;
@@ -3066,7 +3066,7 @@ Grid& Grid::Set(int row, int col, const Value &data) {
 	
 	if (actualCol >= columns.size()) {
 		columns.SetCount(actualCol+1);
-		widths.SetCount(actualCol+1, 10);
+		widths.SetCount(actualCol+1, defaultWidth);
 	}
 	if (actualRow >= columns[actualCol].size()) {
 		for (int c = 0; c < columns.size(); ++c)
@@ -3091,7 +3091,7 @@ Grid& Grid::SetRow(const Vector<Value> &data) {
 		Set(Null, Null, data[c]);
 		actualCol++;
 		if (widths.size() <= actualCol)
-			widths.SetCount(actualCol+1, 10);
+			widths.SetCount(actualCol+1, defaultWidth);
 	}
 	actualRow++;
 	actualCol = 0;
@@ -3222,7 +3222,7 @@ Grid& Grid::Set(int row, int col, const Grid::Fmt &fmt) {
 	
 	if (actualCol >= columns.size()) {
 		columns.SetCount(actualCol+1);
-		widths.SetCount(actualCol+1, 10);
+		widths.SetCount(actualCol+1, defaultWidth);
 	}
 	if (actualRow >= columns[actualCol].size()) {
 		for (int c = 0; c < columns.size(); ++c)
@@ -3260,7 +3260,7 @@ Grid& Grid::Set(int row, int col, Alignment align) {
 	
 	if (actualCol >= columns.size()) {
 		columns.SetCount(actualCol+1);
-		widths.SetCount(actualCol+1, 10);
+		widths.SetCount(actualCol+1, defaultWidth);
 	}
 	if (actualRow >= columns[actualCol].size()) {
 		for (int c = 0; c < columns.size(); ++c)

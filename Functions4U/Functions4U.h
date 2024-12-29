@@ -1882,12 +1882,16 @@ public:
 	Grid& Set(Alignment align);
 	Alignment GetAlignment(int row, int col) const;
 	
+	void SetDefaultWidth(int w)	{defaultWidth = w;}
+	
 private:
 	Array<Array<Value>> columns;
 	Vector<int> widths;		
 	
 	int numHeaderRows = 0, numHeaderCols = 0;
 	int actualCol = 0, actualRow = 0;
+	
+	int defaultWidth = 10;
 	
 	bool isVirtual = false;
 	int vnum = 0;
