@@ -284,12 +284,16 @@ String CharToSubSupScript(char c, bool subscript);
 String NumToSubSupScript(int d, bool subscript);
 
 const char *Ordinal(int num);
+
+inline float ToRad(float angle)	{
+	return angle*static_cast<float>(M_PI/180.);
+}
 	
 template<typename T>	
-inline T ToRad(T angle)	{
-	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
-	return angle*M_PI/180.;		// If not, this division will be zero
+inline double ToRad(T angle)	{
+	return angle*M_PI/180.;
 }
+
 template <class Range>
 Range ToRadArray(const Range& r) {
 	Range ret(r.size());
@@ -299,10 +303,15 @@ Range ToRadArray(const Range& r) {
 }
 
 template<typename T>
-inline T ToDeg(T angle)	{
-	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
-	return angle*T(180./M_PI);		// If not, this division will be zero
+inline float ToDeg(float angle)	{
+	return angle*static_cast<float>(180./M_PI);
 }
+
+template<typename T>
+inline T ToDeg(T angle)	{
+	return angle*180./M_PI;
+}
+
 template <class Range>
 Range ToDegArray(const Range& r) {
 	Range ret(r.size());
@@ -312,9 +321,14 @@ Range ToDegArray(const Range& r) {
 }
 
 template<typename T>
-inline T atan2_360(T y, T x) {
-	ASSERT_(std::is_floating_point<T>::value, "Type has to be floating point");
-	T ret = ToDeg(atan2(y, x));
+inline float atan2_360(float y, float x) {
+	float ret = ToDeg(atan2(y, x));
+	return ret > 90 ? 450 - ret : 90 - ret; 
+}
+
+template<typename T>
+inline double atan2_360(T y, T x) {
+	double ret = ToDeg(atan2(y, x));
 	return ret > 90 ? 450 - ret : 90 - ret; 
 }
 
