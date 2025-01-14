@@ -143,7 +143,7 @@ bool LaunchFile(const char *_file, const char *_params, const char *) {
 }
 #endif
 
-bool LaunchCommand(const char* command, const char* directory) {
+int64 LaunchCommand(const char* command, const char* directory) {
 #if defined(PLATFORM_WIN32) 
 	STARTUPINFOW startInfo;
     PROCESS_INFORMATION procInfo;
@@ -153,26 +153,27 @@ bool LaunchCommand(const char* command, const char* directory) {
     ZeroMemory(&procInfo, sizeof(procInfo));
 
 	if (!CreateProcessW(NULL, ToSystemCharsetW(command), NULL, NULL, FALSE, DETACHED_PROCESS, NULL, directory ? ToSystemCharsetW(directory) : (LPCWSTR)NULL, &startInfo, &procInfo))
-		return false;
+		return 0;
 
     if (!CloseHandle(procInfo.hProcess))
-        return false;
+        return 0;
     if (!CloseHandle(procInfo.hThread))
-        return false;
+        return 0;
+    return procInfo.dwProcessId;
 #else
 	String actualDirectory;
 	if (directory) {
 		actualDirectory = GetCurrentDirectory();
 		if (!SetCurrentDirectory(directory))
-			return false;
+			return 0;
 	}
 	system(S(command) + "&");
 	if (directory) {
 		if (!SetCurrentDirectory(actualDirectory))
-			return false;
+			return 0;
 	}
 #endif	
-	return true;
+	return 1;
 }
 /////////////////////////////////////////////////////////////////////
 // General utilities
@@ -3161,8 +3162,19 @@ String Grid::AsString(bool format, bool removeEmpty, const String &separator) {
 	return ret;
 }
 
-String Grid::AsLatex(bool removeEmpty, bool setGrid) {
+String Grid::AsLatex(bool removeEmpty, bool setGrid, bool full, String caption, String label) {
 	String ret;
+	
+	if (full) {
+		ret << "\\begin{table}[]\n";
+		ret << "\\centering\n";
+	}
+	ret << "\\begin{tabular}{";
+	for (int c = 0; c < columns.size(); ++c)
+		ret << "c";
+	ret << "}\n";
+	ret << "\\hline\n";
+	
 	for (int r = 0; r < columns[0].size(); ++r) {
 		bool printRow;
 		if (removeEmpty) {			// Doesn't show empty rows
@@ -3207,9 +3219,19 @@ String Grid::AsLatex(bool removeEmpty, bool setGrid) {
 				if (c < columns.size()-1)
 					ret << " & ";
 			}
-			if (r < columns[0].size()-1)
+			//if (r < columns[0].size()-1)
 				ret << " \\\\ \\hline\n";
 		}
+	}
+	
+	//ret << " \\\\ \\hline\n";
+	ret << "\\end{tabular}\n";
+	if (full) {
+		if (!caption.IsEmpty())
+			ret << "\\caption{" << caption << "}\n";
+		if (!label.IsEmpty())
+	  		ret << "\\label{" << label << "}\n";
+		ret << "\\end{table}\n";
 	}
 	return ret;
 }

@@ -26,7 +26,7 @@ enum EXT_FILE_FLAGS {NO_FLAG = 0,
 String GetDesktopManagerNew();
 
 bool LaunchFile(const char *file, const char *params = nullptr, const char *directory = ".");
-bool LaunchCommand(const char* command, const char* directory = NULL);
+int64 LaunchCommand(const char* command, const char* directory = NULL);
 	
 bool FileCat(const char *file, const char *appendFile);
 
@@ -1840,7 +1840,7 @@ public:
 	static String Nvl(T cond, String val) {return IsFin(cond) && !IsNull(cond) ? val : String();}
 
 	String AsString(bool format, bool removeEmpty, const String &separator = " ");
-	String AsLatex(bool removeEmpty, bool setGrid);
+	String AsLatex(bool removeEmpty, bool setGrid, bool full, String caption, String label);
 	
 	Grid& SetNumHeaderRows(int n)	{numHeaderRows = n;	return *this;}
 	int  GetNumHeaderRows()	const	{return numHeaderRows;}
