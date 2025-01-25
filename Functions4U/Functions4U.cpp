@@ -1826,12 +1826,15 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	auto NumNum = [](const Vector<String> &a, char decimal)->int {	// Number of real numbers in a vector of strings
 		const char *endptr;
 		int num = 0;
-		for (int i = 0; i < a.size(); ++i) {
-			if (a[i].Find(decimal == '.' ? ',' : '.') < 0) {		// If ',' is the decimal, '.' is not allowed in a number, and the opposite
-				if (!IsNull(ScanDouble(a[i], &endptr, decimal == ',')))
+		for (const String &sa : a) {
+			String snum = Trim(sa);
+			if (snum.IsEmpty())
+				num++;
+			else if (snum.Find(decimal == '.' ? ',' : '.') < 0) {		// If ',' is the decimal, '.' is not allowed in a number, and the opposite
+				if (!IsNull(ScanDouble(snum, &endptr, decimal == ',')))
 					num++;
 				else {
-					String str = ToLower(a[i]);
+					String str = ToLower(snum);
 					if (str == "nan" || str == "null" || str == "true" || str == "false")
 						num++;
 				}
@@ -1929,12 +1932,14 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	
 	parameters.SetCount(numBest);
 	for (int r = beginHeader; r < endHeader; ++r) {
-		Vector<String> data = Split(lines[r], separator);
+		Vector<String> data = Split(lines[r], separator, false);
 		for (int i = 0; i < numBest; ++i) {	
 			if (r - beginHeader > 0)
 				parameters[i] << "\n";
 			if (i < data.size())
 				parameters[i] << Trim(data[i]);
+			if (parameters[i].IsEmpty())				// To include empty parameters
+				parameters[i] = Format(t_("Param%d"), i+1);
 		}
 	}
 	

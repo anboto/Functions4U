@@ -925,13 +925,6 @@ void Shuffle(Range &data, int randomSeed = Null) {
 	ShuffleDescending(data, re);	
 }
 
-// Replaced by ReverseX
-/*template <class Range>
-void Flip(Range &data) {
-	for (int i = 0; i < data.size()/2; ++i)
-		Swap(data[i], data[data.size()-i-1]);	
-}*/
-
 template <class Range>
 bool IsSorted(const Range &data) {
 	int64 num = data.size();
