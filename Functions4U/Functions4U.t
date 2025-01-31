@@ -81,6 +81,12 @@ esES("oto\303\261o")
 euES("")
 frFR("")
 
+T_("Param%d")
+caES("")
+esES("")
+euES("")
+frFR("")
+
 T_("Impossible to copy '%s' to '%s': %s")
 caES("")
 esES("Imposible copiar '%s' a '%s': %s")
@@ -104,6 +110,66 @@ caES("")
 esES("Imposible abrir fichero")
 euES("")
 frFR("")
+
+T_("Dl cannot be released")
+caES("")
+esES("Dl no puede ser liberada")
+euES("")
+frFR("")
+
+
+// Functions4U.h
+
+T_("file: '%s', line: %d: ")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("file: '%s': ")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Data not loaded in FileInBinary::Read(%ld)")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("The row is empty")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Bad %s '%s' in field #%d, line:\n'%s'")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Field #%d not found in line:\n'%s'")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("No data found")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("Unknown error")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+
+// FileArray.cpp
 
 T_("Problem found")
 caES("")
@@ -132,45 +198,6 @@ frFR("")
 T_("There was a problem in the copy")
 caES("")
 esES("Hubo un problema al copiar")
-euES("")
-frFR("")
-
-T_("Dl cannot be released")
-caES("")
-esES("Dl no puede ser liberada")
-euES("")
-frFR("")
-
-
-// Functions4U.h
-
-T_("[File: '%s', line: %d]: ")
-caES("")
-esES("")
-euES("")
-frFR("")
-
-T_("Data not loaded in FileInBinary::Read(%ld)")
-caES("")
-esES("")
-euES("")
-frFR("")
-
-T_("No data available")
-caES("")
-esES("")
-euES("")
-frFR("")
-
-T_("Bad %s '%s' in field #%d, line:\n'%s'")
-caES("")
-esES("")
-euES("")
-frFR("")
-
-T_("Field #%d not found in line:\n'%s'")
-caES("")
-esES("")
 euES("")
 frFR("")
 
@@ -440,6 +467,18 @@ frFR("")
 
 
 // Obsolete
+
+T_("[File: '%s', line: %d]: ")
+caES("")
+esES("")
+euES("")
+frFR("")
+
+T_("No data available")
+caES("")
+esES("")
+euES("")
+frFR("")
 
 T_("Bad %s '%s' in field #%d, line\n'%s'")
 caES("")
