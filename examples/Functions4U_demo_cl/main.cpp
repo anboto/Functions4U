@@ -202,6 +202,36 @@ void MiscellaneousDemos() {
 	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
 	VERIFY("1E33" == FDS(NumberWithLeastSignificantDigits(1.12345E32, 2.468E33), 15, false));
 
+
+	const bool valid[] = {true, true, false, true, true, false, true, true, true, true, true, false, false};
+	
+    const char *tests_dot[] = {
+        "1234.56", "1,234.56", "12,34.56", "123456", "1,234,567", "1234,567", ".56", 
+        "3.", "-.5", "3.14e2", "1,234.56e-2", "1,234.56e", "1234.56;", NULL
+    };
+
+    UppLog() << "\n\nTesting with decimal separator '.' and thousands separator ','";
+    for (int i = 0; tests_dot[i] != NULL; i++) {
+        UppLog() << Format("\n  \"%s\" is %s", tests_dot[i], IsRealNumber(tests_dot[i], '.') ? "valid" : "invalid");
+        VERIFY(IsRealNumber(tests_dot[i], '.') == valid[i]);
+        if (valid[i])
+            UppLog() << Format(". Cleaned: \"%s\"", CleanThousands(tests_dot[i], '.'));
+    }
+
+    const char *tests_comma[] = {
+        "1234,56", "1.234,56", "12.34,56", "123456", "1.234.567", "1234.567", ",56", 
+        "3,", "-,5", "3,14e2", "1.234,56e-2", "1.234,56e", "1234,56;", NULL
+    };
+
+    UppLog() << "\n\nTesting with decimal separator ',' and thousands separator '.'";
+    for (int i = 0; tests_comma[i] != NULL; i++) {
+        UppLog() << Format("\n  \"%s\" is %s", tests_comma[i], IsRealNumber(tests_comma[i], ',') ? "valid" : "invalid");
+        VERIFY(IsRealNumber(tests_comma[i], ',') == valid[i]);
+        if (valid[i])
+            UppLog() << Format(". Cleaned: \"%s\"", CleanThousands(tests_comma[i], ','));
+    }
+    
+
 /*	UppLog() << "\nIsNull() testing\n";
 	{
 		float f = Null;

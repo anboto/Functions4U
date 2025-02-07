@@ -1803,9 +1803,99 @@ String ToStringDecimalSign(Value &val, const String &decimalSign) {
 	return ret;
 }
 
+String CleanThousands(const char *str, char dec_sep) {
+	String ret;
+	for (const char *p = str; *p; ++p) {
+		if ((dec_sep == '.' && *p == ',') || (dec_sep == ',' && *p == '.'))
+			;
+		else
+			ret << (*p);
+	}
+	return ret;
+}
+
+bool IsRealNumber(const char *str, char dec_sep) {
+    if (!str || *str == '\0')
+        return false;
+   
+    char thousands_sep;
+    if (dec_sep == '.')
+        thousands_sep = ',';
+    else if (dec_sep == ',')
+        thousands_sep = '.';
+    else
+        return false; // Unsupported decimal separator
+
+    const char *p = str;
+
+    if (*p == '+' || *p == '-')
+        p++;
+
+    bool integer_part_present = false;
+    bool used_thousands_sep = false;
+    int first_group_digits = 0;  		// Count of digits in the first (possibly ungrouped) block
+
+    if (isdigit((unsigned char)*p)) {	// If the integer part begins with a digit, parse it
+        integer_part_present = true;
+        while (isdigit((unsigned char)*p)) {	// Count digits until a non-digit is encountered
+            first_group_digits++;
+            p++;
+        }
+        // If a thousands separator is found immediately after the first group,
+        // then grouping is used and the first group must be 1–3 digits.
+        if (*p == thousands_sep) {
+            used_thousands_sep = true;
+            if (first_group_digits < 1 || first_group_digits > 3)
+                return false; 				    // first group is malformed
+            
+            // Process subsequent groups.
+            while (*p == thousands_sep) {
+                p++;
+                for (int i = 0; i < 3; i++) {  // Each subsequent group must have exactly 3 digits
+                    if (!isdigit((unsigned char)*p))
+                        return false;
+                    p++;
+                }
+                if (isdigit((unsigned char)*p))// If immediately after reading 3 digits we see another digit,
+                    return false;			   // that means the grouping is not properly separated
+            }
+        }
+    }
+    bool fraction_part_present = false;
+    int fraction_digits = 0;
+    if (*p == dec_sep) {
+        p++; 
+        while (isdigit((unsigned char)*p)) {	// Fraction part: read digits (no thousands separator allowed here)
+            fraction_part_present = true;
+            fraction_digits++;
+            p++;
+        }
+        if (*p == thousands_sep)	// If a thousands separator is found in the fraction part
+            return false;			// it's an error
+    }
+    
+    if (!integer_part_present && !fraction_part_present)	// To be a valid number, there must be at least one digit
+        return false;
+
+    if (*p == 'e' || *p == 'E') {
+        p++;
+        if (*p == '+' || *p == '-')
+            p++;
+        int exp_digits = 0;
+        while (isdigit((unsigned char)*p)) {	// Exponent must contain at least one digit.
+            exp_digits++;
+            p++;
+        }
+        if (exp_digits == 0)
+            return false;
+    }
+    if (*p != '\0')					// There should be no extra characters after a valid number.
+        return false;
+
+    return true;
+}
+
 bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String> &parameters, char &separator, bool &repetition, char &decimalSign, int64 &beginData, int &beginDataRow) {
-	const Array<char> separators = {',', ';', '\t', '|', '%', ' '};
-	
 	int numLinesToDiscard = 10, numLinesToCheck = 5;	
 	
 	// Get all lines and its positions
@@ -1830,7 +1920,10 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 			String snum = Trim(sa);
 			if (snum.IsEmpty())
 				num++;
-			else if (snum.Find(decimal == '.' ? ',' : '.') < 0) {		// If ',' is the decimal, '.' is not allowed in a number, and the opposite
+			else if (!IsRealNumber(snum, decimal))
+				;
+			else {
+				snum = CleanThousands(snum, decimal);
 				if (!IsNull(ScanDouble(snum, &endptr, decimal == ',')))
 					num++;
 				else {
@@ -1873,7 +1966,8 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	};
 	
 	// Gets the separator and decimal
-	Vector<char> decimals = {'.', ','};
+	const Vector<char> separators = {',', ';', '\t', '|', '%', ' '};
+	const Vector<char> decimals   = {'.', ','};
 	Vector<bool> sepRepetition = {false, true};
 	int numBest = -1;
 	for (int irep = 0; irep < sepRepetition.size(); ++irep) {

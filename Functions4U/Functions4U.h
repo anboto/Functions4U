@@ -528,6 +528,8 @@ struct CSVParameters {
 bool GuessCSV(const String &fileName, bool onlyNumbers, CSVParameters &param);
 bool GuessCSVStream(Stream &in, bool onlyNumbers, CSVParameters &param);
 
+bool IsRealNumber(const char *str, char dec_sep);
+String CleanThousands(const char *str, char dec_sep);
 	
 // A String based class to parse into
 class StringParse : public String {
