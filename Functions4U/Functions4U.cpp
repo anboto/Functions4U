@@ -1920,17 +1920,12 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 			String snum = Trim(sa);
 			if (snum.IsEmpty())
 				num++;
-			else if (!IsRealNumber(snum, decimal))
-				;
+			else if (IsRealNumber(snum, decimal)) 
+				num++;
 			else {
-				snum = CleanThousands(snum, decimal);
-				if (!IsNull(ScanDouble(snum, &endptr, decimal == ',')))
+				String str = ToLower(snum);
+				if (str == "nan" || str == "null" || str == "true" || str == "false")
 					num++;
-				else {
-					String str = ToLower(snum);
-					if (str == "nan" || str == "null" || str == "true" || str == "false")
-						num++;
-				}
 			}
 		}
 		return num;
