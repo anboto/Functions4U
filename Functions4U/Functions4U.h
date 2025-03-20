@@ -1376,6 +1376,7 @@ public:
 	}
 	bool IsPaused()			{return p.IsPaused();}
 	double Seconds()		{return timeElapsed.Seconds();}
+	void SetMaxRunTime(double t)	{maxRunTime = t;}
 	double GetMaxRunTime()	{return maxRunTime;}
 #endif
 	void Write(String str) 	{p.Write(str);}

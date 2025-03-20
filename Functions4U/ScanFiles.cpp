@@ -66,8 +66,8 @@ String PptxToText(String filename) {
  										for (const XmlNode &ap : txBody) {			
 		 									if (ap.GetTag() == "a:r") {
 		 										const XmlNode &tt = ap["a:t"];
-		                    					for (int i = 0; i < tt.GetCount(); ++i)
-		                    						text << tt.Node(i).GetText();
+		                    					for (int ii = 0; ii < tt.GetCount(); ++ii)
+		                    						text << tt.Node(ii).GetText();
 		 									}
  										}
  									}

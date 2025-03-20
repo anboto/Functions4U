@@ -1832,7 +1832,7 @@ bool IsRealNumber(const char *str, char dec_sep) {
         p++;
 
     bool integer_part_present = false;
-    bool used_thousands_sep = false;
+    //bool used_thousands_sep = false;
     int first_group_digits = 0;  		// Count of digits in the first (possibly ungrouped) block
 
     if (isdigit((unsigned char)*p)) {	// If the integer part begins with a digit, parse it
@@ -1844,7 +1844,7 @@ bool IsRealNumber(const char *str, char dec_sep) {
         // If a thousands separator is found immediately after the first group,
         // then grouping is used and the first group must be 1–3 digits.
         if (*p == thousands_sep) {
-            used_thousands_sep = true;
+            //used_thousands_sep = true;
             if (first_group_digits < 1 || first_group_digits > 3)
                 return false; 				    // first group is malformed
             
@@ -1862,12 +1862,12 @@ bool IsRealNumber(const char *str, char dec_sep) {
         }
     }
     bool fraction_part_present = false;
-    int fraction_digits = 0;
+    //int fraction_digits = 0;
     if (*p == dec_sep) {
         p++; 
         while (isdigit((unsigned char)*p)) {	// Fraction part: read digits (no thousands separator allowed here)
             fraction_part_present = true;
-            fraction_digits++;
+            //fraction_digits++;
             p++;
         }
         if (*p == thousands_sep)	// If a thousands separator is found in the fraction part
@@ -1914,7 +1914,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 	}
 
 	auto NumNum = [](const Vector<String> &a, char decimal)->int {	// Number of real numbers in a vector of strings
-		const char *endptr;
+		//const char *endptr;
 		int num = 0;
 		for (const String &sa : a) {
 			String snum = Trim(sa);
