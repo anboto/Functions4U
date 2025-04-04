@@ -3,6 +3,7 @@
 #include <plugin/sqlite3/Sqlite3.h>
 #include <plugin/zip/zip.h>
 
+#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 	
@@ -117,8 +118,8 @@ String XlsxToText_sheets(FileUnZip &unzip) {
 	    for (const XmlNode &node : body) {
 			if (node.GetTag() == "row") {
 	            const XmlNode &cc = node["c"]["is"]["t"];
-	            for (int i = 0; i < cc.GetCount(); ++i) 
-	            	text << cc.Node(i).GetText() << "\n";
+	            for (int ii = 0; ii < cc.GetCount(); ++ii) 
+	            	text << cc.Node(ii).GetText() << "\n";
 	        }
 	    }
 	}

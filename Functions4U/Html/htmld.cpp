@@ -3,6 +3,7 @@
 #include <Core/Core.h>
 #include "htmld.h"
 
+#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 
@@ -608,7 +609,7 @@ HtmlsD HtmlPageD(String title, const HtmlsD& body, Color bgcolor, const char *ch
 	return HtmlTagD("HTML") % ~(HtmlHeadD(title, charset) + HtmlTagD("BODY").BgColor(bgcolor) % ~body);
 }
 
-HtmlsD HtmlTitlePageD(String title, const HtmlsD& body, Color bgcolor, const char *charset)
+HtmlsD HtmlTitlePageD(String title, const HtmlsD& body, Color bgcolor, const char *)
 {
 	return HtmlPageD(title, HtmlTagD("H1") / title + "\n\n" + body, bgcolor);
 }

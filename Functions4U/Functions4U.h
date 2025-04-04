@@ -2,7 +2,7 @@
 // Copyright 2021 - 2022, the Anboto author and contributors
 #ifndef _Functions4U_Functions4U_h
 #define _Functions4U_Functions4U_h
-  
+
 #include <float.h>
 #include <Draw/Draw.h>
 #ifdef flagGUI
@@ -14,6 +14,7 @@
 #include "StaticPlugin.h"
 #include "LocalProcess2.h"
 #include <random>
+
 
 namespace Upp {
 
@@ -401,6 +402,7 @@ inline T fround(T x, int numdec) {
 
 template<class T>
 inline T Mirror(T x, T val) 		{return 2*val - x;}		// -(x - val) + val
+
 template<class T>
 T RoundClosest(T val, T grid, T eps) {
 	ASSERT(eps > 1E-15);
@@ -412,6 +414,15 @@ T RoundClosest(T val, T grid, T eps) {
 			return 0;
 		return rnd*grid;
 	}
+}
+
+template<class T>
+T RoundClosest(T val, T step) {
+    long long factor = static_cast<long long>(round(1./step));
+    T ret =  round(val * factor) / factor;
+    if (ret == -0.)
+        ret = 0;
+    return ret;
 }
 
 template<class T>
@@ -1484,6 +1495,7 @@ public:
 	FileInBinary()                  		        	{}
 	explicit FileInBinary(const char *fn) : FileIn(fn)	{}
 	
+	using FileIn::Read;
 	void Read(void *data, size_t sz) {
 		int64 len = Get64(data, sz);
 		if (len != int64(sz))
@@ -1505,6 +1517,7 @@ public:
 	explicit FileOutBinary(const char *fn) : FileOut(fn)	{}
 	FileOutBinary()                          				{}
 
+	using FileOut::Write;
 	void Write(const void *data, size_t sz) {
 		Put64(data, sz);
 	}
@@ -1920,16 +1933,5 @@ String XlsxToText(String filename);
 Index<String> TextToWords(const String &str, bool repeat);
 	
 }
-
-// Compiler options
-
-// Normal
-// -Wall -Wextra 
-
-// Extra
-// -Wno-unused-parameter -Wno-logical-op-parentheses -Wno-deprecated-copy-with-user-provided-copy -Wno-overloaded-virtual -Wno-missing-braces 
-
-// Full
-// -Wshadow	
-
+  
 #endif

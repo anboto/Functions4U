@@ -5,6 +5,8 @@
 #include <CtrlLib/CtrlLib.h>
 #include "Functions4U_Gui.h"
 
+#include <Functions4U/EnableWarnings.h>
+
 namespace Upp {
 
 inline bool iscidplus(int c) {

@@ -52,6 +52,7 @@ file
 	Html readonly separator,
 	Html/htmld.cpp,
 	Html/htmld.h,
+	EnableWarnings.h,
 	Copying;
 
  spellcheck_comments "EN-GB"

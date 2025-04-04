@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 - 2022, the Anboto author and contributors
+// Copyright 2021 - 2025, the Anboto author and contributors
 #include <Core/Core.h>
 #include "Functions4U.h"
 
+#include <Functions4U/EnableWarnings.h>
 
 #ifdef PLATFORM_WIN32 // || defined (PLATFORM_WIN64)
 	#define Ptr Ptr_
@@ -3404,6 +3405,5 @@ Alignment Grid::GetAlignment(int row, int col) const {
 	}
 	return ALIGN_NULL;
 }
-
 
 }

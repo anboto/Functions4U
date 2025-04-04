@@ -4,6 +4,8 @@
 
 #include "StaticPlugin.h"
 
+#include <Functions4U/EnableWarnings.h>
+
 namespace Upp {
 
 Array<StaticPlugin::PluginData>& StaticPlugin::Plugins() {
