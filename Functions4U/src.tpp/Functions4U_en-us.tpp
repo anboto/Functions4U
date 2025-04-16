@@ -943,17 +943,7 @@ ge]>_[_^Upp`:`:String^ String]_[* ToString]([@(0.0.255) const]_[*@4 Range][@(0.0
 [s2; Returns a String from a Range (Vector<>, Array<>, ...) [%-*@3 a] 
 with elements separated with `';`'.&]
 [s3; &]
-[s4;%- &]
-[s5;:DamerauLevenshteinDistance`(const char`*`,const char`*`,int`):%- [@(0.0.255) int]_
-[* DamerauLevenshteinDistance]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 s], 
-[@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 t], [@(0.0.255) int]_[*@3 alphabetLength]_`=_[@3 2
-56])&]
-[s2; Calculates the Damerau Levenshtein distance between words [%-*@3 s] 
-and [%-*@3 t] considering an alphabet of length [%-*@3 alphabetLength].&]
-[s2; The algorithm is documented [^https`:`/`/en`.wikipedia`.org`/wiki`/Damerau`%E2`%80`%93Levenshtein`_distance^ h
-ere] and [^https`:`/`/stackoverflow`.com`/questions`/6033631`/levenshtein`-to`-damerau`-levenshtein`/6035519`#6035519^ h
-ere].&]
-[s4;%- &]
+[s4; &]
 [s5;:Upp`:`:GetPythonDeclaration`(const Upp`:`:String`&`):%- [_^Upp`:`:String^ String]_
 [* GetPythonDeclaration]([@(0.0.255) const]_[_^Upp`:`:String^ String]_`&[*@3 include])&]
 [s2; Returns the Python ctypes declarations based on C declarations 
@@ -968,6 +958,17 @@ ar]_`*[*@3 t])&]
 [s2; The algorithm is documented [^From https`:`/`/en`.wikipedia`.org`/wiki`/Levenshtein`_distance^ h
 ere].&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:DamerauLevenshteinDistance`(const char`*`,const char`*`,size`_t`):%- [@(0.0.255) i
+nt] [* DamerauLevenshteinDistance]([@(0.0.255) const] [@(0.0.255) char] 
+[@(0.0.255) `*][*@3 s], [@(0.0.255) const] [@(0.0.255) char] [@(0.0.255) `*][*@3 t], 
+size`_t [*@3 alphabetLength] [@(0.0.255) `=] [@3 256])&]
+[s2; Calculates the Damerau Levenshtein distance between words [%-*@3 s] 
+and [%-*@3 t] considering an alphabet of length [%-*@3 alphabetLength].&]
+[s2; The algorithm is documented [^https`:`/`/en`.wikipedia`.org`/wiki`/Damerau`%E2`%80`%93Levenshtein`_distance^ h
+ere] and [^https`:`/`/stackoverflow`.com`/questions`/6033631`/levenshtein`-to`-damerau`-levenshtein`/6035519`#6035519^ h
+ere].&]
+[s3;%- &]
 [s4;%- &]
 [s5;:GetRelativePath`(Upp`:`:String`,Upp`:`:String`,Upp`:`:String`&`,bool`):%- [@(0.0.255) b
 ool]_[* GetRelativePath]([_^Upp`:`:String^ String]_[*@3 from], [_^Upp`:`:String^ String]_

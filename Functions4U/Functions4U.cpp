@@ -429,7 +429,7 @@ bool SetReadOnly(const char *path, bool usr, bool, bool) {
 	if (usr)
 		newattr = attr | FILE_ATTRIBUTE_READONLY;
 	else
-		newattr = attr & ~FILE_ATTRIBUTE_READONLY;
+		newattr = attr & FILE_ATTRIBUTE_READONLY;
 	
 	if (attr != newattr)
 		return SetFileAttributesW(ToSystemCharsetW(path), newattr); 
@@ -660,7 +660,7 @@ String LoadFile(const char *fileName, off_t from, size_t len)
 	StringBuffer s;
 	Buffer<char> buf(size);
 	size_t loaded;
-	for (loaded = 0; (nsize = read(fid, buf, unsigned(size))) == size && (len == 0 || loaded < len); loaded += nsize) {
+	for (loaded = 0; (nsize = (size_t)read(fid, buf, unsigned(size))) == size && (len == 0 || loaded < len); loaded += nsize) {
 		if (len != 0 && loaded + size > len)
 			size = len - loaded;
 		s.Cat(buf, int(size));
@@ -870,7 +870,7 @@ Vector<String> GetDriveList() {
 	char drvStr[26*4+1];		// A, B, C, ...
 	Vector<String> ret;
 	
-	int lenDrvStrs = ::GetLogicalDriveStrings(sizeof(drvStr), drvStr);
+	int lenDrvStrs = (int)::GetLogicalDriveStrings(sizeof(drvStr), drvStr);
 	// To get the error call GetLastError()
 	if (lenDrvStrs == 0)
 		return ret;
@@ -1351,8 +1351,8 @@ double GetRangeMajorUnits(double minV, double maxV) {
 WString RemoveAccentW(wchar c) {
 	WString wsret;
 
-	if (IsAlNum(c) || IsSpace(c)) {
-		wsret.Cat(c);
+	if (IsAlNum((int)c) || IsSpace((int)c)) {
+		wsret.Cat((int)c);
 		return wsret;
 	}
 	//const WString accented = "ÂÃÀÁÇÈÉÊËẼÌÍÎÏÑÒÓÔÕÙÚÛÝàáâãçèéêëẽìíîïñòóôõøùúûýÿ";
@@ -1373,7 +1373,7 @@ WString RemoveAccentW(wchar c) {
 		if (*(maccented.begin() + i) == c) 
 			return unmaccented[i];
 	}
-	wsret.Cat(c);
+	wsret.Cat((int)c);
 	return wsret;
 }
 
@@ -1426,8 +1426,8 @@ String RemoveAccents(String str) {
 	String ret;
 	WString wstr = str.ToWString();
 	for (int i = 0; i < wstr.GetCount(); ++i) {
-		String schar = RemoveAccent(wstr[i]);
-		if (i == 0 || ((i > 0) && ((IsSpace(wstr[i-1]) || IsPunctuation(wstr[i-1]))))) {
+		String schar = RemoveAccent((wchar)wstr[i]);
+		if (i == 0 || ((i > 0) && ((IsSpace(wstr[i-1]) || IsPunctuation((wchar)wstr[i-1]))))) {
 			if (schar.GetCount() > 1) {
 				if (IsUpper(schar[0]) && IsLower(wstr[1]))
 				 	schar = String(schar[0], 1) + ToLower(schar.Mid(1));
@@ -1442,7 +1442,7 @@ String RemovePunctuation(String str) {
 	String ret;
 	WString wstr = str.ToWString();
 	for (int i = 0; i < wstr.GetCount(); ++i) {
-		if (!IsPunctuation(wstr[i]))
+		if (!IsPunctuation((wchar)wstr[i]))
 		    ret += wstr[i];
 	}
 	return ret;
@@ -1452,10 +1452,10 @@ String RemoveGreek(String str) {
 	String ret;
 	WString wstr = str.ToWString();
 	for (int i = 0; i < wstr.GetCount(); ++i) {
-		if (!IsGreek(wstr[i]))
+		if (!IsGreek((wchar)wstr[i]))
 		    ret += wstr[i];
 		else
-			ret += GreekToText(wstr[i]);
+			ret += GreekToText((wchar)wstr[i]);
 	}
 	return ret;	
 }
@@ -2405,7 +2405,7 @@ int FileCompare(const char *path1, const char *path2) {
 		}
 		if (n1 != n2)
 			break;
-		if (memcmp(c1, c2, n1) != 0)
+		if (memcmp(c1, c2, (size_t)n1) != 0)
 			break;
 		if (n1 == 0) {
 			ret = 1;
@@ -2576,7 +2576,7 @@ Value GetVARIANT(VARIANT &result)
 	     	Time t;
 	     	t.day    = static_cast<Upp::byte>(stime.wDay);
 	     	t.month  = static_cast<Upp::byte>(stime.wMonth);
-	     	t.year   = stime.wYear;
+	     	t.year   = (int16)stime.wYear;
 	     	t.hour   = static_cast<Upp::byte>(stime.wHour); 
 	     	t.minute = static_cast<Upp::byte>(stime.wMinute);
 	     	t.second = static_cast<Upp::byte>(stime.wSecond);		
@@ -2596,18 +2596,18 @@ String WideToString(LPCWSTR wcs, int len) {
 		if (len == 0)
 			return Null;
 	}
-	Buffer<char> w(len);
+	Buffer<char> w((size_t)len);
 	WideCharToMultiByte(CP_UTF8, 0, wcs, len, w, len, nullptr, nullptr);
 	return ~w;	
 }
 
 bool StringToWide(String str, LPCWSTR &wcs) {
 	wchar_t *buffer;
-	DWORD size = MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
+	DWORD size = (DWORD)MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
 	if (!(buffer = (wchar_t *)GlobalAlloc(GMEM_FIXED, sizeof(wchar_t) * size)))
 		return false;
 
-	MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+	MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, (int)size);
 	wcs = SysAllocString(buffer);
 	GlobalFree(buffer);
 	if (!wcs)
@@ -2617,11 +2617,11 @@ bool StringToWide(String str, LPCWSTR &wcs) {
 
 bool BSTRSet(const String str, BSTR &bstr) {
 	wchar_t *buffer;
-	DWORD size = MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
+	DWORD size = (DWORD)MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
 	if (!(buffer = (wchar_t *)GlobalAlloc(GMEM_FIXED, sizeof(wchar_t) * size)))
 		return false;
 
-	MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+	MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, (int)size);
 	bstr = SysAllocString(buffer);
 	GlobalFree(buffer);
 	if (!bstr)
@@ -2805,19 +2805,19 @@ int SysX(const char *cmd, String& out, String& err, double timeOut,
 
 
 int LevenshteinDistance(const char *s, const char *t) {
-	int lens = int(strlen(s));
-	int lent = int(strlen(t));
+	size_t lens = strlen(s);
+	size_t lent = strlen(t);
 	
     Buffer<int> v0(lent + 1);
     Buffer<int> v1(lent + 1);
 
-    for (int i = 0; i <= lent; ++i)
+    for (int i = 0; i <= (int)lent; ++i)
         v0[i] = i;
 
-    for (int i = 0; i < lens; ++i) {
+    for (int i = 0; i < (int)lens; ++i) {
         v1[0] = i + 1;
 
-        for (int j = 0; j < lent; ++j) {
+        for (size_t j = 0; j < lent; ++j) {
             int deletionCost = v0[j + 1] + 1;
             int insertionCost = v1[j] + 1;
             int substitutionCost;
@@ -2833,30 +2833,30 @@ int LevenshteinDistance(const char *s, const char *t) {
     return v0[lent];
 }
 
-int DamerauLevenshteinDistance(const char *s, const char *t, int alphabetLength) {
-	int lens = int(strlen(s));
-	int lent = int(strlen(t));
-	int lent2 = lent + 2;
-	Buffer<int> H((lens+2)*lent2);  
+int DamerauLevenshteinDistance(const char *s, const char *t, size_t alphabetLength) {
+	size_t lens = strlen(s);
+	size_t lent = strlen(t);
+	size_t lent2 = lent + 2;
+	Buffer<size_t> H((lens+2)*lent2);  
 	
-    int infinity = lens + lent;
+    size_t infinity = lens + lent;
     H[0] = infinity;
-    for(int i = 0; i <= lens; i++) {
+    for(size_t i = 0; i <= lens; i++) {
 		H[lent2*(i+1)+1] = i;
 		H[lent2*(i+1)+0] = infinity;
     }
-    for(int j = 0; j <= lent; j++) {
+    for(size_t j = 0; j <= lent; j++) {
 		H[lent2*1+(j+1)] = j;
 		H[lent2*0+(j+1)] = infinity;
     }      
-    Buffer<int> DA(alphabetLength, 0);
+    Buffer<size_t> DA(alphabetLength, 0);
    
-    for(int i = 1; i <= lens; i++) {
-      	int DB = 0;
-      	for(int j = 1; j <= lent; j++) {
-	        int i1 = DA[int(t[j-1])];
-	        int j1 = DB;
-	        int cost = (s[i-1] == t[j-1]) ? 0 : 1;
+    for(size_t i = 1; i <= lens; i++) {
+      	size_t DB = 0;
+      	for(size_t j = 1; j <= lent; j++) {
+	        size_t i1 = DA[int(t[j-1])];
+	        size_t j1 = DB;
+	        size_t cost = (s[i-1] == t[j-1]) ? 0 : 1;
 	        if(cost == 0) 
 	        	DB = j;
 	        H[lent2*(i+1)+j+1] =
@@ -2867,7 +2867,7 @@ int DamerauLevenshteinDistance(const char *s, const char *t, int alphabetLength)
 	  	}
       	DA[int(s[i-1])] = i;
     }
-    return H[lent2*(lens+1)+lent+1];
+    return (int)H[lent2*(lens+1)+lent+1];
 }
 
 int SentenceSimilitude(const char *s, const char *t) {

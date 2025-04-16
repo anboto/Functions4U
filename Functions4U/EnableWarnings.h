@@ -13,6 +13,12 @@
     #pragma clang diagnostic warning "-Woverloaded-virtual" 
     #pragma clang diagnostic warning "-Wmissing-braces" 
     #pragma clang diagnostic warning "-Wshadow"  
+    #pragma clang diagnostic warning "-Wimplicit-fallthrough"
+    #pragma clang diagnostic warning "-Wsign-conversion"
+    #pragma clang diagnostic warning "-Wformat=2"
+    //#pragma clang diagnostic warning "-Werror=implicit"
+	//#pragma clang diagnostic warning "-Werror=incompatible-pointer-types"
+	//#pragma clang diagnostic warning "-Werror=int-conversion"
 #endif
 
 #endif

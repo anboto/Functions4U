@@ -501,7 +501,7 @@ bool LocalProcess2::IsRunning() {
 	dword n;
 	if(PeekNamedPipe(hOutputRead, NULL, 0, NULL, &n, NULL) && n)
 		return true;
-	exit_code = exitcode;
+	exit_code = (int)exitcode;
 	return false;
 #endif
 #ifdef PLATFORM_POSIX
@@ -562,11 +562,11 @@ bool LocalProcess2::Read2(String& reso, String& rese)
 	dword n;
 	if(hOutputRead && PeekNamedPipe(hOutputRead, NULL, 0, NULL, &n, NULL) && n &&
 	   ReadFile(hOutputRead, buffer, sizeof(buffer), &n, NULL) && n)
-		reso.Cat(buffer, n);
+		reso.Cat(buffer, (int)n);
 
 	if(hErrorRead && PeekNamedPipe(hErrorRead, NULL, 0, NULL, &n, NULL) && n &&
 	   ReadFile(hErrorRead, buffer, sizeof(buffer), &n, NULL) && n)
-		rese.Cat(buffer, n);
+		rese.Cat(buffer, (int)n);
 
 	if(convertcharset) {
 		reso = FromOEMCharset(reso);
@@ -626,7 +626,7 @@ void LocalProcess2::Write(String s)
 		bool ret = true;
 		dword n;
 		for(int wn = 0; ret && wn < s.GetLength(); wn += n) {
-			ret = WriteFile(hInputWrite, ~s + wn, s.GetLength(), &n, NULL);
+			ret = WriteFile(hInputWrite, ~s + wn, (DWORD)s.GetLength(), &n, NULL);
 			String ho = wreso;
 			String he = wrese;
 			wreso = wrese = Null;

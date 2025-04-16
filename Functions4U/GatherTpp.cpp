@@ -164,7 +164,7 @@ bool ContainsAt(const String &source, const String &pattern, int pos)
 {
 	return    pos >= 0
 	       && pos + pattern.GetLength() <= source.GetLength()
-	       && 0 == memcmp(source.Begin() + pos, pattern.Begin(), pattern.GetLength());
+	       && 0 == memcmp(source.Begin() + pos, pattern.Begin(), (size_t)pattern.GetLength());
 }
 
 bool StartsWith(const String &source, const String &pattern)

@@ -1,6 +1,5 @@
 #include <Core/Core.h>
 #include "Functions4U.h"
-#include <plugin/sqlite3/Sqlite3.h>
 #include <plugin/zip/zip.h>
 
 #include <Functions4U/EnableWarnings.h>
@@ -142,7 +141,7 @@ Index<String> TextToWords(const String &str, bool repeat) {
 	WString wtxt;
 	for (int i = 0; i < wstr.GetCount(); ++i) {
 		if (IsLetter(wstr[i]) || IsDigit(wstr[i]))
-			wtxt.Cat(RemoveAccent(wstr[i]).ToWString());
+			wtxt.Cat(RemoveAccent((wchar)wstr[i]).ToWString());
 		else if (wtxt.GetCount() > 0) {
 			if (repeat)
 				ret << wtxt.ToString();

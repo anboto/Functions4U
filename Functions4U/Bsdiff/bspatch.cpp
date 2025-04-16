@@ -168,16 +168,16 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 	if (((fd = _wsopen((const wchar_t *)oldfile.ToWString().Begin(), O_RDONLY|O_BINARY, _SH_DENYNO, 0)) < 0) ||
 #endif		
 		((oldsize=lseek(fd,0,SEEK_END))==-1) ||
-		((old=(u_char *)malloc(oldsize+1))==NULL) ||
+		((old=(u_char *)malloc(size_t(oldsize+1)))==NULL) ||
 		(lseek(fd,0,SEEK_SET)!=0))
 		Err(Format(t_("Error opening %s"), oldfile));
 	int r = oldsize;
-	while(r>0 && (i=read(fd,old+oldsize-r,r))>0) 
+	while(r>0 && (i=(off_t)read(fd,old+oldsize-r,r))>0) 
 		r -= i;
 	if (r>0 || close(fd)==-1) 
 		Err(Format(t_("Error opening %s"), oldfile));
 	
-	if((nnew=(u_char *)malloc(newsize+1))==NULL) 
+	if((nnew=(u_char *)malloc(size_t(newsize+1)))==NULL) 
 		return Err(t_("Not enough memory"));
 
 	oldpos=0;newpos=0;

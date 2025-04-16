@@ -141,7 +141,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 						Search_Each(p, condFile, recurse, text);
 				} else */ 
 				if (findText.IsEmpty()) {
-					uint64 len = ff.GetLength();
+					uint64 len = (uint64)ff.GetLength();
 					fileList << FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), 
 											(useId && len > 0) ? GetFileId(p) : 0);
 					fileCount++;
@@ -154,7 +154,7 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 							if (c == findText[i]) {
 								++i;
 								if (i == findText.GetCount()) {
-									uint64 len = ff.GetLength();
+									uint64 len = (uint64)ff.GetLength();
 									fileList << FileData(false, ff.GetName(), GetRelativePath(dir), len, ff.GetLastWriteTime(), useId ? GetFileId(p) : 0);
 									fileCount++;
 									fileSize += len;
@@ -187,8 +187,8 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 	}
 }
 
-int64 FileDataArray::GetFileId(String fileName) {
-	int64 id = -1;
+uint64 FileDataArray::GetFileId(String fileName) {
+	uint64 id = 0;
 #ifdef PLATFORM_POSIX
 	FILE *fp = fopen(fileName, "rb");
 #else
@@ -196,9 +196,9 @@ int64 FileDataArray::GetFileId(String fileName) {
 #endif
 	if (fp != NULL) {
 		int c;
-		long i = 0;
+		uint64 i = 0;
 		while ((c = fgetc(fp)) != EOF) {
-			id += c*i;
+			id += (uint64)c*i;
 			i++;
 		}
 		fclose(fp);
@@ -409,7 +409,7 @@ bool FileDataArray::LoadFile(const char *fileName) {
 		return false;
 	
 	in.GetLine();
-	int numData = in.Count("\n")-1;
+	int numData = (int)in.Count("\n")-1;
 	fileList.SetCount(numData);	
 	for (int row = 0; row < numData; ++row) {		
 		fileList[row].relFilename = in.GetText(sep);	
@@ -440,7 +440,7 @@ String FileDataArray::GetRelativePath(const String &fullPath) {
 	return fullPath.Mid(basePath.GetCount());
 }
 
-int64 GetDirectoryLength(const char *directoryName) {
+uint64 GetDirectoryLength(const char *directoryName) {
 	FileDataArray files;
 	files.Search(directoryName, "*.*", true);
 	return files.GetSize();
@@ -460,9 +460,9 @@ String ForceExtSafer(const char* fn, const char* ext) {
 #endif	
 }
 
-int64 GetLength(const char *fileName) {
+uint64 GetLength(const char *fileName) {
 	if (FileExists(fileName))
-		return GetFileLength(fileName);
+		return (uint64)GetFileLength(fileName);
 	else	
 		return GetDirectoryLength(fileName);
 }
@@ -736,7 +736,7 @@ bool FileDiffArray::LoadFile(const char *fileName)
 		return false;
 
 	in.GetLine();
-	int numData = in.Count("\n") - 1;
+	int numData = (int)in.Count("\n") - 1;
 	diffList.SetCount(numData);	
 	for (int row = 0; row < numData; ++row) {		
 		diffList[row].action = TrimLeft(in.GetText(sep))[0];	

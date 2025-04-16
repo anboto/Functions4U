@@ -99,8 +99,8 @@ bool IsReadOnly(const char *path, bool &usr, bool &grp, bool &oth);
 String LoadFile_Safe(const String fileName);
 String LoadFile(const char *fileName, off_t from, size_t len = 0);
 
-int64 GetLength(const char *fileDirName); 
-int64 GetDirectoryLength(const char *directoryName);
+uint64 GetLength(const char *fileDirName); 
+uint64 GetDirectoryLength(const char *directoryName);
 
 String GetSourceFolder();
 bool IsTheIDE();
@@ -133,14 +133,14 @@ struct FileData : Moveable<FileData> {
 	bool isFolder;
 	String fileName;
 	String relFilename;
-	int64 length;
+	uint64 length;
 	struct Upp::Time t;
-	int64 id;
+	uint64 id;
 	
-	String ToString() const { return Format("%s %0n", fileName, length); }
+	String ToString() const { return Format("%s %0n", fileName, (int64)length); }
 
-	FileData(bool _isFolder, String _fileName, String _relFilename, int64 _length, 
-		struct Upp::Time _t, int64 _id) : isFolder(_isFolder), fileName(_fileName), 
+	FileData(bool _isFolder, String _fileName, String _relFilename, uint64 _length, 
+		struct Upp::Time _t, uint64 _id) : isFolder(_isFolder), fileName(_fileName), 
 		relFilename(_relFilename), length(_length), t(_t), id(_id) {}
 	FileData() {}
 };
@@ -183,7 +183,7 @@ public:
 
 private:
 	void Search_Each(Vector<String> &list, const String &condFile, bool recurse, const String &findText, bool files, bool folders);
-	int64 GetFileId(String fileName);
+	uint64 GetFileId(String fileName);
 	String GetRelativePath(const String &fullPath);
 	String ToString();
 	String GetErrorText();
@@ -1417,7 +1417,7 @@ private:
 };
 
 int LevenshteinDistance(const char *s, const char *t);
-int DamerauLevenshteinDistance(const char *s, const char *t, int alphabetLength = 256);
+int DamerauLevenshteinDistance(const char *s, const char *t, size_t alphabetLength = 256);
 int SentenceSimilitude(const char *s, const char *t);
 
 //#define S(y)	Upp::String(y)
