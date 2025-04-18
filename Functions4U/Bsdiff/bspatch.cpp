@@ -165,7 +165,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX		
 	if (((fd = open(oldfile, O_RDONLY, 0)) < 0) ||
 #else
-	if (((fd = _wsopen((const wchar_t *)oldfile.ToWString().Begin(), O_RDONLY|O_BINARY, _SH_DENYNO, 0)) < 0) ||
+	if (((fd = _wsopen(ToSystemCharsetW(oldfile), O_RDONLY|O_BINARY, _SH_DENYNO, 0)) < 0) ||
 #endif		
 		((oldsize=lseek(fd,0,SEEK_END))==-1) ||
 		((old=(u_char *)malloc(size_t(oldsize+1)))==NULL) ||
@@ -236,7 +236,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX		
 	if (((fd = open(newfile, O_CREAT|O_TRUNC|O_WRONLY, 0666)) < 0) ||
 #else
-	if (((fd = _wsopen((const wchar_t *)newfile.ToWString().Begin(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE)) < 0) ||
+	if (((fd = _wsopen(ToSystemCharsetW(newfile), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE)) < 0) ||
 #endif			
 		(write(fd,nnew,newsize)!=newsize) || (close(fd)==-1))
 		return Err(Format(t_("Impossible to open %s"), newfile));

@@ -626,7 +626,7 @@ String LoadFile_Safe(const String fileName)
 #ifdef PLATFORM_POSIX
 	int fid = open(fileName, O_RDONLY);
 #else
-	int fid = _wopen((const wchar_t *)fileName.ToWString().Begin(), O_RDONLY|O_BINARY);
+	int fid = _wopen(ToSystemCharsetW(fileName).Begin(), O_RDONLY|O_BINARY);
 #endif
 	if (fid < 0) 
 		return String();
@@ -647,7 +647,7 @@ String LoadFile(const char *fileName, off_t from, size_t len)
 #ifdef PLATFORM_POSIX
 	int fid = open(fileName, O_RDONLY);
 #else
-	int fid = _wopen((const wchar_t *)String(fileName).ToWString().Begin(), O_RDONLY|O_BINARY);
+	int fid = _wopen(ToSystemCharsetW(fileName), O_RDONLY|O_BINARY);
 #endif
 	if (fid < 0) 
 		return String();
