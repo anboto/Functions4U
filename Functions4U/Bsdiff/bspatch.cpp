@@ -83,7 +83,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX			
 	if ((f = fopen(patchfile, "r")) == NULL)
 #else
-	if ((f = _wfopen((wchar_t *)patchfile.ToWString().Begin(), L"rb")) == NULL)	
+	if ((f = _wfopen(ToSystemCharsetW(patchfile), L"rb")) == NULL)	
 #endif
 		return Err(Format(t_("fopen(%s)"), patchfile));
 
@@ -127,7 +127,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX			
 	(cpf = fopen(patchfile, "r")) == NULL)
 #else
-	(cpf = _wfopen((const wchar_t *)patchfile.ToWString().Begin(), L"rb")) == NULL)	
+	(cpf = _wfopen(ToSystemCharsetW(patchfile), L"rb")) == NULL)	
 #endif	    
 		return Err(Format(t_("fopen(%s)"), patchfile));
 	if (fseeko(cpf, 32, SEEK_SET)) {
@@ -141,7 +141,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX			
 	(dpf = fopen(patchfile, "r")) == NULL)
 #else
-	(dpf = _wfopen((const wchar_t *)patchfile.ToWString().Begin(), L"rb")) == NULL)	
+	(dpf = _wfopen(ToSystemCharsetW(patchfile), L"rb")) == NULL)	
 #endif			
 		return Err(Format(t_("fopen(%s)"), patchfile));
 	if (fseeko(dpf, 32 + bzctrllen, SEEK_SET))
@@ -153,7 +153,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX			
 	(epf = fopen(patchfile, "r")) == NULL)
 #else
-	(epf = _wfopen((const wchar_t *)patchfile.ToWString().Begin(), L"rb")) == NULL)	
+	(epf = _wfopen(ToSystemCharsetW(patchfile), L"rb")) == NULL)	
 #endif			
 		return Err(Format(t_("fopen(%s)"), patchfile));
 	if (fseeko(epf, 32 + bzctrllen + bzdatalen, SEEK_SET))

@@ -277,7 +277,7 @@ bool BSDiff(String oldfile, String newfile, String patchfile)
 #ifdef PLATFORM_POSIX			
 	(pf = fopen(patchfile, "w")) == NULL)
 #else
-	(pf = _wfopen((const wchar_t *)patchfile.ToWString().Begin(), L"wb")) == NULL)
+	(pf = _wfopen(ToSystemCharsetW(patchfile), L"wb")) == NULL)
 #endif
 		return Err(Format(t_("Error opening %s"), patchfile));
 
