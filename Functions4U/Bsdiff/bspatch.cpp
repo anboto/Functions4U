@@ -172,7 +172,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 		(lseek(fd,0,SEEK_SET)!=0))
 		Err(Format(t_("Error opening %s"), oldfile));
 	int r = oldsize;
-	while(r>0 && (i=(off_t)read(fd,old+oldsize-r,r))>0) 
+	while(r>0 && (i=(off_t)read(fd,old+oldsize-r,(unsigned)r))>0) 
 		r -= i;
 	if (r>0 || close(fd)==-1) 
 		Err(Format(t_("Error opening %s"), oldfile));

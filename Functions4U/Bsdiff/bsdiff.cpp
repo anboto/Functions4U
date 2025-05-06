@@ -168,7 +168,7 @@ static off_t search(off_t *I,u_char *old,off_t oldsize,
 	};
 
 	x=st+(en-st)/2;
-	if(memcmp(old+I[x],nnew,bsmin(oldsize-I[x],newsize))<0) {
+	if(memcmp(old+I[x],nnew,bsmin((size_t)(oldsize-I[x]),(size_t)newsize))<0) {
 		return search(I,old,oldsize,nnew,newsize,x,en,pos);
 	} else {
 		return search(I,old,oldsize,nnew,newsize,st,x,pos);
@@ -229,13 +229,13 @@ bool BSDiff(String oldfile, String newfile, String patchfile)
 		((fd = _wsopen(ToSystemCharsetW(oldfile), O_RDONLY|O_BINARY, _SH_DENYNO, 0)) < 0) ||
 #endif		
 		((oldsize=lseek(fd,0,SEEK_END))==-1) ||
-		((old=(u_char *)malloc(oldsize+1))==NULL) ||
+		((old=(u_char *)malloc((size_t)oldsize+1))==NULL) ||
 		(lseek(fd,0,SEEK_SET)!=0))
 		return Err(Format(t_("Error opening %s"), oldfile));
 	
 	// read() reads in chunks
 	int r = oldsize;
-	while (r > 0 && (i = read(fd,old+oldsize-r,r))>0) 
+	while (r > 0 && (i = read(fd,old+oldsize-r,(unsigned)r))>0) 
 		r -=i ;
 	if (r > 0 || close(fd) == -1) 
 		return Err(Format(t_("Error opening %s"), oldfile));

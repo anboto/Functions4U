@@ -928,11 +928,11 @@ template <class Range>
 void Shuffle(Range &data, int randomSeed = Null) {
 	if (IsNull(randomSeed))	{
 		std::random_device rd;
-		randomSeed = rd();
+		randomSeed = (int)rd();
 	}
-	std::default_random_engine re(randomSeed);
+	std::default_random_engine re((std::default_random_engine::result_type)randomSeed);
 	
-	std::mt19937 generator(randomSeed);
+	std::mt19937 generator((std::default_random_engine::result_type)randomSeed);
   
 	ShuffleAscending(data, re);
 	ShuffleDescending(data, re);	
@@ -1497,7 +1497,7 @@ public:
 	
 	using FileIn::Read;
 	void Read(void *data, size_t sz) {
-		int64 len = Get64(data, sz);
+		int64 len = Get64(data, (int64)sz);
 		if (len != int64(sz))
 			throw Exc(Format(t_("Data not loaded in FileInBinary::Read(%ld)"), int64(sz)));
 	}
@@ -1519,7 +1519,7 @@ public:
 
 	using FileOut::Write;
 	void Write(const void *data, size_t sz) {
-		Put64(data, sz);
+		Put64(data, (int64)sz);
 	}
 	template <class T>
 	void Write(T data) {
@@ -1772,7 +1772,7 @@ private:
 		}
 		static HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 		dword dummy;
-		WriteFile(h, ~buffer, buffer.GetCount(), &dummy, NULL);
+		WriteFile(h, ~buffer, (DWORD)buffer.GetCount(), &dummy, NULL);
 		buffer.Clear();
 #endif	
 	}
