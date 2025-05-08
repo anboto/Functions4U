@@ -20,11 +20,8 @@ inline Color Aquamarine() 		{return Color(127,255,212);}
 inline Color Azure() 			{return Color(240,255,255);}
 inline Color Beige() 			{return Color(245,245,220);}
 inline Color Bisque() 			{return Color(255,228,196);}
-//inline Color Black() 			{return Color(0,0,0);}
 inline Color Blanchedalmond() 	{return Color(255,235,205);}
-//inline Color Blue() 			{return Color(0,0,255);}
 inline Color Blueviolet() 		{return Color(138,43,226);}
-//inline Color Brown() 			{return Color(165,42,42);}
 inline Color Burlywood() 		{return Color(222,184,135);}
 inline Color Cadetblue() 		{return Color(95,158,160);}
 inline Color Chartreuse() 		{return Color(127,255,0);}
@@ -33,7 +30,6 @@ inline Color Coral() 			{return Color(255,127,80);}
 inline Color Cornflowerblue()	{return Color(100,149,237);}
 inline Color Cornsilk() 		{return Color(255,248,220);}
 inline Color Crimson()			{return Color(220,20,60);}
-//inline Color Cyan()			{return Color(0,255,255);}
 inline Color Darkblue()			{return Color(0,0,139);}
 inline Color Darkcyan()			{return Color(0,139,139);}
 inline Color Darkgoldenrod()	{return Color(184,134,11);}
@@ -66,8 +62,6 @@ inline Color Gainsboro()		{return Color(220,220,220);}
 inline Color Ghostwhite()		{return Color(248,248,255);}
 inline Color Gold()				{return Color(255,215,0);}
 inline Color Goldenrod()		{return Color(218,165,32);}
-//inline Color Gray()			{return Color(128,128,128);}
-//inline Color Green()			{return Color(0,128,0);}
 inline Color Greenyellow()		{return Color(173,255,47);}
 inline Color Grey()				{return Color(128,128,128);}
 inline Color Honeydew()			{return Color(240,255,240);}
@@ -98,7 +92,6 @@ inline Color Lightyellow()		{return Color(255,255,224);}
 inline Color Lime()				{return Color(0,255,0);}
 inline Color Limegreen()		{return Color(50,205,50);}
 inline Color Linen()			{return Color(250,240,230);}
-//inline Color Magenta()		{return Color(255,0,255);}
 inline Color Maroon()			{return Color(128,0,0);}
 inline Color Mediumaquamarine()	{return Color(102,205,170);}
 inline Color Mediumblue()		{return Color(0,0,205);}
@@ -118,7 +111,7 @@ inline Color Navy()				{return Color(0,0,128);}
 inline Color Oldlace()			{return Color(253,245,230);}
 inline Color Olive()			{return Color(128,128,0);}
 inline Color Olivedrab()		{return Color(107,142,35);}
-inline Color Orange()			{return Color(255,165,0);}
+//inline Color Orange()			{return Color(255,165,0);}
 inline Color Orangered()		{return Color(255,69,0);}
 inline Color Orchid()			{return Color(218,112,214);}
 inline Color Palegoldenrod()	{return Color(238,232,170);}
@@ -128,11 +121,10 @@ inline Color Palevioletred()	{return Color(219,112,147);}
 inline Color Papayawhip()		{return Color(255,239,213);}
 inline Color Peachpuff()		{return Color(255,218,185);}
 inline Color Peru()				{return Color(205,133,63);}
-inline Color Pink()				{return Color(255,192,203);}
+//inline Color Pink()				{return Color(255,192,203);}
 inline Color Plum()				{return Color(221,160,221);}
 inline Color Powderblue()		{return Color(176,224,230);}
 inline Color Purple()			{return Color(128,0,128);}
-//inline Color Red()			{return Color(255,0,0);}
 inline Color Rosybrown()		{return Color(188,143,143);}
 inline Color Royalblue()		{return Color(65,105,225);}
 inline Color Saddlebrown()		{return Color(139,69,19);}
@@ -156,9 +148,7 @@ inline Color Tomato()			{return Color(255,99,71);}
 inline Color Turquoise()		{return Color(64,224,208);}
 inline Color Violet()			{return Color(238,130,238);}
 inline Color Wheat()			{return Color(245,222,179);}
-//inline Color White()			{return Color(255,255,255);}
 inline Color Whitesmoke()		{return Color(245,245,245);}
-//inline Color Yellow()			{return Color(255,255,0);}
 inline Color Yellowgreen()		{return Color(154,205,50);}
 
 }

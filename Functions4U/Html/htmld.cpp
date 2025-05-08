@@ -38,14 +38,6 @@ String ToHtmlD(const char *s)
 	return result;
 }
 
-/*
-HtmlsD& HtmlsD::Qtf(const char *qtf) {
-	HtmlDocOut html;
-	html.Qtf(qtf);
-	Cat(html.Get());
-	return *this;
-}
-*/
 
 HtmlsD& HtmlsD::Text(const char *s)                  { Cat(ToHtmlD(s)); return *this; }
 HtmlsD& HtmlsD::Quote(const char *s)                 { Cat('\"' + ToHtmlD(s) + '\"'); return *this; }

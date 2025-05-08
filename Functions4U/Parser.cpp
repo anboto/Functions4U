@@ -15,7 +15,7 @@ bool YmlParser::GetLine() {
 		}
 	};
 	
-	auto GetVector = [](FileInLine &inn, const String &lastLine, String str = "")->Vector<String> {
+	auto GetVector = [](FileInLine &inn, const String &llastLine, String str = "")->Vector<String> {
 		Vector<String> list;
 
 		while (true) {
@@ -41,7 +41,7 @@ bool YmlParser::GetLine() {
 			if (inn.IsEof())
 				throw Exc("End Of File found when reading a matrix");
 			String line = inn.GetLine();
-			line << lastLine << "\n";
+			line << llastLine << "\n";
 			str << Trim(line);
 		}
 		

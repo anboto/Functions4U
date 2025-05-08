@@ -34,6 +34,7 @@ __FBSDID("$FreeBSD: src/usr.bin/bsdiff/bspatch/bspatch.c,v 1.1 2005/08/06 01:59:
 #include <fcntl.h>
 
 #include "../bsdiff.h"
+#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 
@@ -238,7 +239,7 @@ bool BSPatch(String oldfile, String newfile, String patchfile)
 #else
 	if (((fd = _wsopen(ToSystemCharsetW(newfile), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE)) < 0) ||
 #endif			
-		(write(fd,nnew,newsize)!=newsize) || (close(fd)==-1))
+		(write(fd,nnew,(size_t)newsize)!=newsize) || (close(fd)==-1))
 		return Err(Format(t_("Impossible to open %s"), newfile));
 
 	free(nnew);

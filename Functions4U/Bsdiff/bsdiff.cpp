@@ -34,7 +34,7 @@ __FBSDID("$FreeBSD: src/usr.bin/bsdiff/bsdiff/bsdiff.c,v 1.1 2005/08/06 01:59:05
 #include <fcntl.h>
 
 #include "../bsdiff.h"
-
+#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 
@@ -240,8 +240,8 @@ bool BSDiff(String oldfile, String newfile, String patchfile)
 	if (r > 0 || close(fd) == -1) 
 		return Err(Format(t_("Error opening %s"), oldfile));
 
-	if(((I=(off_t *)malloc((oldsize+1)*sizeof(off_t)))==NULL) ||
-		((V=(off_t *)malloc((oldsize+1)*sizeof(off_t)))==NULL)) Err(t_("Not enough memory"));
+	if(((I=(off_t *)malloc((size_t)(oldsize+1)*sizeof(off_t)))==NULL) ||
+		((V=(off_t *)malloc((size_t)(oldsize+1)*sizeof(off_t)))==NULL)) Err(t_("Not enough memory"));
 
 	qsufsort(I,V,old,oldsize);
 
@@ -256,19 +256,19 @@ bool BSDiff(String oldfile, String newfile, String patchfile)
 		((fd = _wsopen(ToSystemCharsetW(newfile), O_RDONLY|O_BINARY, _SH_DENYNO, 0)) < 0) ||
 #endif			   
 		((newsize=lseek(fd,0,SEEK_END))==-1) ||
-		((nnew=(u_char *)malloc(newsize+1))==NULL) ||
+		((nnew=(u_char *)malloc((size_t)(newsize+1)))==NULL) ||
 		(lseek(fd,0,SEEK_SET)!=0))
 		return Err(Format(t_("Error opening %s"), newfile));
 	
 	// read() reads in chunks
 	r = newsize;
-	while (r > 0 && (i = read(fd, nnew+newsize-r,r))>0) 
+	while (r > 0 && (i = read(fd, nnew+newsize-r,(size_t)r))>0) 
 		r -= i;
 	if (r > 0 || close(fd)==-1) 
 		return Err(Format(t_("Error opening %s"), newfile));
 
-	if(((db=(u_char *)malloc(newsize+1))==NULL) ||
-		((eb=(u_char *)malloc(newsize+1))==NULL)) Err(t_("Not enough memory"));
+	if(((db=(u_char *)malloc((size_t)(newsize+1)))==NULL) ||
+	   ((eb=(u_char *)malloc((size_t)(newsize+1)))==NULL)) Err(t_("Not enough memory"));
 	dblen=0;
 	eblen=0;
 
