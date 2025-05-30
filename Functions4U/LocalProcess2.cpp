@@ -202,16 +202,16 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 		int n = strlen(command) + 1;
 		for(int i = 0; i < arg->GetCount(); i++)
 			n += (*arg)[i].GetCount() + 1;
-		cmd_buf.Alloc(n + 1);
+		cmd_buf.Alloc(size_t(n + 1));
 		char *p = cmd_buf;
 		args.Add(p);
 		int l = strlen(command) + 1;
-		memcpy(p, command, l);
+		memcpy(p, command, size_t(l));
 		p += l;
 		for(int i = 0; i < arg->GetCount(); i++) {
 			args.Add(p);
 			l = (*arg)[i].GetCount() + 1;
-			memcpy(p, ~(*arg)[i], l);
+			memcpy(p, ~(*arg)[i], size_t(l));
 			p += l;
 		}
 	}
@@ -258,8 +258,8 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 	if(IsNull(app_full))
 		return false;
 	
-	Buffer<char> arg0(app_full.GetCount() + 1);
-	memcpy(~arg0, ~app_full, app_full.GetCount() + 1);
+	Buffer<char> arg0(size_t(app_full.GetCount() + 1));
+	memcpy(~arg0, ~app_full, size_t(app_full.GetCount() + 1));
 	args[0] = ~arg0;
 
 	if(pipe(rpipe) || pipe(wpipe))
@@ -646,7 +646,7 @@ void LocalProcess2::Write(String s)
 			Read2(wreso, wrese);
 			wreso = ho + wreso;
 			wrese = he + wrese;
-			ret = write(rpipe[1], ~s + wn, s.GetLength() - wn);
+			ret = write(rpipe[1], ~s + wn, size_t(s.GetLength() - wn));
 		}
 	}
 #endif

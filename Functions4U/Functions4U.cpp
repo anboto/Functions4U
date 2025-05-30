@@ -438,6 +438,7 @@ bool SetReadOnly(const char *path, bool usr, bool, bool) {
 #else
 	struct stat buffer;
 	//int status;
+	(void)usr;
 
 	if(0 != stat(ToSystemCharset(path), &buffer))
 		return false;
@@ -3287,18 +3288,23 @@ String Grid::AsLatex(bool removeEmpty, bool setGrid, bool full, String caption, 
 				String str = columns[c][r].ToString();
 				str = Replace(str, "%", "\\%");
 				const Grid::Fmt &fmt = GetFormat(r, c);
-				if (fmt.fnt.IsBold())
-					str = "\\textbf{" + str + "}";
-				if (fmt.fnt.IsItalic())
-					str = "\\textit{" + str + "}";
-				if (!IsNull(fmt.text)) {
-					String col = FormatIntHex(fmt.text.GetR(), 2) + FormatIntHex(fmt.text.GetG(), 2) + FormatIntHex(fmt.text.GetB(), 2);
-					str = "\\textcolor[HTML]{" + col + "}{" + str + "}";
+				if (!IsNull(fmt.fnt)) {
+					if (fmt.fnt.IsBold())
+						str = "\\textbf{" + str + "}";
+					if (fmt.fnt.IsItalic())
+						str = "\\textit{" + str + "}";
 				}
+				String strcolor;
 				if (!IsNull(fmt.back)) {
 					String col = FormatIntHex(fmt.back.GetR(), 2) + FormatIntHex(fmt.back.GetG(), 2) + FormatIntHex(fmt.back.GetB(), 2);
-					str += "\\cellcolor[HTML]{" + col + "}";
+					strcolor << "\\cellcolor[HTML]{" + col + "}";
 				}
+				if (!IsNull(fmt.text)) {
+					String col = FormatIntHex(fmt.text.GetR(), 2) + FormatIntHex(fmt.text.GetG(), 2) + FormatIntHex(fmt.text.GetB(), 2);
+					strcolor << "\\textcolor[HTML]{" + col + "}";
+				}
+				if (!strcolor.IsEmpty())
+					str = strcolor + "{" + str + "}";
 				if (setGrid) {
 					int al = GetAlignment(r, c);
 					String align;

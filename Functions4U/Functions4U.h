@@ -436,6 +436,15 @@ T AvgSafe(const T &a, const T &b) {
 		return b;
 }
 
+template <class Range1, class Range2>
+Range1 ApplyIndex(const Range1 &x, const Range2 &indices) {
+	ASSERT(x.size() == indices.size());
+	Range1 ret(x.size());
+	for (int i = 0; i < x.size(); ++i)
+		ret[i] = x[indices[i]];
+	return ret;
+}
+
 template<class T>
 inline T Nvl2(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
 
@@ -967,6 +976,18 @@ Vector<int> GetSortOrderX(const Range& r, const Less& less) {
 template <class Range>
 Vector<int> GetSortOrderX(const Range& r) {
 	return GetSortOrderX(r, std::less<ValueTypeOf<Range>>());
+}
+
+template <class Range, class Less>	// Valid for containers without GetCount()
+Vector<int> GetCoSortOrderX(const Range& r, const Less& less) {
+	auto begin = r.begin();
+	Vector<int> index;
+	index.SetCount(int(r.size()));
+	for(int i = index.size(); --i >= 0; index[i] = i)
+		;
+	typedef SortOrderIterator__<decltype(begin), ValueTypeOf<Range>> It;
+	CoSort__(It(index.begin(), begin), It(index.end(), begin), less);
+	return index;
 }
 
 template <class T>
@@ -1859,6 +1880,9 @@ public:
 	int rows(int col = 0) const;
 	int cols() const;
 
+	Grid& SetTextColor(Color c);
+	Grid& SetBackgroundColor(Color c);
+	
 	void SetVirtualCount(int n)	{
 		vheader.Clear();
 		vconvert.Clear();
@@ -1879,13 +1903,18 @@ public:
 	
 	void Clear() {
 		columns.Clear();
-		widths.Clear();		
+		widths.Clear();	
 		numHeaderRows = numHeaderCols = actualCol = actualRow = 0;
 	
 		isVirtual = false;
 		vheader.Clear();
 		vconvert.Clear();
 		vnum = 0;
+		
+		formatCell.Clear();
+		formatRange.Clear();
+		alignCell.Clear();
+		alignRange.Clear();
 	}
 	
 	bool IsEmpty() {return columns.IsEmpty();}
