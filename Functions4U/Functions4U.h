@@ -961,7 +961,7 @@ bool IsSorted(const Range &data) {
 	return true;
 }
 
-template <class Range, class Less>	// Valid for containers without GetCount()
+template <class Range, class Less>	// Valid for containers without GetCount(). To use with SetSortOrder
 Vector<int> GetSortOrderX(const Range& r, const Less& less) {
 	auto begin = r.begin();
 	Vector<int> index;
