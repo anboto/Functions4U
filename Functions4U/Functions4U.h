@@ -446,10 +446,10 @@ Range1 ApplyIndex(const Range1 &x, const Range2 &indices) {
 }
 
 template<class T>
-inline T Nvl2(T a, T b) {return IsFin(a) && !IsNull(a) ? a : b;}
+inline T Nvl2(T a, T b) {return IsNum(a) ? a : b;}
 
 template<class T1, class T2>
-inline T2 Nvl2(T1 cond, T2 a, T2 b) {return IsFin(cond) && !IsNull(cond) ? a : b;}
+inline T2 Nvl2(T1 cond, T2 a, T2 b) {return IsNum(cond) ? a : b;}
 
 
 template<typename T>
@@ -1036,9 +1036,9 @@ bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 	return false;
 }
 
-template <class T1, class T2>
+template <typename T1, typename T2>
 bool EqualDecimals(const T1& a, const T2& b, int numDecimals) {
-	return abs((double)a-(double)b)*Pow10Int<double>(numDecimals) < 1;
+	return std::abs(a - b)*Pow10Int<double>(numDecimals) < 1;
 }
 
 template <class Range>
@@ -1096,6 +1096,16 @@ int FindClosest(const Range& r, const typename Range::value_type& value, int fro
 
 template <class Range>
 int FindRatio(const Range& r, const typename Range::value_type& value, const typename Range::value_type& ratio, int from = 0) {
+	int id = FindClosest(r, value, from);
+	if (id >= 0) {
+		if (EqualRatio(r[id], value, ratio))
+			return id;
+	}
+	return -1;
+}
+
+template <class Range, typename T>
+int FindRatio(const Range& r, const std::complex<T>& value, const T& ratio, int from = 0) {
 	int id = FindClosest(r, value, from);
 	if (id >= 0) {
 		if (EqualRatio(r[id], value, ratio))
@@ -1459,6 +1469,25 @@ void Jsonize(JsonIO& io, std::complex<T>& var) {
 	}
 }
 
+template<typename T>
+String FormatComplex(std::complex<T> &val) {
+	double real = val.real();
+	double imag = val.imag();
+	String ret;
+	if (real == 0 || real == -0)
+		ret << "0";
+	else
+		ret << FDS(real, 8);
+	if (imag != 0 && imag != -0) {
+		if (imag > 0)
+			ret << " + i";
+		else
+			ret << " - i";
+		ret << FDS(abs(imag), 8);
+	}
+	return ret;
+}
+
 size_t GetNumLines(Stream &stream);
 
 class FileInLine : public FileIn {
@@ -1528,9 +1557,6 @@ public:
 		Read(&data, sizeof(T));
 		return data;
 	}
-	/*void Jump(int n) {
-		
-	}*/
 };
 
 class FileOutBinary : public FileOut {
