@@ -1729,6 +1729,7 @@ public:
 	bool IsInLine(String str) {
 		return line.Find(str) >= 0;
 	}
+	int GetLineNumber()		{return in->GetLineNumber();}
 	
 	int size() const 		{return fields.GetCount();}
 	int GetCount() const 	{return size();}
