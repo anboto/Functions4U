@@ -214,7 +214,7 @@ ConsoleOutput::~ConsoleOutput() {
 #endif
 }
 	
-void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit) {
+void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit, const Function<void ()>& whenAction) {
 	int num = array.GetCount();
 	if (num == 0)
 		menu.Add(t_("Empty list"), Null, Null).Enable(false).Bold(true);
@@ -232,19 +232,22 @@ void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit) {
 		}	
 	}
 	if (edit) {
-			menu.Add(t_("Paste"), Null, [&] {ArrayCtrlRowPaste(array);})
+			menu.Add(t_("Paste"), Null, [&] {ArrayCtrlRowPaste(array); whenAction();})
 				.Key(K_CTRL_V).Help(t_("Paste rows from clipboard"));
-			menu.Add(t_("Append"), Null, [&] {array.Add();})
+			menu.Add(t_("Append"), Null, [&] {array.Add(); whenAction();})
 				.Key(K_CTRL_INSERT).Help(t_("Append row"));
 			if (num > 0) {
 				menu.Add(t_("Remove"), Null, [&] {
-					for (int r = array.GetCount()-1; r >= 0; --r)
+					for (int r = array.GetCount()-1; r >= 0; --r) {
 						if (array.IsSelected(r))
 							array.Remove(r);
+					}
+					whenAction();
 				}).Key(K_DELETE).Help(t_("Remove selected rows"));
 				menu.Add(t_("Remove all"), Null, [&] {
 					for (int r = array.GetCount()-1; r >= 0; --r)
 						array.Remove(r);
+					whenAction();
 				}).Help(t_("Remove all rows"));
 			}
 	}

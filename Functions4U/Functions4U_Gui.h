@@ -83,7 +83,7 @@ private:
 #endif
 };
 
-void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header = true, bool edit = false);
+void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header = true, bool edit = false, const Function<void ()>& whenAction = Null);
 void ArrayCtrlRowCopy(const ArrayCtrl &array, bool header);
 void ArrayCtrlRowPaste(ArrayCtrl &array);
 void ArrayCtrlRowSelect(ArrayCtrl &array);
