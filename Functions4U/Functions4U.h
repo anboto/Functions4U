@@ -127,7 +127,6 @@ String GetSystemFolder();
 #ifdef PLATFORM_WIN32
 String GetCommonAppDataFolder();
 #endif
-//bool SetEnv(const char *id, const char *val);
 
 struct FileData : Moveable<FileData> {
 	bool isFolder;

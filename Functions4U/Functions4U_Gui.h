@@ -98,7 +98,7 @@ void ArrayCtrlVirtual_SetHeader(ArrayCtrl &array, Grid &g, int id, String text);
 void ArrayCtrlVirtual_UpdateHeaders(ArrayCtrl &array, const Grid &g);
 	
 template <class T>
-T *GetDefinedParentP(Ctrl *ths) {
+T *GetParentCtrlP(Ctrl *ths) {
 	while (ths->GetParent() != nullptr) {
 		ths = ths->GetParent();
 		T *main;
@@ -109,12 +109,12 @@ T *GetDefinedParentP(Ctrl *ths) {
 }
 
 template <class T>
-T &GetDefinedParent(Ctrl *ths) {
-	T *p = GetDefinedParentP<T>(ths);
+T &GetParentCtrl(Ctrl *ths) {
+	T *p = GetParentCtrlP<T>(ths);
 	if (p)
 		return *p;
-	NEVER_(t_("Parent does not found in GetDefinedParent()"));
-	throw Exc(t_("Parent does not found in GetDefinedParent()"));
+	NEVER_(t_("Parent does not found in GetParentCtrl"));
+	throw Exc(t_("Parent does not found in GetParentCtrl"));
 }
 
 template <class T>

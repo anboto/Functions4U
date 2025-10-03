@@ -1294,9 +1294,6 @@ double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
 		return 0;
 	
     double range = maxVal - minVal;
-    
-    //if (abs(maxVal) < range/10 || abs(minVal) < range/10)
-    //    return 0;
 
 	double val = Avg(minVal, maxVal);
 	int emin = GetExponent10(val);
