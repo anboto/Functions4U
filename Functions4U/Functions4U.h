@@ -1010,6 +1010,9 @@ bool EqualRatio(const std::complex<T>& a, const std::complex<T>& b, const T& rat
 	}
 	if(abs((a - b)/b) <= ratio) 
 		return true;
+	else if(abs(a - b) <= zero) 
+		return true;
+	
 	return false;
 }
 
@@ -1032,6 +1035,9 @@ bool EqualRatio(const T& a, const T& b, const T& ratio, const T& zero = 0) {
 	}
 	if(abs((a - b)/b) <= ratio) 
 		return true;
+	else if(abs(a - b) <= zero) 
+		return true;
+	
 	return false;
 }
 

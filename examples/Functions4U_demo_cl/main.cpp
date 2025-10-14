@@ -1,11 +1,45 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 - 2022, the Anboto author and contributors
+// Copyright 2021 - 2025, the Anboto author and contributors
 #include <Core/Core.h>
+
 
 using namespace Upp;
 
 #include "Spreadsheet.h"
+#include <Functions4U/EvalExpr.h>
 
+void EvalExprDemo() {
+	Index<String> variables;
+	Vector<double> values;
+
+	variables << "ptfmHeave" << "l10np0FX";
+	values 	  << 100. 	 	 << 200.;
+	
+    EvalExprX exp;
+    exp.WhenGetVariableId = [&](const char *name) 		{return variables.Find(name);};
+    exp.WhenGetVariableValue = [&](int id) 				{return values[id];};
+    exp.WhenDeclareVariable = [&](const char *name) 	{values << Null;	return variables.FindAdd(name);};
+    exp.WhenSetVariableValue = [&](int id, double val) 	{values[id] = val;};
+    
+    Vector<Tuple<String, double>> expressions;
+    expressions << MakeTuple("3+1+2-6", 0) 
+    			<< MakeTuple("3+1+sqrt(ptfmHeave^2)-12/3-100", 0)
+    			<< MakeTuple("myvar = sqrt(1)+2+1-pi*1.1+mult((ptfmHeave*2)/100, l10np0FX/100)-12/3 + 1.1*pi-4", 0)
+    			<< MakeTuple("sqrt(myvar)", 0) 
+    			<< MakeTuple("-myvar+4", 4)
+    			<< MakeTuple("1200/10/100 - 1.2", 0)
+    			<< MakeTuple("1.2 - 1200/10/100", 0);
+    
+    for (Tuple<String, double> &val : expressions) {
+        PostFixOperation op = exp.Get(val.Get<0>());
+        Cout() << "Expression: '" << val.Get<0>() << "' ";
+        Cout() << op.ToString();
+        double res = exp.Eval(op);            
+        VERIFY(res == val.Get<1>());
+		UppLog() << ':' << res;
+        UppLog() << '\n';
+    }
+}
 
 void SpreadsheetDemo(Spreadsheet &spreadsheet) {
 	spreadsheet.Open("myfile.xls");
@@ -310,6 +344,9 @@ CONSOLE_APP_MAIN
 	
 	UppLog() << "\n\nDistance demo";
 	DistanceDemo();	
+
+	UppLog() << "\n\nExpression evaluator demo";
+	EvalExprDemo();
 	
 	#ifdef flagDEBUG
 	UppLog() << "\n";

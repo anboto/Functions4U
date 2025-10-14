@@ -25,6 +25,7 @@ file
 	Functions4U.h,
 	ScanFiles.cpp,
 	FileArray.cpp,
+	EvalExpr.h,
 	Parser.cpp,
 	Functions4U_Gui.cpp,
 	Functions4U_Gui.h,
