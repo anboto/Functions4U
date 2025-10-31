@@ -1085,12 +1085,21 @@ int FindClosest(const Range& r, const std::complex<T>& value, int from = 0) {
 	return minId;
 }
 
+template <class Range, typename T>
+int FindRatio(const Range& r, const std::complex<T>& value, const T& ratio, int from = 0) {
+	for (int i = from; i < r.size(); i++)
+		if (EqualRatio(r[i], value, ratio))
+			return i;
+	return -1;
+}
+
 template<class Range>
 int FindClosest(const Range& r, const typename Range::value_type& value, int from = 0) {
+	using T = typename Range::value_type;
 	int minId = -1;
-	typename Range::value_type minDiff = std::numeric_limits<typename Range::value_type>::max();
+	T minDiff = std::numeric_limits<T>::max();
 	for (int i = from; i < r.size(); i++) {
-		typename Range::value_type diff = abs(value - r[i]);
+		T diff = abs(value - r[i]);
 		if (diff < minDiff) {
 			minDiff = diff;	
 			minId = i;		
@@ -1101,21 +1110,9 @@ int FindClosest(const Range& r, const typename Range::value_type& value, int fro
 
 template <class Range>
 int FindRatio(const Range& r, const typename Range::value_type& value, const typename Range::value_type& ratio, int from = 0) {
-	int id = FindClosest(r, value, from);
-	if (id >= 0) {
-		if (EqualRatio(r[id], value, ratio))
-			return id;
-	}
-	return -1;
-}
-
-template <class Range, typename T>
-int FindRatio(const Range& r, const std::complex<T>& value, const T& ratio, int from = 0) {
-	int id = FindClosest(r, value, from);
-	if (id >= 0) {
-		if (EqualRatio(r[id], value, ratio))
-			return id;
-	}
+	for (int i = from; i < r.size(); i++)
+		if (EqualRatio(r[i], value, ratio))
+			return i;
 	return -1;
 }
 
@@ -1130,20 +1127,18 @@ int FindAddRatio(Range& r, const typename Range::value_type& value, const typena
 
 template<class Range, typename T>
 int FindDelta(const Range& r, const std::complex<T>& value, const T& delta, int from = 0) {
-	int id = FindClosest(r, value, from);
-	if (id >= 0) {
-		if (abs(r[id] - value) <= delta) 
-			return id;
+	for (int i = from; i < r.size(); i++) {
+		if (abs(r[i] - value) <= delta) 
+			return i;
 	}
 	return -1;
 }
 
 template <class Range>
 int FindDelta(const Range& r, const typename Range::value_type& value, const typename Range::value_type& delta, int from = 0) {
-	int id = FindClosest(r, value, from);
-	if (id >= 0) {
-		if (abs(r[id] - value) <= delta) 
-			return id;
+	for (int i = from; i < r.size(); i++) {
+		if (abs(r[i] - value) <= delta) 
+			return i;
 	}
 	return -1;
 }
