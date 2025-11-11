@@ -1652,12 +1652,15 @@ public:
 		Load(in->GetLine(num));
 		return line;
 	}
-	String& GetLine_discard_empty() {
+	String& GetLine_discard_empty(int num = 1) {
 		ASSERT(in);
 		while (!in->IsEof()) {
 			Load(in->GetLine());
-			if (size() > 0)
-				return line;
+			if (size() > 0) {
+				num--;
+				if (num == 0)
+					return line;
+			}
 		}
 		return line;
 	}
