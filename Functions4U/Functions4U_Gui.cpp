@@ -232,19 +232,19 @@ void ArrayCtrlWhenBar(Bar &menu, ArrayCtrl &array, bool header, bool edit, const
 		}	
 	}
 	if (edit) {
-			menu.Add(t_("Paste"), Null, [&] {ArrayCtrlRowPaste(array); whenAction();})
+			menu.Add(t_("Paste"), Null, [&array, whenAction] {ArrayCtrlRowPaste(array); whenAction();})
 				.Key(K_CTRL_V).Help(t_("Paste rows from clipboard"));
-			menu.Add(t_("Append"), Null, [&] {array.Add(); whenAction();})
+			menu.Add(t_("Append"), Null, [&array, whenAction] {array.Add(); whenAction();})
 				.Key(K_CTRL_INSERT).Help(t_("Append row"));
 			if (num > 0) {
-				menu.Add(t_("Remove"), Null, [&] {
+				menu.Add(t_("Remove"), Null, [&array, whenAction] {
 					for (int r = array.GetCount()-1; r >= 0; --r) {
 						if (array.IsSelected(r))
 							array.Remove(r);
 					}
 					whenAction();
 				}).Key(K_DELETE).Help(t_("Remove selected rows"));
-				menu.Add(t_("Remove all"), Null, [&] {
+				menu.Add(t_("Remove all"), Null, [&array, whenAction] {
 					for (int r = array.GetCount()-1; r >= 0; --r)
 						array.Remove(r);
 					whenAction();

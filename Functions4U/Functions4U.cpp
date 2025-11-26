@@ -687,75 +687,177 @@ Array<SoftwareDetails> GetSoftwareDetails(String software) {
 }
 
 #if defined(PLATFORM_WIN32) 
-Array<SoftwareDetails> GetInstalledSoftware() {
-	Array<SoftwareDetails> ret;
-    char sAppKeyName[_MAX_PATH];
-    char str[_MAX_PATH];
-    dword dwType;
-    
-    struct Soft {
-    	HKEY key;
-    	String architecture;
-    	String path; 
-    };
-    Array<Soft> paths = {{HKEY_LOCAL_MACHINE, "32", "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"},
-    					 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\AppMgmt"},
-						 {HKEY_LOCAL_MACHINE, "64", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
-						 {HKEY_LOCAL_MACHINE, "32", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"},
-						 {HKEY_CLASSES_ROOT,  "64", "Installer\\Products"}};
+#include <windows.h>
+#include <msi.h>
+#include <msiquery.h>
 
-  
-    for (int ip = 0; ip < paths.size(); ++ip) {
-        const Soft &path = paths[ip];
-		HKEY hUninstKey = NULL;
-	    if(RegOpenKeyEx(path.key, path.path, 0, KEY_READ, &hUninstKey) == ERROR_SUCCESS) {
-			long lResult = ERROR_SUCCESS;
-		    for(dword dwIndex = 0; lResult == ERROR_SUCCESS; dwIndex++) {
-		        dword dwBufferSize = sizeof(sAppKeyName);
-		        if((lResult = RegEnumKeyEx(hUninstKey, dwIndex, sAppKeyName,
-		            &dwBufferSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
-		            
-		            String sSubKey = AppendFileName(path.path, sAppKeyName);
-		            HKEY hAppKey = NULL;
-		            if(RegOpenKeyEx(path.key, sSubKey, 0, KEY_READ, &hAppKey) == ERROR_SUCCESS) {
-		                SoftwareDetails &data = ret.Add();
-		                
-		                dwType = KEY_ALL_ACCESS;
-			            dwBufferSize = sizeof(str);
-			            if(RegQueryValueEx(hAppKey, "DisplayName", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-			                data.name = str;
-	
-						if (data.name == "") 
-							ret.Remove(ret.size()-1);
-						else {
-							dwType = KEY_ALL_ACCESS;
-				            dwBufferSize = sizeof(str);
-				            if(RegQueryValueEx(hAppKey, "Publisher", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-				                data.publisher = str;
-	
-							dwType = KEY_ALL_ACCESS;
-				            dwBufferSize = sizeof(str);
-				            if(RegQueryValueEx(hAppKey, "DisplayVersion", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-				                data.version = str;
-	
-							dwType = KEY_ALL_ACCESS;
-				            dwBufferSize = sizeof(str);
-				            if(RegQueryValueEx(hAppKey, "InstallLocation", NULL, &dwType, (unsigned char*)str, &dwBufferSize) == ERROR_SUCCESS)
-				                data.path = str;
-				            
-				            data.architecture = path.architecture;
-		            	}    
-		            }
-		            RegCloseKey(hAppKey);
-		        }
-		    }
-	    }
-	    RegCloseKey(hUninstKey);
+Array<SoftwareDetails> GetInstalledSoftware();
+
+bool ReadRegString(HKEY hKey, const char* name, String& out) {
+    DWORD type = 0;
+    char buf[4096];
+    DWORD size = sizeof(buf);
+
+    LONG r = RegQueryValueEx(hKey, name, NULL, &type, (LPBYTE)buf, &size);
+    if (r != ERROR_SUCCESS)
+        return false;
+
+    if (type != REG_SZ && type != REG_EXPAND_SZ)
+        return false;
+
+    buf[size - 1] = 0;
+    out = buf;
+
+    if (type == REG_EXPAND_SZ) {
+        char expanded[4096];
+        DWORD len = ExpandEnvironmentStrings(buf, expanded, sizeof(expanded));
+        if (len > 0 && len < sizeof(expanded))
+            out = expanded;
     }
+    return true;
+}
+
+String ExtractPathFromCommand(String cmd) {
+    cmd = Trim(cmd);
+
+    if (cmd.StartsWith("\"")) {			// Remove quotes
+        int p = cmd.Find("\"", 1);
+        if (p > 1)
+            return GetFileFolder(cmd.Mid(1, p - 1));
+    }
+
+    int sp = cmd.Find(" ");
+    String exe = (sp > 0 ? cmd.Left(sp) : cmd);
+
+    return GetFileFolder(exe);
+}
+
+void AddUninstallRegistryEntries(Array<SoftwareDetails>& out, HKEY root,
+    	const char* path, const char* arch, REGSAM accessFlags) {
+    HKEY hRoot = NULL;
+    if (RegOpenKeyEx(root, path, 0, KEY_READ | accessFlags, &hRoot) != ERROR_SUCCESS)
+        return;
+
+    for (DWORD idx = 0;; ++idx) {
+        char keyName[256];
+        DWORD len = sizeof(keyName);
+
+        if (RegEnumKeyEx(hRoot, idx, keyName, &len, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+            break;
+
+        String fullKey = AppendFileName(path, keyName);
+        HKEY hApp = NULL;
+        if (RegOpenKeyEx(root, fullKey, 0, KEY_READ | accessFlags, &hApp) != ERROR_SUCCESS)
+            continue;
+
+        String name;
+        if (!ReadRegString(hApp, "DisplayName", name)) {
+            RegCloseKey(hApp);
+            continue;
+        }
+
+        String lname = ToLower(name);		// Filter MS hotfixes / updates
+        if (lname.StartsWith("kb") || lname.Find("update") >= 0) {
+            RegCloseKey(hApp);
+            continue;
+        }
+
+        SoftwareDetails& s = out.Add();
+        s.name = name;
+        s.architecture = arch;
+
+        ReadRegString(hApp, "Publisher", s.publisher);
+        ReadRegString(hApp, "DisplayVersion", s.version);
+
+        ReadRegString(hApp, "InstallLocation", s.path);
+
+        if (s.path.IsEmpty()) {
+            String uninstall;
+            if (ReadRegString(hApp, "UninstallString", uninstall)) {
+                String p = ExtractPathFromCommand(uninstall);
+                if (!p.IsEmpty())
+                    s.path = p;
+            }
+        }
+        ReadRegString(hApp, "DisplayIcon", s.description);
+        RegCloseKey(hApp);
+    }
+    RegCloseKey(hRoot);
+}
+
+bool AlreadyExists(Array<SoftwareDetails>& list, const SoftwareDetails& cur) {
+    for (int i = 0; i < list.GetCount(); i++) {
+        const SoftwareDetails& s = list[i];
+
+        if (!cur.path.IsEmpty() && !s.path.IsEmpty()) 		// Same install path
+            if (GetFileFolder(s.path) == GetFileFolder(cur.path))
+                return true;
+        if (s.name == cur.name && s.version == cur.version)	// Same name + version
+            return true;
+    }
+    return false;
+}
+
+void AddMSIProducts(Array<SoftwareDetails>& out) {
+    char productCode[39];
+
+    for (UINT i = 0;; ++i) {
+        if (MsiEnumProducts(i, productCode) != ERROR_SUCCESS)
+            break;
+
+        DWORD size;
+        char buf[4096];
+
+        auto GetProp = [&](LPCTSTR prop, String& outStr) -> bool {
+            size = sizeof(buf);
+            UINT r = MsiGetProductInfo(productCode, prop, buf, &size);
+            if (r == ERROR_SUCCESS) {
+                buf[size] = 0;
+                outStr = buf;
+                return true;
+            }
+            return false;
+        };
+        String name, version, publisher, installLoc;
+        if (!GetProp(INSTALLPROPERTY_INSTALLEDPRODUCTNAME, name))
+            continue;
+
+        GetProp(INSTALLPROPERTY_VERSIONSTRING, version);
+        GetProp(INSTALLPROPERTY_PUBLISHER, publisher);
+        GetProp(INSTALLPROPERTY_INSTALLLOCATION, installLoc);
+
+        if (name.IsEmpty())
+            continue;
+
+        SoftwareDetails s;
+        s.name = name;
+        s.version = version;
+        s.publisher = publisher;
+        s.path = installLoc;
+        
+        if (!AlreadyExists(out, s))
+    		out << s;
+    }
+}
+
+Array<SoftwareDetails> GetInstalledSoftware() {
+    Array<SoftwareDetails> ret;
+
+    struct KeySpec {HKEY root; const char* path; const char* arch; REGSAM flags;};
+    KeySpec list[] = {
+        {HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "64", KEY_WOW64_64KEY},
+        {HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "32", KEY_WOW64_32KEY},
+        {HKEY_CURRENT_USER,  "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "User", 0},
+    };
+
+    for (auto& k : list)
+        AddUninstallRegistryEntries(ret, k.root, k.path, k.arch, k.flags);
+
+    AddMSIProducts(ret);
+
     return ret;
 }
+
 
 #endif
 

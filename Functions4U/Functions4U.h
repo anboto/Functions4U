@@ -949,9 +949,7 @@ void Shuffle(Range &data, int randomSeed = Null) {
 template <class Range>
 bool IsSorted(const Range &data) {
 	int64 num = data.size();
-	if (num == 0)
-		return false;
-	if (num == 1)
+	if (num <= 1)
 		return true;
 	for (int i = 1; i < num; ++i) {
 		if (data[i] < data[i-1])
