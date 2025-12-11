@@ -528,6 +528,15 @@ inline const Point_<T> Middle(const Point_<T>& p1, const Point_<T>& p2)  {
 	return Point_<T>(Avg(p1.x, p2.x), Avg(p1.y, p2.y));
 }
 
+template <typename T> 
+inline T Product(const Vector<T>& list) {
+    T p = 1;
+    for (const T d : list)
+        p *= d;
+    return p;
+}
+
+
 Vector<Vector <Value> > ReadCSV(const String &strFile, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
 Vector<Vector <Value> > ReadCSVFile(const String &fileName, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
 bool ReadCSVFileByLine(const String &fileName, Gate<int, Vector<Value>&, String &> WhenRow, char separator = ',', char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);

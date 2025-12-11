@@ -18,7 +18,7 @@ public:
 	
 	const Item &Get(int id) const {
 		if (id >= operations.size())
-			throw Exc("Problem parsing equation");
+			throw Exc(t_("Problem parsing equation"));
 		return operations[id];
 	}
 	
@@ -63,7 +63,7 @@ public:
 			if (functions1.Find(var) < 0 && functions2.Find(var) < 0) {
 				if(p.Char('=')) {
 					if (!WhenDeclareVariable)
-						throw Exc("No way to add a variable");
+						throw Exc(t_("No way to add a variable"));
 					PostFixOperation x = Exp(p);
 					x.Insert0(PostFixOperation::Item('a', WhenDeclareVariable(var)));
 					return x;
@@ -138,13 +138,19 @@ private:
 		        ret.Append(Exp(p));
 		        p.PassChar(')');
 	        } else
-	            throw Exc(Format("Wrong data '%s'", sid));
+	            throw Exc(Format(t_("Wrong data '%s'"), sid));
 	    } else if(p.Char('-')) {
 	        ret.Append(PostFixOperation::Item('f', functions1.Find("-")));
 	        ret.Append(Term(p));
 	    } else if(p.Char('(')) {
 	        ret = Exp(p);
 	        p.PassChar(')');
+	    } else if(p.Char('[')) {
+	        ret = Exp(p);
+	        p.PassChar(']');
+	    } else if(p.Char('{')) {
+	        ret = Exp(p);
+	        p.PassChar('}');
 	    } else
 	    	ret.Append(PostFixOperation::Item('n', Null, p.ReadDouble()));
 	    return ret;
@@ -215,17 +221,17 @@ private:
 		switch (first.type) {
 		case 'n':	return first.val;
 		case 'v':	if (!WhenGetVariableValue)
-						throw Exc("No way to get the value of the variables");
+						throw Exc(t_("No way to get the value of the variables"));
 					return WhenGetVariableValue(first.id);
 		case 'a':	if (!WhenSetVariableValue)
-						throw Exc("No way to set the value of the variables");
+						throw Exc(t_("No way to set the value of the variables"));
 					val = Eval0(list, id);
 					WhenSetVariableValue(first.id, val);			
 					return val;
 		case 'f':	return functionsCalls1[first.id](Eval0(list, id));
 		case 'g':	return functionsCalls2[first.id](Eval0(list, id), Eval0(list, id));
 		}
-		throw Exc("Problem parsing equation");	return Null;
+		throw Exc(t_("Problem parsing equation"));	return Null;
 	}
 };
 
