@@ -3,8 +3,6 @@
 #include <Core/Core.h>
 #include "Functions4U.h"
 
-#include <Functions4U/EnableWarnings.h>
-
 #ifdef PLATFORM_WIN32 // || defined (PLATFORM_WIN64)
 	#define Ptr Ptr_
 	#define byte byte_
