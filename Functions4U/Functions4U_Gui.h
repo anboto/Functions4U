@@ -148,6 +148,9 @@ private:
 	virtual void LostFocus() 						  	{OnLostFocus();}
 };
 
+int GetDropWidth(const DropChoice &drop);
+int GetDropWidth(const DropList &drop);
+	
 }
 
 #endif

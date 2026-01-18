@@ -356,6 +356,24 @@ void ArrayCtrlVirtual_UpdateHeaders(ArrayCtrl &array, const Grid &g) {
 		array.HeaderTab(r).SetText(g.GetVirtualHeader(r));	
 }
 
+int GetDropWidth(const DropChoice &drop) {
+	int maxLen = 0;
+	for (int i = 0; i < drop.GetCount(); ++i) {
+		String str = drop.Get(i);
+		maxLen = max(maxLen, GetEditWidth(str, Draw::GetStdFont()));
+	}
+	return maxLen + Draw::GetStdFont().GetWidth('X');
+}
+
+int GetDropWidth(const DropList &drop) {
+	int maxLen = 0;
+	for (int i = 0; i < drop.GetCount(); ++i) {
+		String str = drop.GetValue(i);
+		maxLen = max(maxLen, GetEditWidth(str, Draw::GetStdFont()));
+	}
+	return maxLen + Draw::GetStdFont().GetWidth('X');
+}
+
 }
 
 #endif
