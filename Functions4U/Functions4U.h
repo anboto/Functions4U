@@ -1810,7 +1810,7 @@ enum CONSOLE_COLOR {
 bool SetConsoleColor(CONSOLE_COLOR color);
 void ConsoleOutputDisable(bool disable);
 
-String GetPythonDeclaration(const String &name, const String &include);
+//String GetPythonDeclaration(const String &name, const String &include);
 String CleanCFromDeclaration(const String &include, bool removeSemicolon = true);
 
 class CoutStreamX : public Stream {

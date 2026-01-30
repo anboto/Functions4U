@@ -3,7 +3,6 @@
 #include <Core/Core.h>
 #include "htmld.h"
 
-#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 

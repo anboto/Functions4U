@@ -34,7 +34,6 @@ __FBSDID("$FreeBSD: src/usr.bin/bsdiff/bsdiff/bsdiff.c,v 1.1 2005/08/06 01:59:05
 #include <fcntl.h>
 
 #include "../bsdiff.h"
-#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 

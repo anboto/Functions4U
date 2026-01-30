@@ -6,7 +6,6 @@
 #define TFILE <Functions4U/Functions4U.t>
 #include <Core/t.h>
 
-#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 

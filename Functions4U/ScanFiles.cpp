@@ -2,7 +2,6 @@
 #include "Functions4U.h"
 #include <plugin/zip/zip.h>
 
-#include <Functions4U/EnableWarnings.h>
 
 namespace Upp {
 	
