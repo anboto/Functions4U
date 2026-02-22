@@ -1100,7 +1100,7 @@ int FindRatio(const Range& r, const std::complex<T>& value, const T& ratio, int 
 	return -1;
 }
 
-template<class Range>
+template <class Range>
 int FindClosest(const Range& r, const typename Range::value_type& value, int from = 0) {
 	using T = typename Range::value_type;
 	int minId = -1;
@@ -1219,6 +1219,24 @@ bool CompareDecimals(const Range1& a, const Range2& b, int numDecimals) {
 		return false;
 	for (int i = 0; i < a.size(); i++) 
 		if (!EqualDecimals(a[i], b[i], numDecimals)) 
+			return false;
+	return true;
+}
+
+template <class Range1, class Range2>
+bool CompareDelta(const Range1& a, const Range2& b, const typename Range1::value_type &delta) {
+	if (a.size() != b.size())
+		return false;
+	for (int i = 0; i < a.size(); i++) 
+		if (abs(a[i] - b[i]) > delta) 
+			return false;
+	return true;
+}
+
+template <typename T, typename Q>
+bool CompareDelta(const T* a, const Q* b, int num, const T &delta) {
+	for (int i = 0; i < num; i++) 
+		if (abs(a[i] - b[i]) > delta) 
 			return false;
 	return true;
 }
