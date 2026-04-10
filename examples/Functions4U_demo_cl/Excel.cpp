@@ -28,10 +28,10 @@ INITBLOCK {
 
 bool ExcelSpreadsheet::Open(const char *_filename) {
 	filename = _filename;	
-	puts(Format("ExcelSpreadsheet::Open(%s)", filename));
+	puts(F("ExcelSpreadsheet::Open(%s)", filename));
 	return false; 
 }
 
 void ExcelSpreadsheet::SetData(int row, int col, Value val) {
-	puts(Format("ExcelSpreadsheet::SetData(%d, %d, %s)", row, col, val.ToString()));
+	puts(F("ExcelSpreadsheet::SetData(%d, %d, %s)", row, col, val.ToString()));
 }

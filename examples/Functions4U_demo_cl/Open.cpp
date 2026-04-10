@@ -28,10 +28,10 @@ INITBLOCK {
 
 bool OpenSpreadsheet::Open(const char *_filename) {
 	filename = _filename;
-	puts(Format("OpenSpreadsheet::Open(%s)", filename));
+	puts(F("OpenSpreadsheet::Open(%s)", filename));
 	return false;
 }
 
 void OpenSpreadsheet::SetData(int row, int col, Value val) {
-	puts(Format("OpenSpreadsheet::SetData(%d, %d, %s)", row, col, val.ToString()));
+	puts(F("OpenSpreadsheet::SetData(%d, %d, %s)", row, col, val.ToString()));
 }

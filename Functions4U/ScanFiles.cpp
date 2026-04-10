@@ -104,7 +104,7 @@ String XlsxToText_shared(FileUnZip &unzip) {
 String XlsxToText_sheets(FileUnZip &unzip) {
 	String text;
 	for (int i = 1; true; ++i) {
-	    String strxml = unzip.ReadFile(Format("xl/worksheets/sheet%d.xml", i).begin());
+	    String strxml = unzip.ReadFile(F("xl/worksheets/sheet%d.xml", i).begin());
 	    if (strxml.IsVoid())
 			return text;
 		if (strxml.IsEmpty())
@@ -129,7 +129,7 @@ String XlsxToText(String filename) {
 	if (unzip.IsError()) 
         return String();
 	
-	return XlsxToText_shared(unzip) + S("\n") + XlsxToText_sheets(unzip);
+	return XlsxToText_shared(unzip) + F("\n") + XlsxToText_sheets(unzip);
 }
 
 Index<String> TextToWords(const String &str, bool repeat) {

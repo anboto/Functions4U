@@ -73,7 +73,7 @@ bool LaunchFileCreateProcess(const char *file, const char *params, const char *d
     startInfo.cb = sizeof(startInfo);
     ZeroMemory(&procInfo, sizeof(procInfo));
 
-	String command = Format("\"%s\" \"%s\" %s", GetExtExecutable(GetFileExt(file)), file, params);
+	String command = F("\"%s\" \"%s\" %s", GetExtExecutable(GetFileExt(file)), file, params);
 	Vector<WCHAR> cmd = ToSystemCharsetW(command);
 	
 	if (!CreateProcessW(NULL, cmd, NULL, NULL, FALSE, 0, NULL, directory ? ToSystemCharsetW(directory) : (LPCWSTR)NULL, &startInfo, &procInfo))  
@@ -166,7 +166,7 @@ int64 LaunchCommand(const char* command, const char* directory) {
 		if (!SetCurrentDirectory(directory))
 			return 0;
 	}
-	system(S(command) + "&");
+	system(F(command) + "&");
 	if (directory) {
 		if (!SetCurrentDirectory(actualDirectory))
 			return 0;
@@ -1251,7 +1251,7 @@ String HMSToString(int hour, int min, double seconds, int dec, bool units, bool 
 	if (min > 0) {
 		if (tp) {
 			String fmt = hour > 0 ? "%02d" : "%d";
-			ret << Format(fmt, min);
+			ret << F(fmt, min);
 		} else
 			ret << (ret.IsEmpty() ? "" : " ") << min;
 		if (space)
@@ -1313,13 +1313,13 @@ String BytesToString(uint64 _bytes, bool units)
 				bytes /= 1024;
 				if (bytes >= 1024) {
 					//bytes /= 1024;
-					ret = Format("%.1f %s", _bytes/(1024*1024*1024*1024.), units ? "Tb" : "");
+					ret = F("%.1f %s", _bytes/(1024*1024*1024*1024.), units ? "Tb" : "");
 				} else
-					ret = Format("%.1f %s", _bytes/(1024*1024*1024.), units ? "Gb" : "");
+					ret = F("%.1f %s", _bytes/(1024*1024*1024.), units ? "Gb" : "");
 			} else
-				ret = Format("%.1f %s", _bytes/(1024*1024.), units ? "Mb" : "");
+				ret = F("%.1f %s", _bytes/(1024*1024.), units ? "Mb" : "");
 		} else
-			ret = Format("%.1f %s", _bytes/1024., units ? "Kb" : "");
+			ret = F("%.1f %s", _bytes/1024., units ? "Kb" : "");
 	} else
 		ret << _bytes << (units ? "b" : "");
 	return ret;
@@ -2127,7 +2127,7 @@ bool GuessCSVStream(Stream &in, bool onlyNumbers, String &header, Vector<String>
 			if (i < data.size())
 				parameters[i] << Trim(data[i]);
 			if (parameters[i].IsEmpty())				// To include empty parameters
-				parameters[i] = Format(t_("Param%d"), i+1);
+				parameters[i] = F(t_("Param%d"), i+1);
 		}
 	}
 	
@@ -2438,13 +2438,13 @@ void DirectoryCopy_Each(const char *dir, const char *newPlace, String relPath, b
 			if (copy) {
 				if (!PatternMatchMulti(filesToExclude, name)) {
 					if (!FileCopy(ff.GetPath(), newFullPath))
-						errorList << "\n" << Format(t_("Impossible to copy '%s' to '%s': %s"), ff.GetPath(), newFullPath, GetLastErrorMessage());
+						errorList << "\n" << F(t_("Impossible to copy '%s' to '%s': %s"), ff.GetPath(), newFullPath, GetLastErrorMessage());
 				}
 			} 
 		} else if (ff.IsFolder()) {
 			if (!DirectoryExists(newFullPath)) {
 				if (!DirectoryCreate(newFullPath))
-					errorList << "\n" << Format(t_("Impossible to create directory '%s': %s"), newFullPath, GetLastErrorMessage());
+					errorList << "\n" << F(t_("Impossible to create directory '%s': %s"), newFullPath, GetLastErrorMessage());
 			}
 			DirectoryCopy_Each(dir, newPlace, AppendFileNameX(relPath, name), replaceOnlyNew, filesToExclude, errorList);
 		}
@@ -2454,7 +2454,7 @@ void DirectoryCopy_Each(const char *dir, const char *newPlace, String relPath, b
 
 void DirectoryCopyX(const char *dir, const char *newPlace, bool replaceOnlyNew, String filesToExclude, String &errorList) {
 	if (!DirectoryExists(dir)) 
-		errorList << "\n" << Format(t_("Directory '%s' does not exist"), dir);
+		errorList << "\n" << F(t_("Directory '%s' does not exist"), dir);
 	else
 		DirectoryCopy_Each(dir, newPlace, "", replaceOnlyNew, filesToExclude, errorList);
 }
@@ -2781,7 +2781,7 @@ void *Dl::GetFunction(const String &functionName) const {
 void *Dl::GetFunction_throw(const String &functionName) const {
 	void *ret;
 	if (!(ret = GetFunction(functionName)))
-	 	throw Exc(Format("Dl::GetFunction: %s not found", functionName));
+	 	throw Exc(F("Dl::GetFunction: %s not found", functionName));
 	return ret;
 }
 	
@@ -3098,8 +3098,8 @@ String CleanCFromDeclaration(const String &include, bool removeSemicolon) {
 	return str;
 }
 
-String S(const char *s) 	{return s;}
-String S(const Value &v) 	{return v.ToString();}
+String F(const char *s) 	{return s;}
+String F(const Value &v) 	{return v.ToString();}
 
 bool CoutStreamX::noprint = false;
 
@@ -3207,7 +3207,7 @@ String Grid::AsString(bool format, bool removeEmpty, const String &separator) {
 					} else {
 						int lenLeft = widths[c]/2;
 						int lenRight = widths[c] - lenLeft;
-						ret << str.Left(lenLeft - 1) << S("***") << str.Right(lenRight - 2);
+						ret << str.Left(lenLeft - 1) << F("***") << str.Right(lenRight - 2);
 					}
 				} else
 					ret << columns[c][r];
@@ -3277,7 +3277,7 @@ String Grid::AsLatex(bool removeEmpty, bool setGrid, bool full, String caption, 
 					case ALIGN_RIGHT:	align = "r";	break;
 					default:			align = "l";	break;
 					}
-					ret << Format("\\multicolumn{1}{|" + align + "|}{%s}", str);
+					ret << F("\\multicolumn{1}{|" + align + "|}{%s}", str);
 				} else
 					ret << str;
 				if (c < columns.size()-1)

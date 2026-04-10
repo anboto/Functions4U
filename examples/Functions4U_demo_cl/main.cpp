@@ -109,34 +109,34 @@ void FilesDemo() {
 	SaveFile(filename2, str2);
 	
 	FileCat(filename1, filename2);
-	UppLog() << Format("\nFileCat(%s, %s)", filename1, filename2);
+	UppLog() << F("\nFileCat(%s, %s)", filename1, filename2);
 
 //	LaunchFile(filename1);	
-//	UppLog() << Format("LaunchFile(%s)", filename1);		
+//	UppLog() << F("LaunchFile(%s)", filename1);		
 
 	int intres = FileCompare(filename1, filename2);
-	UppLog() << Format("\nFileCompare(%s, %s) = %d (has to be -1)", filename1, filename2, intres);
+	UppLog() << F("\nFileCompare(%s, %s) = %d (has to be -1)", filename1, filename2, intres);
 
 	int64 pos = FindStringInFile(filename1, "Second");
-	UppLog() << Format("\nFindStringInFile(%s, %s) = %d (has to be 35)", filename1, filename2, pos);
+	UppLog() << F("\nFindStringInFile(%s, %s) = %d (has to be 35)", filename1, filename2, pos);
 
 	bool boolres = FileStrAppend(filename1, ". Text appended at the end.");
-	UppLog() << Format("\nFileStrAppend(%s, \". Text appended at the end.\") = %s (has to be true)", 
+	UppLog() << F("\nFileStrAppend(%s, \". Text appended at the end.\") = %s (has to be true)", 
 				filename1, boolres ? "true" : "false");
 	
 	//boolres = UpperFolder(GetFileDirectory(filename1));
-	//UppLog() << Format("\nUpperFolder(%s) = %s (has to be true)", filename1, boolres ? "true" : "false");
+	//UppLog() << F("\nUpperFolder(%s) = %s (has to be true)", filename1, boolres ? "true" : "false");
 	
 	String upperFolder = GetUpperFolder(GetFileDirectory(filename1));
-	UppLog() << Format("\nGetUpperFolder(%s) = %s (has to be %s)", filename1, upperFolder, GetExeFolder());
+	UppLog() << F("\nGetUpperFolder(%s) = %s (has to be %s)", filename1, upperFolder, GetExeFolder());
 	
 	String stringres = GetNextFolder(GetUpperFolder(GetExeFolder()), GetFileDirectory(filename1));
-	UppLog() << Format("\nGetNextFolder(%s, %s) = %s (has to be %s)", GetUpperFolder(GetExeFolder()), 
+	UppLog() << F("\nGetNextFolder(%s, %s) = %s (has to be %s)", GetUpperFolder(GetExeFolder()), 
 										GetFileDirectory(filename1), stringres, GetExeFolder());
 	
 	String lfilename1 = ToLower(filename1);
 	filename1 = FileRealName(lfilename1);
-	UppLog() << Format("\nFileRealName(%s) = %s", lfilename1, filename1);
+	UppLog() << F("\nFileRealName(%s) = %s", lfilename1, filename1);
 }
 
 void NonReentrantDemo() {
@@ -149,10 +149,10 @@ void NonReentrantDemo() {
 }
 
 void DistanceDemo() {
-	UppLog() << Format("\nDistance between 'hello' and 'hello'  is %d", DamerauLevenshteinDistance("hello", "hello"));
-	UppLog() << Format("\nDistance between 'hello' and 'helo'   is %d", DamerauLevenshteinDistance("hello", "helo"));
-	UppLog() << Format("\nDistance between 'hello' and 'heloo'  is %d", DamerauLevenshteinDistance("hello", "helloo"));
-	UppLog() << Format("\nDistance between 'hello' and 'yellow' is %d", DamerauLevenshteinDistance("hello", "yellow"));
+	UppLog() << F("\nDistance between 'hello' and 'hello'  is %d", DamerauLevenshteinDistance("hello", "hello"));
+	UppLog() << F("\nDistance between 'hello' and 'helo'   is %d", DamerauLevenshteinDistance("hello", "helo"));
+	UppLog() << F("\nDistance between 'hello' and 'heloo'  is %d", DamerauLevenshteinDistance("hello", "helloo"));
+	UppLog() << F("\nDistance between 'hello' and 'yellow' is %d", DamerauLevenshteinDistance("hello", "yellow"));
 }
 
 void InstalledDemo() {
@@ -160,11 +160,11 @@ void InstalledDemo() {
 	
 	for (auto &soft : softs) {
 		UppLog() << soft.name << "\n";
-		UppLog() << Format("\tPublisher:   %s\n", soft.publisher);
-		UppLog() << Format("\tVersion:     %s\n", soft.version);
-		UppLog() << Format("\tArchitect:   %s\n", soft.architecture);
-		UppLog() << Format("\tPath:        %s\n", soft.path);
-		UppLog() << Format("\tDescription: %s\n", soft.description);
+		UppLog() << F("\tPublisher:   %s\n", soft.publisher);
+		UppLog() << F("\tVersion:     %s\n", soft.version);
+		UppLog() << F("\tArchitect:   %s\n", soft.architecture);
+		UppLog() << F("\tPath:        %s\n", soft.path);
+		UppLog() << F("\tDescription: %s\n", soft.description);
 	}
 	UppLog() << "\n";
 }	
@@ -220,20 +220,20 @@ void MiscellaneousDemos() {
 
 	UppLog() << "\nFloat formatting\n";
 	
-	UppLog() << Format("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
+	UppLog() << F("\nBase 10 exponent for %e is %d", 123456.789, GetExponent10(123456.789));
 	VERIFY(5 == GetExponent10(123456.789));
-	UppLog() << Format("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
+	UppLog() << F("\nBase 10 exponent for %e is %d", 1.234E57, GetExponent10(1.234E57));
 	VERIFY(57 == GetExponent10(1.234E57));
 	UppLog() << "\n";
-	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 0.69897, 5, NumberWithLeastSignificantDigits(0.69897, 5));
+	UppLog() << F("\nNumber with the least significant digits between %f and %f is %f", 0.69897, 5, NumberWithLeastSignificantDigits(0.69897, 5));
 	VERIFY(1 == NumberWithLeastSignificantDigits(0.69897, 5));
-	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", -1.12345, 2.468, NumberWithLeastSignificantDigits(-1.12345, 2.468));
+	UppLog() << F("\nNumber with the least significant digits between %f and %f is %f", -1.12345, 2.468, NumberWithLeastSignificantDigits(-1.12345, 2.468));
 	VERIFY(0 == NumberWithLeastSignificantDigits(-1.12345, 2.468));
-	UppLog() << Format("\nNumber with the least significant digits between %f and %f is %f", 1.12345, 2.468, NumberWithLeastSignificantDigits(1.12345, 2.468));
+	UppLog() << F("\nNumber with the least significant digits between %f and %f is %f", 1.12345, 2.468, NumberWithLeastSignificantDigits(1.12345, 2.468));
 	VERIFY(2 == NumberWithLeastSignificantDigits(1.12345, 2.468));
-	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E33, 2.468E33, NumberWithLeastSignificantDigits(1.12345E33, 2.468E33));
+	UppLog() << F("\nNumber with the least significant digits between %e and %e is %e", 1.12345E33, 2.468E33, NumberWithLeastSignificantDigits(1.12345E33, 2.468E33));
 	VERIFY("2E33" == FDS(NumberWithLeastSignificantDigits(1.12345E33, 2.468E33), 15, false));
-	UppLog() << Format("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
+	UppLog() << F("\nNumber with the least significant digits between %e and %e is %e", 1.12345E32, 2.468E33, NumberWithLeastSignificantDigits(1.12345E32, 2.468E33));
 	VERIFY("1E33" == FDS(NumberWithLeastSignificantDigits(1.12345E32, 2.468E33), 15, false));
 
 
@@ -246,10 +246,10 @@ void MiscellaneousDemos() {
 
     UppLog() << "\n\nTesting with decimal separator '.' and thousands separator ','";
     for (int i = 0; tests_dot[i] != NULL; i++) {
-        UppLog() << Format("\n  \"%s\" is %s", tests_dot[i], IsRealNumber(tests_dot[i], '.') ? "valid" : "invalid");
+        UppLog() << F("\n  \"%s\" is %s", tests_dot[i], IsRealNumber(tests_dot[i], '.') ? "valid" : "invalid");
         VERIFY(IsRealNumber(tests_dot[i], '.') == valid[i]);
         if (valid[i])
-            UppLog() << Format(". Cleaned: \"%s\"", CleanThousands(tests_dot[i], '.'));
+            UppLog() << F(". Cleaned: \"%s\"", CleanThousands(tests_dot[i], '.'));
     }
 
     const char *tests_comma[] = {
@@ -259,10 +259,10 @@ void MiscellaneousDemos() {
 
     UppLog() << "\n\nTesting with decimal separator ',' and thousands separator '.'";
     for (int i = 0; tests_comma[i] != NULL; i++) {
-        UppLog() << Format("\n  \"%s\" is %s", tests_comma[i], IsRealNumber(tests_comma[i], ',') ? "valid" : "invalid");
+        UppLog() << F("\n  \"%s\" is %s", tests_comma[i], IsRealNumber(tests_comma[i], ',') ? "valid" : "invalid");
         VERIFY(IsRealNumber(tests_comma[i], ',') == valid[i]);
         if (valid[i])
-            UppLog() << Format(". Cleaned: \"%s\"", CleanThousands(tests_comma[i], ','));
+            UppLog() << F(". Cleaned: \"%s\"", CleanThousands(tests_comma[i], ','));
     }
     
 

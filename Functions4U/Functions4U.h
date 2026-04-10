@@ -24,6 +24,14 @@ enum EXT_FILE_FLAGS {NO_FLAG = 0,
 					 DELETE_READ_ONLY = 4
 };
 
+String F(const char *s);
+String F(const Value &v);
+
+template <typename... Args>
+String F(const char *s, const Args& ...args) {
+	return Format(s, gather<Vector<Value>>(args...));
+}
+
 String GetDesktopManagerNew();
 
 bool LaunchFile(const char *file, const char *params = nullptr, const char *directory = ".");
@@ -136,7 +144,7 @@ struct FileData : Moveable<FileData> {
 	struct Upp::Time t;
 	uint64 id;
 	
-	String ToString() const { return Format("%s %0n", fileName, (int64)length); }
+	String ToString() const { return F("%s %0n", fileName, (int64)length); }
 
 	FileData(bool _isFolder, String _fileName, String _relFilename, uint64 _length, 
 		struct Upp::Time _t, uint64 _id) : isFolder(_isFolder), fileName(_fileName), 
@@ -1476,10 +1484,7 @@ int LevenshteinDistance(const char *s, const char *t);
 int DamerauLevenshteinDistance(const char *s, const char *t, size_t alphabetLength = 256);
 int SentenceSimilitude(const char *s, const char *t);
 
-//#define S(y)	Upp::String(y)
-String S(const char *s);
-String S(const Value &v);
-	
+
 template<class T>
 void Jsonize(JsonIO& io, std::complex<T>& var) {
 	T re, im;
@@ -1537,9 +1542,9 @@ public:
 	int GetLineNumber()	const 	{return line;}
 	String Str() const {
 		if (line > 0)
-			return Format(t_("file: '%s', line: %d: "), fileName, line);
+			return F(t_("file: '%s', line: %d: "), fileName, line);
 		else
-			return Format(t_("file: '%s': "), fileName);
+			return F(t_("file: '%s': "), fileName);
 	}
 		
 	struct Pos {
@@ -1721,9 +1726,9 @@ public:
 		int res = GetInt_nothrow(i);
 		if (IsNull(res)) {
 			if (i < fields.size())
-				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "integer", fields[i], i+1, line));
+				throw Exc(in->Str() + F(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "integer", fields[i], i+1, line));
 			else
-				throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
+				throw Exc(in->Str() + F(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 		}
 		return res; 
 	}
@@ -1745,9 +1750,9 @@ public:
 		double res = GetDouble_nothrow(i);
 		if (IsNull(res)) {
 			if (i < fields.size())
-				throw Exc(in->Str() + Format(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "double", fields[i], i+1, line));
+				throw Exc(in->Str() + F(t_("Bad %s '%s' in field #%d, line:\n'%s'"), "double", fields[i], i+1, line));
 			else
-				throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
+				throw Exc(in->Str() + F(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 		}
 		return res; 
 	}
@@ -1775,7 +1780,7 @@ protected:
 	}
 	void CheckId(int i) const {
 		if (!CheckId_nothrow(i))
-			throw Exc(in->Str() + Format(t_("Field #%d not found in line:\n'%s'"), i+1, line));
+			throw Exc(in->Str() + F(t_("Field #%d not found in line:\n'%s'"), i+1, line));
 	}
 	static int defaultIsSeparator(int c) {
 		if (c == '\t' || c == ' ' || c == ';' || c == ',')
