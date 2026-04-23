@@ -4,8 +4,8 @@
 namespace Upp {
 
 #ifdef PLATFORM_WIN32
-inline bool IsNum(const double &n) 	{return !std::isnan<double>(n) && !std::isinf<double>(n) && !IsNull(n);}
-inline bool IsNum(const float &n)	{return !std::isnan<float>(n) && !std::isinf<float>(n);}
+inline bool IsNum(const double &n) 	{return !std::isnan(n) && !std::isinf(n) && !IsNull(n);}
+inline bool IsNum(const float &n)	{return !std::isnan(n) && !std::isinf(n);}
 #else
 inline bool IsNum(const double &n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n) && !IsNull(n);}
 inline bool IsNum(const float &n) 	{return !__builtin_isnan(n) && !__builtin_isinf(n);}
