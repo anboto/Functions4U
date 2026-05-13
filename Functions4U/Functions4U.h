@@ -868,6 +868,9 @@ inline bool IsValid(ImageBuffer &img, T &t) {
 }
 
 Color RandomColor();
+Color BrightenColor(const Color &color, int intensity);
+Color DarkenColor(const Color &color, int intensity);
+Color BlendColor(const Color &object, const Color &light, int intensity);
 
 Image GetRect(const Image& orig, const Rect &r);
 

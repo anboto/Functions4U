@@ -2831,6 +2831,36 @@ Color RandomColor() {
 	return Color().FromRaw(Random());
 }
 
+Color BrightenColor(const Color &color, int intensity) {
+    float factor = intensity / 255.0f;		// Normalize intensity to the range [0.0, 1.0]
+
+    int r = min(255, static_cast<int>(color.GetR() * factor + 255 * (1 - factor)));
+    int g = min(255, static_cast<int>(color.GetG() * factor + 255 * (1 - factor)));
+    int b = min(255, static_cast<int>(color.GetB() * factor + 255 * (1 - factor)));
+    
+    return Color(r, g, b);
+}
+
+Color DarkenColor(const Color &color, int intensity) {
+    float factor = intensity / 255.0f;		// Normalize intensity to the range [0.0, 1.0]
+
+    int r = static_cast<int>(color.GetR() * factor);
+    int g = static_cast<int>(color.GetG() * factor);
+    int b = static_cast<int>(color.GetB() * factor);
+    
+    return Color(r, g, b);
+}
+
+Color BlendColor(const Color &object, const Color &light, int intensity) {
+    float factor = intensity / 255.0f;
+
+    int r = min(255, static_cast<int>(object.GetR() * (1 - factor) + light.GetR() * factor));
+    int g = min(255, static_cast<int>(object.GetG() * (1 - factor) + light.GetG() * factor));
+    int b = min(255, static_cast<int>(object.GetB() * (1 - factor) + light.GetB() * factor));
+    
+    return Color(r, g, b);
+}
+
 Image GetRect(const Image& orig, const Rect &r) {
 	if(r.IsEmpty())
 		return Image(); 
