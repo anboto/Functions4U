@@ -1239,7 +1239,7 @@ bool CompareDelta(const Range1& a, const Range2& b, const typename Range1::value
 	if (a.size() != b.size())
 		return false;
 	for (int i = 0; i < a.size(); i++) 
-		if (abs(a[i] - b[i]) > delta) 
+		if (abs(a[i] - b[i]) > abs(delta)) 
 			return false;
 	return true;
 }
@@ -1247,7 +1247,7 @@ bool CompareDelta(const Range1& a, const Range2& b, const typename Range1::value
 template <typename T, typename Q>
 bool CompareDelta(const T* a, const Q* b, int num, const T &delta) {
 	for (int i = 0; i < num; i++) 
-		if (abs(a[i] - b[i]) > delta) 
+		if (abs(a[i] - b[i]) > abs(delta)) 
 			return false;
 	return true;
 }
