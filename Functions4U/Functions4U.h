@@ -1618,6 +1618,7 @@ public:
 	const Vector<int> &GetIndex() const	{return index;}
 	
 	const String &GetVal() const		{return val;}
+	double GetDouble() const			{return ScanDouble(GetVal());}
 	
 	Vector<double> GetVectorDouble() const;	
 	Vector<Vector<double>> GetMatrixDouble(bool isrect = true) const;

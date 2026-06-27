@@ -747,13 +747,20 @@ void LocalProcess2::Pause() {
 }
 
 uint64 GetProcessMemoryUsage(DWORD dwProcessId) {
-	HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
-	if (handle != NULL) {
-	    PROCESS_MEMORY_COUNTERS pmc;
-	    if (GetProcessMemoryInfo(handle, &pmc, sizeof(pmc))) 
-	        return pmc.WorkingSetSize; 
-	}
-    return 0;
+	HANDLE handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
+	if (!handle)
+		return 0;
+	
+    PROCESS_MEMORY_COUNTERS pmc;
+    uint64 ret;
+    
+    if (GetProcessMemoryInfo(handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc)))
+        ret = pmc.WorkingSetSize; 
+    else
+        ret = 0;
+    
+    CloseHandle(handle);
+    return ret;
 }
 
 uint64 LocalProcess2::GetMemory() {

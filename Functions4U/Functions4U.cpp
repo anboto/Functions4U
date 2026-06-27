@@ -1387,7 +1387,7 @@ int GetExponent10(double d) {
 }
 
 double NumberWithLeastSignificantDigits(double minVal, double maxVal) {
-	ASSERT(minVal < maxVal);
+	ASSERT(minVal <= maxVal);
 	if (maxVal >= 0 && minVal <= 0)		// Crosses 0
 		return 0;	
 	if (maxVal - minVal < 10*std::numeric_limits<double>::epsilon())	// Almost 0

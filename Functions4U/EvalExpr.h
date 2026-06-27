@@ -138,7 +138,7 @@ private:
 		        ret.Append(Exp(p));
 		        p.PassChar(')');
 	        } else
-	            throw Exc(F(t_("Wrong data '%s'"), sid));
+	            throw Exc(F(t_("Variable not found or wrong data '%s'"), sid));
 	    } else if(p.Char('-')) {
 	        ret.Append(PostFixOperation::Item('f', functions1.Find("-")));
 	        ret.Append(Term(p));
