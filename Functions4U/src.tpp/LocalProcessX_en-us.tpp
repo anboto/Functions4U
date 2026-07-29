@@ -1,5 +1,4 @@
 topic "LocalProcessX";
-[2 $$0,0#00000000000000000000000000000000:Default]
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
@@ -9,6 +8,7 @@ topic "LocalProcessX";
 [l288;i1121;b17;O9;~~~.1408;2 $$7,0#10431211400427159095818037425705:param]
 [i448;b42;O9;2 $$8,8#61672508125594000341940100500538:tparam]
 [b42;2 $$9,9#13035079074754324216151401829390:normal]
+[2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
 [ {{10000@(113.42.0) [s0; [*@7;4 Functions4U Reference. LocalProcessX]]}}&]
 [s4;2 &]
@@ -22,12 +22,15 @@ status.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0; [* Public Method List]]}}&]
 [s4;%- &]
-[s5;:Upp`:`:LocalProcessX`:`:Start`(const char`*`,const char`*`,const char`*`,double`,double`,double`,bool`):%- [@(0.0.255) b
-ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmd], [@(0.0.255) const]_[@(0.0.255) c
-har]_`*[*@3 envptr]_`=_[@3 0], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 dir]_`=_[@3 0], 
-[@(0.0.255) double]_[*@3 refreshTime]_`=_`-[@3 1], [@(0.0.255) double]_[*@3 maxTimeWithoutO
-utput]_`=_`-[@3 1], [@(0.0.255) double]_[*@3 maxRunTime]_`=_`-[@3 1], 
-[@(0.0.255) bool]_[*@3 convertcharset]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:LocalProcessX`:`:Start`(const char`*`,const char`*`,const char`*`,double`,int64`,int64`,bool`):%- [@(0.0.255) b
+ool] [* Start]([@(0.0.255) const] [@(0.0.255) char] [@(0.0.255) `*][*@3 cmd], 
+[@(0.0.255) const] [@(0.0.255) char] [@(0.0.255) `*][*@3 envptr] [@(0.0.255) `=] 
+[@(0.0.255) nullptr], [@(0.0.255) const] [@(0.0.255) char] [@(0.0.255) `*][*@3 dir] 
+[@(0.0.255) `=] [@(0.0.255) nullptr], [@(0.0.255) double] [*@3 `_refreshTime] 
+[@(0.0.255) `=] [@(0.0.255) `-][@3 1], int64 [*@3 `_maxTimeWithoutOutput] 
+[@(0.0.255) `=] [@(0.0.255) `-][@3 1], int64 [*@3 `_maxRunTime] [@(0.0.255) `=] 
+[@(0.0.255) `-][@3 1], [@(0.0.255) bool] [*@3 convertcharset] [@(0.0.255) `=] 
+[@(0.0.255) true])&]
 [s2; Starts child process defined by command line [%-*@3 cmd], with 
 [%-*@3 envptr] environment variables, in folder [%-*@3 dir].&]
 [s2; If [%-*@3 refreshTime] is defined, the Perform function will be 
@@ -36,7 +39,7 @@ called periodically.&]
 child program text output (by functions like printf) and [%-*@3 maxRunTime] 
 is the maximum child program run time. [%-*@3 convertcharset] .defines 
 if character set has to be converted.&]
-[s3; &]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:LocalProcessX`:`:Perform`(`):%- [@(0.0.255) void]_[* Perform]()&]
 [s2; Perform manages child program and calls WhenTimer user function. 
@@ -60,6 +63,20 @@ rocessStatus]_[*@3 status]_`=_STOP`_USER)&]
 [s2; Returns number of child program running elapsed seconds.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:LocalProcessX`:`:SetMaxRunTime`(int64`):%- [@(0.0.255) void] 
+[* SetMaxRunTime](int64 [*@3 t])&]
+[s2; Sets the maximum run time [%-*@3 t] in seconds.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:LocalProcessX`:`:GetMaxRunTime`(`):%- int64 [* GetMaxRunTime]()&]
+[s2; Gets the maximum run time in seconds.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:LocalProcessX`:`:GetStart`(`):%- [@(0.0.255) const] Time[@(0.0.255) `&] 
+[* GetStart]()&]
+[s2; Returns the start Time.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:LocalProcessX`:`:Write`(Upp`:`:String`):%- [@(0.0.255) void]_[* Write]([_^Upp`:`:String^ S
 tring]_[*@3 str])&]
 [s2; Sends [%-*@3 str] string to child program.&]
@@ -72,6 +89,10 @@ tring]_[*@3 str])&]
 [s2;i150;O0; [* STOP`_OK]&]
 [s2;i150;O0; [* STOP`_TIMEOUT]&]
 [s2;i150;O0; [* STOP`_USER]&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:LocalProcessX`:`:GetExitCode`(`):%- [@(0.0.255) int] [* GetExitCode]()&]
+[s2; Returns the process exit code.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:LocalProcessX`:`:IsRunning`(`):%- [@(0.0.255) bool]_[* IsRunning]()&]
@@ -87,4 +108,19 @@ String[@(0.0.255) `&], [@(0.0.255) bool], [@(0.0.255) bool`&]>_[* WhenTimer]&]
 [s2;l416;i150;O0; Child program status&]
 [s2;i150;O0; Output&]
 [s2;l416;i150;O0; To reset time without program output timeout&]
-[s3; ]]
+[s4;%- &]
+[s5;:Upp`:`:LocalProcessX`:`:GetMemory`(uint64`&`,uint64`&`,int`&`):%- [@(0.0.255) bool
+] [* GetMemory](uint64[@(0.0.255) `&] [*@3 total], uint64[@(0.0.255) `&] 
+[*@3 ram], [@(0.0.255) int`&] [*@3 paging`_s])&]
+[s2;%- R[+87 etrieves the current memory usage of the process and all 
+of its child processes.]&]
+[s2;%- [+87 The function returns the sum of the private memory usage 
+in ][*@3 total][+87  and the sum of the RAM memory usage in ][*@3 ram][+87 , 
+both expressed in bytes.]&]
+[s2;%- In addition, it estimates the paging activity rate per second 
+in [*@3 paging`_s]. A high value may indicate intensive memory 
+paging, frequent access to non`-resident pages, or significant 
+memory pressure in one or more processes.&]
+[s2;%- The function returns false if the monitored process is not 
+running.&]
+[s3;%- ]]

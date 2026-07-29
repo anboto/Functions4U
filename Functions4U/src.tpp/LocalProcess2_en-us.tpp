@@ -1,10 +1,10 @@
 topic "LocalProcess2";
-[ $$0,0#00000000000000000000000000000000:Default]
 [i448;a25;kKO9; $$1,0#37138531426314131252341829483380:structitem]
 [l288;2 $$2,0#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
 [H6;0 $$4,0#05600065144404261032431302351956:begin]
 [i448;a25;kKO9;2 $$5,0#37138531426314131252341829483370:codeitem]
+[ $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
 [ {{10000@(113.42.0) [s0; [*@7;4 Functions4U Reference. LocalProcess2]]}}&]
 [s4;2 &]
@@ -123,6 +123,22 @@ threads.&]
 [s2; If process is already paused, it resumes it.&]
 [s2; [*@(0.0.255)1 Only defined in Windows.]&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:LocalProcess2`:`:GetMemory`(uint64`&`,uint64`&`,int`&`):%- [@(0.0.255) bool
+] [* GetMemory](uint64[@(0.0.255) `&] [*@3 total], uint64[@(0.0.255) `&] 
+[*@3 ram], [@(0.0.255) int`&] [*@3 paging`_s])&]
+[s2;%- R[+87 etrieves the current memory usage of the process and all 
+of its child processes.]&]
+[s2;%- [+87 The function returns the sum of the private memory usage 
+in ][*@3 total][+87  and the sum of the RAM memory usage in ][*@3 ram][+87 , 
+both expressed in bytes.]&]
+[s2;%- In addition, it estimates the paging activity rate per second 
+in [*@3 paging`_s]. A high value may indicate intensive memory 
+paging, frequent access to non`-resident pages, or significant 
+memory pressure in one or more processes.&]
+[s2;%- The function returns false if the monitored process is not 
+running.&]
+[s3;%- &]
 [s4; &]
 [s5;:Upp`:`:LocalProcess2`:`:IsPaused`(`): [@(0.0.255) bool]_[* IsPaused]()&]
 [s2; Returns true if process is paused.&]

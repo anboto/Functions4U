@@ -16,7 +16,6 @@ namespace Upp {
 #include <sys/wait.h>
 #endif
 
-#define LLOG(x) // DLOG(x)
 
 void LocalProcess2::Init() {
 #ifdef PLATFORM_WIN32
@@ -52,16 +51,13 @@ void LocalProcess2::Free() {
 	}
 #endif
 #ifdef PLATFORM_POSIX
-	LLOG("\nLocalProcess::Free, pid = " << (int)getpid());
-	LLOG("rpipe[" << rpipe[0] << ", " << rpipe[1] << "]");
-	LLOG("wpipe[" << wpipe[0] << ", " << wpipe[1] << "]");
-	if(rpipe[0] >= 0) { close(rpipe[0]); rpipe[0] = -1; }
-	if(rpipe[1] >= 0) { close(rpipe[1]); rpipe[1] = -1; }
-	if(wpipe[0] >= 0) { close(wpipe[0]); wpipe[0] = -1; }
-	if(wpipe[1] >= 0) { close(wpipe[1]); wpipe[1] = -1; }
-	if(epipe[0] >= 0) { close(epipe[0]); epipe[0] = -1; }
-	if(epipe[1] >= 0) { close(epipe[1]); epipe[1] = -1; }
-	if(pid) waitpid(pid, 0, WNOHANG | WUNTRACED);
+	if (rpipe[0] >= 0) { close(rpipe[0]); rpipe[0] = -1; }
+	if (rpipe[1] >= 0) { close(rpipe[1]); rpipe[1] = -1; }
+	if (wpipe[0] >= 0) { close(wpipe[0]); wpipe[0] = -1; }
+	if (wpipe[1] >= 0) { close(wpipe[1]); wpipe[1] = -1; }
+	if (epipe[0] >= 0) { close(epipe[0]); epipe[0] = -1; }
+	if (epipe[1] >= 0) { close(epipe[1]); epipe[1] = -1; }
+	if (pid) 		   waitpid(pid, 0, WNOHANG | WUNTRACED);
 	pid = 0;
 #endif
 }
@@ -97,8 +93,6 @@ bool Win32CreateProcess2(const char *command, const char *envptr, STARTUPINFOW& 
 
 bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, bool spliterr, const char *envptr, const char *cd)
 {
-	LLOG("LocalProcess2::Start(\"" << command << "\")");
-
 	Kill();
 	exit_code = Null;
 
@@ -182,7 +176,7 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 		command = cmdh;
 	}
 	bool h = Win32CreateProcess2(command, envptr, si, pi, cd);
-	LLOG("CreateProcess " << (h ? "succeeded" : "failed"));
+	
 	CloseHandle(hErrorWrite);
 	CloseHandle(hInputRead);
 	CloseHandle(hOutputWrite);
@@ -194,6 +188,7 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 		Free();
 		return false;
 	}
+	timeFaultsPrev = start = GetSysTime();
 	return true;
 #endif
 #ifdef PLATFORM_POSIX
@@ -266,24 +261,17 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 
 	if(spliterr && pipe(epipe))
 		return false;
-	
-	LLOG("\nLocalProcess::Start");
-	LLOG("rpipe[" << rpipe[0] << ", " << rpipe[1] << "]");
-	LLOG("wpipe[" << wpipe[0] << ", " << wpipe[1] << "]");
-	LLOG("epipe[" << epipe[0] << ", " << epipe[1] << "]");
 
 #ifdef CPU_BLACKFIN
 	pid = vfork(); //we *can* use vfork here, since exec is done later or the parent will exit
 #else
 	pid = fork();
 #endif
-	LLOG("\tfork, pid = " << (int)pid << ", getpid = " << (int)getpid());
 	if(pid < 0)
 		return false;
 //		throw Exc(NFormat(t_("fork() error; error code = %d"), errno));
 
 	if(pid) {
-		LLOG("parent process - continue");
 		close(rpipe[0]); rpipe[0]=-1;
 		close(wpipe[1]); wpipe[1]=-1;
 		sNoBlock(rpipe[1]);
@@ -299,13 +287,11 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 
 	if (doublefork) {
 		pid_t pid2 = fork();
-		LLOG("\tfork2, pid2 = " << (int)pid2 << ", getpid = " << (int)getpid());
+		
 		if (pid2 < 0) {
-			LLOG("fork2 failed");
 			Exit(1);
 		}
 		if (pid2) {
-			LLOG("exiting intermediary process");
 			close(rpipe[0]); rpipe[0]=-1;
 			close(wpipe[1]); wpipe[1]=-1;
 			sNoBlock(rpipe[1]);
@@ -321,7 +307,6 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 		}
 	}
 
-	LLOG("child process - execute application");
 //	rpipe[1] = wpipe[0] = -1;
 	dup2(rpipe[0], 0);
 	dup2(wpipe[1], 1);
@@ -335,16 +320,10 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 		close(epipe[1]);
 	}
 	rpipe[0] = rpipe[1] = wpipe[0] = wpipe[1] = epipe[0] = epipe[1] = -1;
-#if DO_LLOG
-	LLOG(args.GetCount() << "arguments:");
-	for(int a = 0; a < args.GetCount(); a++)
-		LLOG("[" << a << "]: <" << (args[a] ? args[a] : "NULL") << ">");
-#endif
 
 	if(cd)
 		(void)!chdir(cd); // that (void)! strange thing is to silence GCC warning
 
-	LLOG("running execve, app = " << app << ", #args = " << args.GetCount());
 	if(envptr) {
 		const char *from = envptr;
 		Vector<const char *> env;
@@ -357,7 +336,7 @@ bool LocalProcess2::DoStart(const char *_command, const Vector<String> *arg, boo
 	}
 	else
 		execv(app_full, args.Begin());
-	LLOG("execve failed, errno = " << errno);
+	
 //	printf("Error running '%s', error code %d\n", command, errno);
 	exit(-errno);
 	return true;
@@ -407,7 +386,7 @@ SIGDEF(SIGIO) SIGDEF(SIGWINCH)
 #endif//PLATFORM_POSIX
 
 #ifdef PLATFORM_WIN32
-Vector<DWORD> GetChildProcessList(DWORD processId) {
+static Vector<DWORD> GetChildProcessList(DWORD processId) {
 	Vector<DWORD> child, all, parents;
 	
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -447,13 +426,49 @@ Vector<DWORD> GetChildProcessList(DWORD processId) {
 	return child;	
 }
 
-void TerminateChildProcesses(DWORD dwProcessId, UINT uExitCode) {
+ void TerminateChildProcesses(DWORD dwProcessId, UINT uExitCode) {
 	Vector<DWORD> children = GetChildProcessList(dwProcessId);
 	for (int i = 0; i < children.GetCount(); ++i) {
 		HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, children[i]);
 		TerminateProcess(hProcess, uExitCode);
 		CloseHandle(hProcess);
 	}
+}
+
+#endif
+
+#ifdef PLATFORM_POSIX
+
+static void GetDirectChildren(pid_t pid, Vector<pid_t>& out) {
+    String path = Format("/proc/%d/task/%d/children", (int)pid, (int)pid);
+    String content = LoadFile(path);
+    if (content.IsEmpty())
+        return;
+
+    for (const String& tok : Split(content, ' ')) {
+        String t = TrimBoth(tok);
+        if(!t.IsEmpty())
+            out << (pid_t)StrInt(t);
+    }
+}
+
+ Vector<pid_t> GetChildProcessList(pid_t processId) {
+    Vector<pid_t> result;
+    Vector<pid_t> to_visit;
+    to_visit << processId;
+
+    int init = 0;
+    while (init < to_visit.size()) {
+        int count = to_visit.size();
+        for (int i = init; i < count; i++) {
+            pid_t current = to_visit[i];
+            if(current != processId)
+                result << current;
+            GetDirectChildren(current, to_visit);
+        }
+        init = count;
+    }
+    return result;
 }
 
 #endif
@@ -468,7 +483,6 @@ void LocalProcess2::Kill() {
 #endif
 #ifdef PLATFORM_POSIX
 	if(IsRunning()) {
-		LLOG("\nLocalProcess::Kill, pid = " << (int)pid);
 		exit_code = 255;
 		kill(pid, SIGTERM);
 		GetExitCode();
@@ -504,14 +518,13 @@ bool LocalProcess2::IsRunning() {
 	return false;
 #endif
 #ifdef PLATFORM_POSIX
-	if(!pid || !IsNull(exit_code)) {
-		LLOG("IsRunning() -> no");
+	if(!pid || !IsNull(exit_code))
 		return false;
-	}
+	
 	int status = 0;
 	if(!(waitpid(pid, &status, WNOHANG | WUNTRACED) == pid && DecodeExitCode(status)))
 		return true;
-	LLOG("IsRunning() -> no, just exited, exit code = " << exit_code);
+	
 	return false;
 #endif
 }
@@ -527,7 +540,7 @@ int  LocalProcess2::GetExitCode() {
 	if(!( waitpid(pid, &status, WNOHANG | WUNTRACED) == pid && 
 	      DecodeExitCode(status) ))
 		return -1;
-	LLOG("GetExitCode() -> " << exit_code << " (just exited)");
+	
 	return exit_code;
 #endif
 }
@@ -546,16 +559,13 @@ bool LocalProcess2::Read(String& res) {
 	return Read2(res, dummy);
 }
 
-bool LocalProcess2::Read2(String& reso, String& rese)
-{
-	LLOG("LocalProcess::Read2");
+bool LocalProcess2::Read2(String& reso, String& rese) {
 	reso = wreso;
 	rese = wrese;
 	wreso.Clear();
 	wrese.Clear();
 
 #ifdef PLATFORM_WIN32
-	LLOG("LocalProcess2::Read");
 	bool was_running = IsRunning();
 	char buffer[1024];
 	dword n;
@@ -579,30 +589,24 @@ bool LocalProcess2::Read2(String& reso, String& rese)
 	bool was_running = IsRunning() || wpipe[0] >= 0 || epipe[0] >= 0;
 	for (int wp=0; wp<2;wp++) {
 		int *pipe = wp ? epipe : wpipe;
-		if (pipe[0] < 0) {
-			LLOG("Pipe["<<wp<<"] closed");
+		if (pipe[0] < 0)
 			continue;
-		}
+		
 		fd_set set[1];
 		FD_ZERO(set);
 		FD_SET(pipe[0], set);
 		timeval tval = { 0, 0 };
 		int sv;
 		while((sv = select(pipe[0]+1, set, NULL, NULL, &tval)) > 0) {
-			LLOG("Read() -> select");
 			char buffer[1024];
 			int done = read(pipe[0], buffer, sizeof(buffer));
-			LLOG("Read(), read -> " << done);
+			
 			if(done > 0)
 				res[wp].Cat(buffer, done);
 			else if (done == 0) {
 				close(pipe[0]);
 				pipe[0] = -1;
 			}
-		}
-		LLOG("Pipe["<<wp<<"]=="<<pipe[0]<<" sv:"<<sv);
-		if(sv < 0) {
-			LLOG("select -> " << sv);
 		}
 	}
 	if(convertcharset) {
@@ -616,8 +620,7 @@ bool LocalProcess2::Read2(String& reso, String& rese)
 #endif
 }
 
-void LocalProcess2::Write(String s)
-{
+void LocalProcess2::Write(String s) {
 	if(convertcharset)
 		s = ToSystemCharset(s);
 #ifdef PLATFORM_WIN32
@@ -651,8 +654,7 @@ void LocalProcess2::Write(String s)
 #endif
 }
 
-void LocalProcess2::CloseRead()
-{
+void LocalProcess2::CloseRead() {
 #ifdef PLATFORM_WIN32
 	if(hOutputRead) {
 		CloseHandle(hOutputRead);
@@ -667,8 +669,7 @@ void LocalProcess2::CloseRead()
 #endif
 }
 
-void LocalProcess2::CloseWrite()
-{
+void LocalProcess2::CloseWrite() {
 #ifdef PLATFORM_WIN32
 	if(hInputWrite) {
 		CloseHandle(hInputWrite);
@@ -683,8 +684,7 @@ void LocalProcess2::CloseWrite()
 #endif
 }
 
-int LocalProcess2::Finish(String& out)
-{
+int LocalProcess2::Finish(String& out) {
 	out.Clear();
 	while(IsRunning()) {
 		String h = Get();
@@ -693,7 +693,6 @@ int LocalProcess2::Finish(String& out)
 		else
 			out.Cat(h);
 	}
-	LLOG("Finish: About to read the rest of output");
 	for(;;) {
 		String h = Get();
 		if(h.IsVoid())
@@ -746,32 +745,177 @@ void LocalProcess2::Pause() {
     PauseChildThreads(dwProcessId, paused);
 }
 
-uint64 GetProcessMemoryUsage(DWORD dwProcessId) {
+static bool GetProcessMemoryUsage(DWORD dwProcessId, uint64 &total, uint64 &ram, uint64 &faults) {
 	HANDLE handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
 	if (!handle)
-		return 0;
+		return false;
 	
-    PROCESS_MEMORY_COUNTERS pmc;
-    uint64 ret;
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    bool ret;
     
-    if (GetProcessMemoryInfo(handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc)))
-        ret = pmc.WorkingSetSize; 
-    else
-        ret = 0;
-    
+    if ((ret = GetProcessMemoryInfo(handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc)))) {
+        total  = pmc.PrivateUsage; 
+        ram    = pmc.WorkingSetSize; 
+        faults = pmc.PageFaultCount;
+        
+        total = max(total, ram);
+    }   
     CloseHandle(handle);
     return ret;
 }
 
-uint64 LocalProcess2::GetMemory() {
+bool LocalProcess2::GetMemory(uint64 &total, uint64 &ram, int &paging_s) {
 	if (!IsRunning())
-		return 0;	
+		return false;	
 	
-	uint64 ret = 0;
+	total = ram = 0;
+	uint64 faultsC = 0;
 	Vector<DWORD> children = GetChildProcessList(dwProcessId);
-	for (int i = 0; i < children.GetCount(); ++i)
-		ret += GetProcessMemoryUsage(children[i]);
-	return ret;
+	for (const DWORD &child : children) {
+		uint64 t, r, f;
+		if (GetProcessMemoryUsage(child, t, r, f)) {
+			total += t;
+			ram += r;
+			faultsC += f;
+		}
+	}
+    Time actual = GetSysTime();
+	if (IsNull(timeFaultsPrev))
+		paging_s = 0;
+	else {
+		int delta = actual - timeFaultsPrev;
+        paging_s = delta > 0 ? int((faultsC - faultsPrev)/delta) : 0;
+	}	
+    timeFaultsPrev = actual;
+	faultsPrev = faultsC;
+	
+	return true;
+}
+
+#endif
+
+#ifdef PLATFORM_POSIX
+
+static bool ParseKbField(const String& content, const char *key, int64& out) {
+    int pos = content.Find(key);
+    if(pos < 0)
+        return false;
+    pos += (int)strlen(key);
+    while(pos < content.GetLength() && (content[pos] == ' ' || content[pos] == '\t'))
+        pos++;
+    out = StrInt64(content.Mid(pos));
+    return true;
+}
+
+static bool GetProcessMemoryUsage(pid_t pid, uint64& total, uint64& ram, uint64& faults) {
+    String path = Format("/proc/%d/smaps_rollup", (int)pid);
+    String content = LoadFile(path);
+
+    int64 rss_kb = 0, priv_clean_kb = 0, priv_dirty_kb = 0;
+    bool have_smaps = !content.IsEmpty();
+
+    if (have_smaps) {
+        ParseKbField(content, "Rss:", rss_kb);
+        ParseKbField(content, "Private_Clean:", priv_clean_kb);
+        ParseKbField(content, "Private_Dirty:", priv_dirty_kb);
+    } else {
+        path = Format("/proc/%d/status", (int)pid);
+        content = LoadFile(path);
+        if(content.IsEmpty())
+            return false;
+        ParseKbField(content, "VmRSS:", rss_kb);
+    }
+
+    ram   = (uint64)rss_kb * 1024ULL;
+    total = (uint64)(priv_clean_kb + priv_dirty_kb) * 1024ULL;
+	total = max(total, ram);
+	
+    path = Format("/proc/%d/stat", (int)pid);
+    content = LoadFile(path);
+    faults = 0;
+    if(content.IsEmpty())
+        return have_smaps;
+
+    int rparen = content.ReverseFind(')');
+    if (rparen < 0)
+        return have_smaps;
+
+    String rest = content.Mid(rparen + 2);
+    Vector<String> f = Split(rest, ' ', false);
+    
+    if (f.GetCount() >= 10) {
+        uint64 minflt = (uint64)StrInt64(f[7]);
+        uint64 majflt = (uint64)StrInt64(f[9]);
+        faults = minflt + majflt;
+    }
+    return true;
+}
+
+bool LocalProcess2::GetMemory(uint64& total, uint64& ram, int& paging_s) {
+    if(!IsRunning())
+        return false;
+
+    total = ram = 0;
+    uint64 faultsC = 0;
+
+    Vector<pid_t> children = GetChildProcessList(pid);
+    for (pid_t cid : children) {
+        uint64 t, r, f;
+        if (GetProcessMemoryUsage(cid, t, r, f)) {
+            total += t;
+            ram   += r;
+            faultsC += f;
+        }
+    }
+
+    Time actual = GetSysTime();
+	if (IsNull(timeFaultsPrev))
+		paging_s = 0;
+	else {
+		int delta = actual - timeFaultsPrev;
+        paging_s = delta > 0 ? max(0, int((faultsC - faultsPrev)/delta)) : 0;
+	}	
+    timeFaultsPrev = actual;
+    faultsPrev = faultsC;
+
+    return true;
+}
+
+static bool SignalProcessTree(pid_t pid, int sig) {
+    bool ok = true;
+    if (kill(pid, sig) != 0)
+        ok = false;
+
+    Vector<pid_t> to_visit;
+    to_visit << pid;
+
+    int init = 0;
+    while(init < to_visit.size()) {
+        int count = to_visit.size();
+        for (int i = init; i < count; i++) {
+            Vector<pid_t> kids;
+            GetDirectChildren(to_visit[i], kids);
+            for (pid_t k : kids) {
+                if (kill(k, sig) != 0) 
+                    ok = false;
+                to_visit << k;
+            }
+        }
+        init = count;
+    }
+    return ok;
+}
+
+void LocalProcess2::Pause() {
+	if (!IsRunning())
+		return;
+	
+	paused = !paused;	
+	
+	if (paused)
+		SignalProcessTree(pid, SIGCONT);
+	else
+		SignalProcessTree(pid, SIGSTOP);
 }
 
 #endif

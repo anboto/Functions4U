@@ -14,11 +14,10 @@ public:
 	virtual bool Read2(String& os, String &es);
 	virtual String GetExitMessage();
 	virtual int  GetExitCode();
-#ifdef PLATFORM_WIN32	
+
 	void Pause();
 	bool IsPaused()		{return paused;}
-	uint64 GetMemory();
-#endif
+	bool GetMemory(uint64 &total, uint64 &ram, int &faults_s);
 	
 private:
 	virtual void CloseRead();
@@ -38,7 +37,6 @@ private:
 	HANDLE       hOutputRead;
 	HANDLE       hErrorRead;
 	HANDLE       hInputWrite;
-	bool 		 paused;
 #endif
 #ifdef PLATFORM_POSIX
 	Buffer<char> cmd_buf;
@@ -48,6 +46,7 @@ private:
 	String       exit_string;
 	bool         doublefork;
 #endif
+	bool 		 paused;
 	int          exit_code;
 	String       wreso, wrese; // Output fetched during Write
 
@@ -62,10 +61,12 @@ public:
 	bool Start(const char *cmd, const Vector<String>& arg, const char *envptr = NULL, const char *dir = NULL)  { return DoStart(cmd, &arg, false, envptr, dir); }
 	bool Start2(const char *cmd, const Vector<String>& arg, const char *envptr = NULL, const char *dir = NULL) { return DoStart(cmd, &arg, true, envptr, dir); }
 	
+	Time start, timeFaultsPrev = Null;
+	uint64 faultsPrev = 0;
+	
 #ifdef PLATFORM_POSIX
 	LocalProcess2& DoubleFork(bool b = true)                   	{ doublefork = b; return *this; }
-
-	int  GetPid()  const                                        { return pid; }
+	int  GetPid()  const                                        { return pid;}
 #endif
 
 #ifdef PLATFORM_WIN32
@@ -73,7 +74,7 @@ public:
 	DWORD  GetPid()  const                                    	{ return dwProcessId; }
 #endif
 
-	int  Finish(String& out);
+	int Finish(String& out);
 		
 	LocalProcess2& ConvertCharset(bool b = true)                { convertcharset = b; return *this; }
 	LocalProcess2& NoConvertCharset()                           { return ConvertCharset(false); }

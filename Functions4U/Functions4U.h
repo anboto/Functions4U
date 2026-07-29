@@ -1371,7 +1371,7 @@ public:
 	virtual ~LocalProcessX() 		{Stop();}
 	enum ProcessStatus {RUNNING = 1, STOP = 0, STOP_TIMEOUT = -1, STOP_USER = -2, STOP_NORESPONSE = -3};
 	bool Start(const char *cmd, const char *envptr = nullptr, const char *dir = nullptr, double _refreshTime = -1, 
-		double _maxTimeWithoutOutput = -1, double _maxRunTime = -1, bool convertcharset = true) {
+		int64 _maxTimeWithoutOutput = -1, int64 _maxRunTime = -1, bool convertcharset = true) {
 		status = STOP;
 		p.ConvertCharset(convertcharset);
 		timeElapsed.Start();
@@ -1398,17 +1398,13 @@ public:
 			return;
 		String out;
 		p.Read(out);
-		if(p.IsRunning()) {
-#ifdef PLATFORM_WIN32			
+		if(p.IsRunning()) {		
 			if (!p.IsPaused()) {
-#endif
 				if (maxTimeWithoutOutput > 0 && timeWithoutOutput.Seconds() > maxTimeWithoutOutput) 
 					status = STOP_NORESPONSE;
 				else if (maxRunTime > 0 	 && timeElapsed.Seconds() > maxRunTime) 
 					status = STOP_TIMEOUT;
-#ifdef PLATFORM_WIN32				
 			}
-#endif
 		} else 
 			status = STOP;
 		
@@ -1416,7 +1412,7 @@ public:
 		if (!out.IsEmpty())
 			resetTimeout = true;
 		
-		if (!WhenTimer(timeElapsed.Seconds(), out, status <= 0, resetTimeout))
+		if (WhenTimer && !WhenTimer(timeElapsed.Seconds(), out, status <= 0, resetTimeout))
 			status = STOP_USER;
 		
 		if (resetTimeout)
@@ -1444,7 +1440,6 @@ public:
 		}
 #endif		
 	}
-#ifdef PLATFORM_WIN32
 	void Pause() {
 		p.Pause();
 		if (p.IsRunning()) {
@@ -1454,18 +1449,21 @@ public:
 	}
 	bool IsPaused()			{return p.IsPaused();}
 	double Seconds()		{return timeElapsed.Seconds();}
-	void SetMaxRunTime(double t)	{maxRunTime = t;}
-	double GetMaxRunTime()	{return maxRunTime;}
-#endif
+	void SetMaxRunTime(int64 t)	{maxRunTime = t;}
+	int64 GetMaxRunTime()	{return maxRunTime;}
+	const Time &GetStart()	{return p.start;}
 	void Write(String str) 	{p.Write(str);}
 	int GetStatus()  		{return status;}
 	int GetExitCode()		{return p.GetExitCode();}
 	bool IsRunning() 		{return status > 0;}
 	Function<bool(double, const String&, bool, bool&)> WhenTimer;
-	#ifdef PLATFORM_WIN32
+#ifdef PLATFORM_WIN32
 	DWORD GetPid()			{return p.GetPid();}
-	uint64 GetMemory() 		{return p.GetMemory();}
-	#endif
+#endif
+#ifdef PLATFORM_POSIX
+	pid_t GetPid()			{return p.GetPid();}
+#endif
+	bool GetMemory(uint64 &total, uint64 &ram, int &paging_s) 		{return p.GetMemory(total, ram, paging_s);}
 	
 	virtual void  SetData(const Value& v)	{value = v;}
 	virtual Value GetData() const       	{return value;}
@@ -1475,7 +1473,7 @@ private:
 	LocalProcess2 p;
 	RealTimeStop timeElapsed, timeWithoutOutput;
 	ProcessStatus status = STOP;
-	double maxTimeWithoutOutput = 0, maxRunTime = 0;
+	int64 maxTimeWithoutOutput = 0, maxRunTime = 0;
 	double refreshTime = 0;
 #ifdef CTRLLIB_H	
 	bool callbackOn = false;
