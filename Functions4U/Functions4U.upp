@@ -22,9 +22,9 @@ library(WIN32) "oleaut32 psapi msi";
 options(CLANG & PEDANTIC) "-Wall -Wextra -Wunused-parameter -Wlogical-op-parentheses -Wdeprecated-copy-with-user-provided-copy -Woverloaded-virtual -Wmissing-braces -Wshadow -Wimplicit-fallthrough -Wsign-conversion -Wformat=2";
 
 file
+	Functions4U.h,
 	Functions4U.cpp,
 	Defs.h,
-	Functions4U.h,
 	ScanFiles.cpp,
 	FileArray.cpp,
 	EvalExpr.h,
