@@ -3106,7 +3106,7 @@ void ConsoleOutputDisable(bool disable) {
 	}
 #endif
 }
-
+/*
 String CleanCFromDeclaration(const String &include, bool removeSemicolon) {
 	String str = include;
 	
@@ -3126,16 +3126,16 @@ String CleanCFromDeclaration(const String &include, bool removeSemicolon) {
 		str.Replace(");", ")");
 	
 	return str;
-}
+}*/
 
 String F(const char *s) 	{return s;}
 String F(const Value &v) 	{return v.ToString();}
 
-bool CoutStreamX::noprint = false;
+/*bool CoutStreamX::noprint = false;
 
 Stream& CoutX() {
 	return Single<CoutStreamX>();
-}
+}*/
 
 
 void Grid::ColWidths(const Vector<int> &colWidths) {

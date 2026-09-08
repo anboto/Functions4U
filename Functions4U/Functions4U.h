@@ -1836,8 +1836,8 @@ bool SetConsoleColor(CONSOLE_COLOR color);
 void ConsoleOutputDisable(bool disable);
 
 //String GetPythonDeclaration(const String &name, const String &include);
-String CleanCFromDeclaration(const String &include, bool removeSemicolon = true);
-
+//String CleanCFromDeclaration(const String &include, bool removeSemicolon = true);
+/*
 class CoutStreamX : public Stream {
 public:
 	static void NoPrint(bool set = true) {noprint = set;}	
@@ -1887,7 +1887,7 @@ private:
 };
 
 Stream& CoutX();
-
+*/
 template <class T>
 String LoadFromJsonError(T& var, const char *json) {
 	if (json[0] == '\0')
