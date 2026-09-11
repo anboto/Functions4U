@@ -769,25 +769,26 @@ bool LocalProcess2::GetMemory(uint64 &total, uint64 &ram, int &paging_s) {
 		return false;	
 	
 	total = ram = 0;
-	uint64 faultsC = 0;
+	uint64 faults = 0;
 	Vector<DWORD> children = GetChildProcessList(dwProcessId);
 	for (const DWORD &child : children) {
 		uint64 t, r, f;
 		if (GetProcessMemoryUsage(child, t, r, f)) {
 			total += t;
 			ram += r;
-			faultsC += f;
+			faults += f;
 		}
 	}
     Time actual = GetSysTime();
-	if (IsNull(timeFaultsPrev))
+    int delta = actual - timeFaultsPrev;
+	if (IsNull(timeFaultsPrev) || delta == 0)
 		paging_s = 0;
-	else {
-		int delta = actual - timeFaultsPrev;
-        paging_s = delta > 0 ? int((faultsC - faultsPrev)/delta) : 0;
-	}	
+	else if (faults >= faultsPrev)
+        paging_s = int((faults - faultsPrev)/delta);
+	else
+		paging_s = int((faults + (0xFFFFFFFF - faultsPrev) + 1)/delta);
     timeFaultsPrev = actual;
-	faultsPrev = faultsC;
+	faultsPrev = faults;
 	
 	return true;
 }
