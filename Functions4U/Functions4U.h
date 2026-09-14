@@ -1835,59 +1835,8 @@ enum CONSOLE_COLOR {
 bool SetConsoleColor(CONSOLE_COLOR color);
 void ConsoleOutputDisable(bool disable);
 
-//String GetPythonDeclaration(const String &name, const String &include);
-//String CleanCFromDeclaration(const String &include, bool removeSemicolon = true);
-/*
-class CoutStreamX : public Stream {
-public:
-	static void NoPrint(bool set = true) {noprint = set;}	
-	
-private:
-	String buffer;
-	static bool noprint;
+String CleanCFromDeclaration(const String &include, bool removeSemicolon = true);
 
-	virtual void Flush() {
-#ifdef PLATFORM_POSIX
-		fflush(stdout);
-#else
-		ONCELOCK {
-			SetConsoleOutputCP(65001); // set console to UTF8 mode
-		}
-		static HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-		dword dummy;
-		WriteFile(h, ~buffer, (DWORD)buffer.GetCount(), &dummy, NULL);
-		buffer.Clear();
-#endif	
-	}
-
-	void Put0(int w) {
-#ifdef PLATFORM_WIN32
-		buffer.Cat(w);
-		if(CheckUtf8(buffer) || buffer.GetCount() > 8)
-			Flush();
-#else
-		putchar(w);
-#endif
-	}
-	virtual void    _Put(int w) {
-		if (noprint)
-			return;
-		if(w == '\n') {
-#ifdef PLATFORM_WIN32
-			Put0('\r');
-#endif
-			Put0('\n');
-			Put0('>');
-		}
-		else
-		if(w != '\r')
-			Put0(w);
-	}
-	virtual   bool  IsOpen() const { return true; }
-};
-
-Stream& CoutX();
-*/
 template <class T>
 String LoadFromJsonError(T& var, const char *json) {
 	if (json[0] == '\0')

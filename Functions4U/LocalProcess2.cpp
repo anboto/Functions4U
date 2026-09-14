@@ -780,7 +780,7 @@ bool LocalProcess2::GetMemory(uint64 &total, uint64 &ram, int &paging_s) {
 		}
 	}
     Time actual = GetSysTime();
-    int delta = actual - timeFaultsPrev;
+    int64 delta = actual - timeFaultsPrev;
 	if (IsNull(timeFaultsPrev) || delta == 0)
 		paging_s = 0;
 	else if (faults >= faultsPrev)
