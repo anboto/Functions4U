@@ -544,6 +544,19 @@ inline T Product(const Vector<T>& list) {
     return p;
 }
 
+template<typename Target, typename Source>
+constexpr bool InRange(Source value) {
+    static_assert(std::is_arithmetic_v<Target>);
+    static_assert(std::is_arithmetic_v<Source>);
+
+    if constexpr (std::is_floating_point_v<Source>)
+        if (!std::isfinite(value))
+            return false;
+
+    return value >= std::numeric_limits<Target>::lowest() &&
+           value <= std::numeric_limits<Target>::max();
+}
+
 
 Vector<Vector <Value> > ReadCSV(const String &strFile, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);
 Vector<Vector <Value> > ReadCSVFile(const String &fileName, char separator = ',', bool bycols = true, bool removeRepeated = true, char decimalSign = '.', bool onlyStrings = false, int fromRow = 0);

@@ -7,58 +7,12 @@
 
 namespace Upp {
 
-Drawing DrawEquation(const String &str);
-QtfRichObject QtfEquation(const String &str);
-
 Image NativePathIconX(const char *path, bool folder, int flags = 0);
 
 class CParserPlus : public CParser {
 public:
 	explicit CParserPlus(const char *ptr) : CParser(ptr) {}
 	String ReadIdPlus();
-};
-
-class EquationDraw {
-public:
-	EquationDraw();
-	Drawing Exp(CParserPlus& p);
-	
-	static Drawing Text(String text, bool italic = true, int offsetX=0, int offsetY=0, double betw = 1);
-	
-private:
-	String ReplaceSymbols(String var);
-	Drawing Term(CParserPlus& p, bool noBracket = false);	
-	String TermTrig(CParserPlus& p);
-	Drawing Mul(CParserPlus& p);
-	
-private:
-	static Drawing Bracket(Drawing &data);
-	static Drawing Sqrt(Drawing &right);
-	static Drawing Exponent(Drawing &right);
-	static Drawing Der(Drawing &data);
-	static Drawing Abs(Drawing &data);
-	static Drawing Integral(Drawing &data, Drawing &sub, Drawing &sup);
-	static Drawing Summat(Drawing &data, Drawing &sub, Drawing &sup);
-	static Drawing Exp(Drawing &data, Drawing &exp);
-	static Drawing Function(String function, Drawing &content);
-	static Drawing Equal(Drawing &left, Drawing &right);
-	static Drawing NumDenom(Drawing &num, Drawing &denom);
-	
-	static Drawing JoinCenter(Drawing &left, Drawing &right);
-	
-	static Drawing Expression(String str);
-
-private:
-	static Drawing SubSup(Drawing &drwText, Drawing &drwSub, Drawing &drwSup);
-	static Drawing SubSup(String text, String sub, String sup);
-	static Drawing SubSup(Drawing &drwText, String sub, String sup);
-	static Drawing SubSupInv(Drawing &drwText, Drawing &drwSub, Drawing &drwSup);
-	static Drawing SubSupInv(String text, String sub, String sup);
-	static Drawing SubSupInv(Drawing &drwText, String sub, String sup);
-	static Drawing JoinFlex(Drawing &left, double betw1, Drawing &right, double betw2);
-	
-private:
-	VectorMap<String, String> symbols;
 };
 
 bool SaveImage(const Image &img, int qualityBpp, const String &fileName, String ext = "");
