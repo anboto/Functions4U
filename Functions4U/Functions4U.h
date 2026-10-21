@@ -15,6 +15,7 @@
 #include "LocalProcess2.h"
 #include <random>
 
+#define gaIE(text)  { LNGC_('G','A','I','E', CHARSET_UTF8), text },
 
 namespace Upp {
 
