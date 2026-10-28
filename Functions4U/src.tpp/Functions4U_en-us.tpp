@@ -50,6 +50,12 @@ onst]_[@(0.0.255) char]_`*[*@3 filename], [@(0.0.255) const]_[@(0.0.255) char]_`
 [s2; Returns true in case of success.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:operator`/`(const String`&`,const String`&`):%- String 
+operator[@(0.0.255) /]([@(0.0.255) const] String[@(0.0.255) `&] folder, 
+[@(0.0.255) const] String[@(0.0.255) `&] file)&]
+[s2; Appends folder and file as a path.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:AppendFileNameX`(T`,Args`.`.`.args`):%- [@(0.0.255) template]_<[@(0.0.255) ty
 pename]_[*@4 T], [@(0.0.255) typename...]_[*@4 Args]>_[_^Upp`:`:String^ String]_[* AppendFi
 leNameX]([*@4 T]_[*@3 t], [*@4 Args][@(0.0.255) ...]_args)&]

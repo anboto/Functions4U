@@ -47,7 +47,7 @@ int64 FindStringInFile(const char *file, const String text, int64 pos0 = 0);
 bool FileStrAppend(const char *file, const char *str);
 bool AppendFile(const char *filename, const char *str);
 
-template<typename T>
+/*template<typename T>
 String AppendFileNameX(const T &t) {
     return t;
 }
@@ -57,7 +57,11 @@ String AppendFileNameX(const T &t, Args... args) {
     return AppendFileName(t, AppendFileNameX(args...));
 }
 
-#define AFX AppendFileNameX
+#define AFX AppendFileNameX */
+
+inline Upp::String operator/(const Upp::String& folder, const Upp::String& file) {
+    return Upp::AppendFileName(folder, file);
+}
 
 inline String Trim(const String& s)   {return TrimBoth(s);}
 
@@ -182,7 +186,7 @@ public:
 	Vector<String> &GetLastError()	{return errorList;};
 	int Find(String &relFileName, String &fileName, bool isFolder);
 	int Find(FileDataArray &data, int id);
-	String FullFileName(int i)		{return AppendFileNameX(basePath, fileList[i].fileName);};
+	String FullFileName(int i)		{return basePath / fileList[i].fileName;};
 	bool SaveFile(const char *fileName);
 	bool AppendFile(const char *fileName);
 	bool LoadFile(const char *fileName);

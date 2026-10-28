@@ -126,10 +126,10 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 	String dir = pick(list[list.size()-1]);
 	list.Remove(list.size()-1);  
 	
-	if (ff.Search(AppendFileNameX(dir, condFile))) {
+	if (ff.Search(dir / condFile)) {
 		do {
 			if (files && ff.IsFile()) {
-				String p = AppendFileNameX(dir, ff.GetName());
+				String p = dir / ff.GetName();
 				//if (ff.IsSymLink()) { 
 				//	p = p;
 				//}	
@@ -167,16 +167,16 @@ void FileDataArray::Search_Each(Vector<String> &list, const String &condFile, bo
 						}
 						fclose(fp);
 					} else
-						errorList.Add(AppendFileNameX(dir, ff.GetName()) + String(": ") + t_("Impossible to open file"));
+						errorList.Add(dir / ff.GetName() + String(": ") + t_("Impossible to open file"));
 				}
 			} 
 		} while (ff.Next()); 
 	}
-	if (ff.Search(AppendFileNameX(dir, "*"))) {
+	if (ff.Search(dir / "*")) {
 		do {
 			String name = ff.GetName();
 			if(folders && ff.IsDirectory() && name != "." && name != "..") {
-				String p = AppendFileNameX(dir, name);
+				String p = dir / name;
 				fileList << FileData(true, name, GetRelativePath(dir), 0, ff.GetLastWriteTime(), 0);
 				folderCount++;
 				if (recurse)
@@ -500,14 +500,14 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 		}
 		bool cont = true;
 		if (master[i].isFolder) {
-			String fullfolder = AppendFileNameX(folderFrom, master[i].relFilename, master[i].fileName);
+			String fullfolder = folderFrom / master[i].relFilename / master[i].fileName;
 			for (int iex = 0; iex < excepFolders.size(); ++iex)
 				if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {// Subfolders included
 					cont = false;
 					break;
 				}
 		} else {
-			String fullfolder = AppendFileNameX(folderFrom, master[i].relFilename);
+			String fullfolder = folderFrom / master[i].relFilename;
 			for (int iex = 0; iex < excepFolders.size(); ++iex)
 				if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 					cont = false;
@@ -574,14 +574,14 @@ bool FileDiffArray::Compare(FileDataArray &master, FileDataArray &secondary, con
 		if (!secReviewed[i]) {
 			bool cont = true;
 			if (secondary[i].isFolder) {
-				String fullfolder = AppendFileNameX(folderFrom, secondary[i].relFilename, secondary[i].fileName);
+				String fullfolder = folderFrom / secondary[i].relFilename / secondary[i].fileName;
 				for (int iex = 0; iex < excepFolders.size(); ++iex)
 					if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 						cont = false;
 						break;
 					}
 			} else {
-				String fullfolder = AppendFileNameX(folderFrom, secondary[i].relFilename);
+				String fullfolder = folderFrom / secondary[i].relFilename;
 				for (int iex = 0; iex < excepFolders.size(); ++iex)
 					if (PatternMatch(excepFolders[iex] + "*", fullfolder)) {
 						cont = false;
@@ -616,7 +616,7 @@ bool FileDiffArray::Apply(String toFolder, String fromFolder, EXT_FILE_FLAGS fla
 {
 	for (int i = 0; i < diffList.GetCount(); ++i) {
 		bool ok = true;
-		String dest = AppendFileNameX(toFolder, diffList[i].relPath, diffList[i].fileName);		
+		String dest = toFolder / diffList[i].relPath / diffList[i].fileName;		
 		if (diffList[i].action == 'u' || diffList[i].action == 'd') {
 			if (diffList[i].isFolder) {
 				if (DirectoryExists(dest)) {
@@ -648,7 +648,7 @@ bool FileDiffArray::Apply(String toFolder, String fromFolder, EXT_FILE_FLAGS fla
 						ok = false;
 				}
 				if (ok) {
-					ok = FileCopy(AppendFileNameX(fromFolder, FormatInt(i)), dest);
+					ok = FileCopy(fromFolder / FormatInt(i), dest);
 					diffList[i].tSecondary = diffList[i].tMaster;
 				}
 			}

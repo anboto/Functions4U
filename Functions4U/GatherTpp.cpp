@@ -73,20 +73,20 @@ struct ScanTopicIterator : RichText::Iterator {
 
 void GatherTpp::GatherRefLinks(const char *upp)
 {
-	for(FindFile pff(AppendFileNameX(upp, "*.*")); pff; pff.Next()) {
+	for(FindFile pff(F(upp) / "*.*"); pff; pff.Next()) {
 		if(pff.IsFolder()) {
 			String package = pff.GetName();
-			String pdir = AppendFileNameX(upp, package);
+			String pdir = upp / package;
 			TopicLink tl;
 			tl.package = package;
-			for(FindFile ff(AppendFileNameX(pdir, "*.tpp")); ff; ff.Next()) {
+			for(FindFile ff(pdir / "*.tpp"); ff; ff.Next()) {
 				if(ff.IsFolder()) {
 					String group = GetFileTitle(ff.GetName()	);
 					tl.group = group;
-					String _dir = AppendFileNameX(pdir, ff.GetName());
-					for(FindFile ft(AppendFileNameX(dir, "*.tpp")); ft; ft.Next()) {
+					String _dir = pdir / ff.GetName();
+					for(FindFile ft(dir / "*.tpp"); ft; ft.Next()) {
 						if(ft.IsFile()) {
-							String path = AppendFileNameX(_dir, ft.GetName());
+							String path = _dir / ft.GetName();
 							tl.topic = GetFileTitle(ft.GetName());
 							String link = TopicLinkString(tl);
 							ScanTopicIterator sti(&reflink);
@@ -250,19 +250,19 @@ void GatherTpp::ExportPage(int i, String htmlFolder, String _keywords)
 	    .BgColor(bg)
 	    .Alink(Red).Link(Black).Vlink(Blue)
 	    / html;
-	SaveFile(AppendFileNameX(htmlFolder, links[i]), ~content);
+	SaveFile(htmlFolder / links[i], ~content);
 }
 
 String GatherTpp::TopicFileName(const char *topic)
 {
 	TopicLink tl = ParseTopicLink(topic);
-	String file = AppendFileNameX(dir, tl.group + ".tpp", tl.topic + ".tpp");
+	String file = dir / tl.group + ".tpp" / tl.topic + ".tpp";
 	if (FileExists(file))
 		return file;
 		
 	for (int i = 0; i < rootFolders.GetCount(); ++i) {
 		if (rootFolders[i] != dir) {
-			file = AppendFileNameX(rootFolders[i], tl.package, tl.group + ".tpp", tl.topic + ".tpp");
+			file = rootFolders[i] / tl.package / tl.group + ".tpp" / tl.topic + ".tpp";
 			if (FileExists(file))
 				return file;		
 		}

@@ -410,7 +410,7 @@ String GetAbsolutePath(String from, String relative) {
 		} else
 			break;
 	}
-	return AppendFileNameX(from, relative);
+	return from / relative;
 }
 
 bool SetReadOnly(const char *path, bool readOnly) {
@@ -500,7 +500,7 @@ String GetMountDirectory(const String &path) {
 		if (path.Find(drives[i]) == 0)
 			return drives[i];
 	}
-	String localPath = AppendFileNameX(GetCurrentDirectory(), path);
+	String localPath = GetCurrentDirectory() / path;
 	if (!FileExists(localPath) && !DirectoryExists(localPath))
 		return "";
 	for (int i = 0; i < drives.GetCount(); ++i) {
@@ -514,15 +514,15 @@ String GetTrashBinDirectory()
 {	
 	String ret = GetEnv("XDG_DATA_HOME");
 	if (ret.IsEmpty())
-		ret = AppendFileNameX(GetHomeDirectory(), ".local/share/Trash");
+		ret = GetHomeDirectory() / ".local/share/Trash";
 	else
-		ret = AppendFileNameX(ret, "Trash");
+		ret = ret / "Trash";
 	return ret;
 }
 
 bool FileToTrashBin(const char *path)
 {	
-	String newPath = AppendFileNameX(GetTrashBinDirectory(), GetFileName(path));
+	String newPath = GetTrashBinDirectory() / GetFileName(path);
 	return FileMove(path, newPath);
 }
 
@@ -530,7 +530,7 @@ int64 TrashBinGetCount()
 {
 	int64 ret = 0;
 	FindFile ff;
-	if(ff.Search(AppendFileNameX(GetTrashBinDirectory(), "*"))) {
+	if(ff.Search(GetTrashBinDirectory() / "*")) {
 		do {
 			String name = ff.GetName();
 			if (name != "." && name != "..")
@@ -544,11 +544,11 @@ bool TrashBinClear()
 {
 	FindFile ff;
 	String trashBinDirectory = GetTrashBinDirectory();
-	if(ff.Search(AppendFileNameX(trashBinDirectory, "*"))) {
+	if(ff.Search(trashBinDirectory / "*")) {
 		do {
 			String name = ff.GetName();
 			if (name != "." && name != "..") {
-				String path = AppendFileNameX(trashBinDirectory, name);
+				String path = trashBinDirectory / name;
 				if (ff.IsFile())
 					FileDelete(path);
 				else if (ff.IsDirectory()) {
@@ -744,7 +744,7 @@ void AddUninstallRegistryEntries(Array<SoftwareDetails>& out, HKEY root,
         if (RegEnumKeyEx(hRoot, idx, keyName, &len, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
             break;
 
-        String fullKey = AppendFileName(path, keyName);
+        String fullKey = F(path) / keyName;
         HKEY hApp = NULL;
         if (RegOpenKeyEx(root, fullKey, 0, KEY_READ | accessFlags, &hApp) != ERROR_SUCCESS)
             continue;
@@ -944,7 +944,7 @@ String GetExtExecutable(const String _ext)
 	if (ext[0] != '.')
 		ext = String(".") + ext;
 #if defined(PLATFORM_WIN32) || defined (PLATFORM_WIN64)
-	String file = AppendFileNameX(GetHomeDirectory(), String("dummy") + ext); // Required by FindExecutableW
+	String file = GetHomeDirectory() / F("dummy") + ext; // Required by FindExecutableW
 	SaveFile(file, "   ");
 	if (!FileExists(file)) 
 		return "";
@@ -1090,11 +1090,11 @@ bool SetEnv(const char *id, const char *val)
 String GetPathXdg2(String xdgConfigHome, String xdgConfigDirs)
 {
 	String ret;
-	if (FileExists(ret = AppendFileNameX(xdgConfigHome, "user-dirs.dirs"))) 
+	if (FileExists(ret = xdgConfigHome / "user-dirs.dirs")) 
 		;
-  	else if (FileExists(ret = AppendFileNameX(xdgConfigDirs, "user-dirs.defaults")))
+  	else if (FileExists(ret = xdgConfigDirs / "user-dirs.defaults"))
   		;
-  	else if (FileExists(ret = AppendFileNameX(xdgConfigDirs, "user-dirs.dirs")))
+  	else if (FileExists(ret = xdgConfigDirs / "user-dirs.dirs"))
   		;
   	return ret;
 }
@@ -1108,9 +1108,9 @@ String GetPathDataXdg2(String fileConfig, const char *folder)
 	String ret = "";
 	StringParse path = fileData.GetText();
 	if(path.GoAfter("$HOME/")) 
-		ret = AppendFileNameX(GetHomeDirectory(), path.Right());
+		ret = GetHomeDirectory() / path.Right();
 	else if (!FileExists(path))
-		ret = AppendFileNameX(GetHomeDirectory(), path);
+		ret = GetHomeDirectory() / path;
 	
 	return ret;		
 }
@@ -1118,7 +1118,7 @@ String GetShellFolder2(const char *local, const char *users)
 {
  	String xdgConfigHome = GetEnv("XDG_CONFIG_HOME");
   	if (xdgConfigHome == "")		// By default
-  		xdgConfigHome = AppendFileNameX(GetHomeDirectory(), ".config");
+  		xdgConfigHome = GetHomeDirectory() / ".config";
   	String xdgConfigDirs = GetEnv("XDG_CONFIG_DIRS");
   	if (xdgConfigDirs == "")			// By default
   		xdgConfigDirs = "/etc/xdg";
@@ -2332,10 +2332,10 @@ bool DeleteDeepWildcardsX(const char *pathwc, bool filefolder, EXT_FILE_FLAGS fl
 
 bool DeleteDeepWildcardsX(const char *path, const char *namewc, bool filefolder, EXT_FILE_FLAGS flags, bool deep)
 {
-	FindFile ff(AppendFileNameX(path, "*.*"));
+	FindFile ff(path / F("*.*"));
 	while(ff) {
 		String name = ff.GetName();
-		String full = AppendFileNameX(path, name);
+		String full = path / name;
 		if (PatternMatch(namewc, name)) {
 			if (ff.IsFolder() && !filefolder) {
 				if (!DeleteFolderDeepX(full, flags)) 
@@ -2376,10 +2376,10 @@ bool DeleteFileWildcardsX(const char *path, EXT_FILE_FLAGS flags)
 
 bool DeleteFolderDeepX_Folder(const char *dir, EXT_FILE_FLAGS flags)
 {
-	FindFile ff(AppendFileNameX(dir, "*.*"));
+	FindFile ff(dir / F("*.*"));
 	while(ff) {
 		String name = ff.GetName();
-		String p = AppendFileNameX(dir, name);
+		String p = dir / name;
 		if(ff.IsFile())
 			FileDeleteX(p, flags);
 		else
@@ -2399,17 +2399,17 @@ bool DeleteFolderDeepX(const char *path, EXT_FILE_FLAGS flags)
 
 bool RenameDeepWildcardsX(const char *path, const char *namewc, const char *newname, bool forfile, bool forfolder, EXT_FILE_FLAGS flags)
 {
-	FindFile ff(AppendFileNameX(path, "*.*"));
+	FindFile ff(path / F("*.*"));
 	while(ff) {
 		String name = ff.GetName();
-		String full = AppendFileNameX(path, name);
+		String full = path / name;
 		if(ff.IsFolder()) {
 			if (!RenameDeepWildcardsX(full, namewc, newname, forfile, forfolder, flags))
 				return false;
 		}
 		if (PatternMatch(namewc, name)) {
 			if ((ff.IsFolder() && forfolder) || (ff.IsFile() && forfile)) {
-				if (!FileMoveX(full, AppendFileNameX(path, newname), flags)) 
+				if (!FileMoveX(full, F(path) / newname, flags)) 
 					return false;
 			}
 		}
@@ -2420,15 +2420,15 @@ bool RenameDeepWildcardsX(const char *path, const char *namewc, const char *newn
 
 void DirectoryCopy_Each(const char *dir, const char *newPlace, String relPath, bool replaceOnlyNew, String filesToExclude, String &errorList)
 {
-	String dirPath = AppendFileNameX(dir, relPath);
-	String newPath = AppendFileNameX(newPlace, relPath);
+	String dirPath = dir / relPath;
+	String newPath = newPlace / relPath;
 	LOG(dirPath);
 	LOG(newPath);
-	LOG (AppendFileNameX(dirPath, "*.*"));
-	FindFile ff(AppendFileNameX(dirPath, "*.*"));
+	LOG (dirPath / "*.*");
+	FindFile ff(dirPath / "*.*");
 	while(ff) { 
 		String name = ff.GetName();
-		String newFullPath = AppendFileNameX(newPath, name);
+		String newFullPath = newPath / name;
 		if(ff.IsFile()) {
 			bool copy = !replaceOnlyNew;
 			if (replaceOnlyNew) {
@@ -2447,7 +2447,7 @@ void DirectoryCopy_Each(const char *dir, const char *newPlace, String relPath, b
 				if (!DirectoryCreate(newFullPath))
 					errorList << "\n" << F(t_("Impossible to create directory '%s': %s"), newFullPath, GetLastErrorMessage());
 			}
-			DirectoryCopy_Each(dir, newPlace, AppendFileNameX(relPath, name), replaceOnlyNew, filesToExclude, errorList);
+			DirectoryCopy_Each(dir, newPlace, relPath / name, replaceOnlyNew, filesToExclude, errorList);
 		}
 		ff.Next();
 	}
@@ -2461,7 +2461,7 @@ void DirectoryCopyX(const char *dir, const char *newPlace, bool replaceOnlyNew, 
 }
 
 bool FolderIsEmpty(const char *path) {
-	FindFile ff(AppendFileNameX(path, "*.*"));
+	FindFile ff(path / F("*.*"));
 	while(ff) {
 		if(ff.IsFile() || ff.IsFolder())
 			return false;
@@ -2575,10 +2575,10 @@ void SearchFile_Each(String dir, const Vector<String> &condFiles, const Vector<S
 								 const Vector<String> &extFiles,  const Vector<String> &extFolders, 
 								 const String text, Vector<String> &files, Vector<String> &errorList) {
 	FindFile ff;
-	if (ff.Search(AppendFileNameX(dir, "*"))) {
+	if (ff.Search(dir / "*")) {
 		do {
 			if(ff.IsFile()) {
-				String name = AppendFileNameX(dir, ff.GetName());
+				String name = dir / ff.GetName();
 				if (MatchPathName(ff.GetName(), condFiles, extFiles)) {
 					if (text.IsEmpty())
 						files.Add(name);
@@ -2586,8 +2586,7 @@ void SearchFile_Each(String dir, const Vector<String> &condFiles, const Vector<S
 						switch(FindStringInFile(name, text)) {
 						case 1:	files.Add(name);
 								break;
-						case -1:errorList.Add(AppendFileNameX(dir, ff.GetName()) + String(": ") + 
-																	t_("Impossible to open file"));
+						case -1:errorList.Add(dir / ff.GetName() + String(": ") + t_("Impossible to open file"));
 								break;
 						}
 					}
@@ -2595,7 +2594,7 @@ void SearchFile_Each(String dir, const Vector<String> &condFiles, const Vector<S
 			} else if(ff.IsDirectory()) {
 				String folder = ff.GetName();
 				if (folder != "." && folder != "..") {
-					String name = AppendFileNameX(dir, folder);
+					String name = dir / folder;
 					if (MatchPathName(name, condFolders, extFolders)) 
 						SearchFile_Each(name, condFiles, condFolders, extFiles, extFolders, text, files, errorList);
 				}

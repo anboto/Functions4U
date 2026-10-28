@@ -100,11 +100,11 @@ void FilesDemo() {
 	}
 	UppLog() << "\n";
 	
-	String filename1 = AppendFileNameX(GetExeFolder(), "Demo", "file1.txt");
+	String filename1 = GetExeFolder() / "Demo" / "file1.txt";
 	RealizePath(filename1);
 	String str1 = "This is the First string";
 	SaveFile(filename1, str1);
-	String filename2 = AppendFileNameX(GetExeFolder(), "Demo", "file2.txt");
+	String filename2 = GetExeFolder() / "Demo" / "file2.txt";
 	String str2 = "This is the Second string";
 	SaveFile(filename2, str2);
 	
@@ -265,17 +265,6 @@ void MiscellaneousDemos() {
             UppLog() << F(". Cleaned: \"%s\"", CleanThousands(tests_comma[i], ','));
     }
     
-
-/*	UppLog() << "\nIsNull() testing\n";
-	{
-		float f = Null;
-		double d = f;
-		float f2 = d;
-		VERIFY(IsNull(f));
-		VERIFY(IsNull(d));
-		VERIFY(IsNull(f2));
-	}*/
-	
 	UppLog() << "\nNaN testing\n";
 
 	int n = Null;
@@ -321,6 +310,16 @@ void MiscellaneousDemos() {
 	printf("Text with printf()\n");
 	ConsoleOutputDisable(false);
 	UppLog() << "Text messages are now enabled\n";
+	
+	
+	UppLog() << "\nOperator / to replace AppendFileName()\n";
+	String path1 = F("Folder1") / "Folder2" / "file";
+	VERIFY(path1 == AppendFileName(AppendFileName("Folder1", "Folder2"), "file"));
+	String path2 = "Folder" / F("file") + ".txt";
+	VERIFY(path2 == AppendFileName("Folder", "file.txt"));
+	String path3;
+	path3 << "Folder1" / F("Folder") + "2" / F("file");
+	VERIFY(path3 == AppendFileName(AppendFileName("Folder1", "Folder2"), "file"));
 }
 
 CONSOLE_APP_MAIN
